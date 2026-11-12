@@ -1,0 +1,1 @@
+{"runner":{"max_bars_hold":60,"position_aware":true,"signal_source":"public_ohlcv","stop_loss_pct":0.03,"strategy_id":"mean_reversion_rsi","take_profit_pct":0.06,"timeframe":"1h","trailing_stop_pct":0.02},"strategy":{"name":"mean_reversion_rsi","trade_enabled":true},"type":"runner_settings","version":2}

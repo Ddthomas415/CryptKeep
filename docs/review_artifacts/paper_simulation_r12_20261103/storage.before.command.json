@@ -1,0 +1,16 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/before_storage_probe.py"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "CBP_STATE_DIR": "/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/r12-before-hhps8zxd",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+  },
+  "wrapper_exit_code": 0,
+  "expected_pytest_exit_code": 1
+}

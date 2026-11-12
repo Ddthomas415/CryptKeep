@@ -1,0 +1,17 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "-c",
+    "from pathlib import Path\nfrom services.strategies import signal_input_capture as capture\nsource=Path(\"docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__signal_input_capture.py.submitted\")\nexec(compile(source.read_bytes(), str(source), \"exec\"), capture.__dict__)\nimport pytest\nresult=pytest.main([\"-q\",\"-p\",\"no:cacheprovider\",\"tests/test_runner_decision_capture.py\",\"-k\",\"active_runner_alias_change or explicit_active_caller\",\"--tb=short\",\"--junitxml=docs/review_artifacts/paper_simulation_r6r9_20261103/correction.before.xml\"])\nraise SystemExit(result)\n"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "CBP_STATE_DIR": "/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/cbp-fingerprint-before-b93vu9vy"
+  },
+  "exit_code": 1,
+  "scope": "offline process-only initial submitted capture override; no source files replaced"
+}

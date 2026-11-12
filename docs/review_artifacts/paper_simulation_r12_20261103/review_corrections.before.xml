@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.653" timestamp="2026-11-03T01:04:00.007759-05:00" hostname="MacBook-Pro"><testcase classname="tests.test_pending_paper_exit_integration" name="test_reconciler_never_completes_root_from_unverified_link[unrelated-buy]" time="0.161"><failure message="AssertionError: assert 'filled' == 'held'&#10;  &#10;  - held&#10;  + filled">E   AssertionError: assert 'filled' == 'held'
+      
+      - held
+      + filled</failure></testcase><testcase classname="tests.test_pending_paper_exit_integration" name="test_reconciler_never_completes_root_from_unverified_link[filled-without-receipt]" time="0.082"><failure message="AssertionError: assert 'filled' == 'held'&#10;  &#10;  - held&#10;  + filled">E   AssertionError: assert 'filled' == 'held'
+      
+      - held
+      + filled</failure></testcase><testcase classname="tests.test_pending_paper_exit_integration" name="test_optional_strategy_is_preserved_through_prepare_and_fill" time="0.048"><failure message="AssertionError: assert '' is None">E   AssertionError: assert '' is None</failure></testcase><testcase classname="tests.test_pending_paper_exit_integration" name="test_router_and_execution_share_bounded_attempt_size[False]" time="0.049"><failure message="assert [0.5] == [0.3 ± 3.0e-07]&#10;  &#10;  At index 0 diff: 0.5 != 0.3 ± 3.0e-07&#10;  Use -v to get more diff">E   assert [0.5] == [0.3 ± 3.0e-07]
+      
+      At index 0 diff: 0.5 != 0.3 ± 3.0e-07
+      Use -v to get more diff</failure></testcase><testcase classname="tests.test_pending_paper_exit_integration" name="test_router_and_execution_share_bounded_attempt_size[True]" time="0.054"><failure message="assert [0.5] == [0.3 ± 3.0e-07]&#10;  &#10;  At index 0 diff: 0.5 != 0.3 ± 3.0e-07&#10;  Use -v to get more diff">E   assert [0.5] == [0.3 ± 3.0e-07]
+      
+      At index 0 diff: 0.5 != 0.3 ± 3.0e-07
+      Use -v to get more diff</failure></testcase></testsuite></testsuites>

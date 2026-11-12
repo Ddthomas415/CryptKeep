@@ -1,0 +1,292 @@
+--- before/services/market_data/tick_reader.py
++++ after/services/market_data/tick_reader.py
+@@ -2,6 +2,7 @@
+ import json
+ from typing import Optional, Tuple
+ from services.os.app_paths import runtime_dir
++from services.market_data.symbol_router import normalize_symbol
+ 
+ LATEST = runtime_dir() / "snapshots" / "system_status.latest.json"
+ 
+@@ -11,12 +12,13 @@
+     if not isinstance(ticks, list):
+         return None
+     v = str(venue).lower().strip()
+-    s = str(symbol).strip()
++    # Same spelling rule the publisher writes ticks with (case, dash or slash).
++    s = normalize_symbol(str(symbol))
+     best = None
+     for t in ticks:
+         if not isinstance(t, dict):
+             continue
+-        if str(t.get("venue", "")).lower().strip() == v and str(t.get("symbol", "")).strip() == s:
++        if str(t.get("venue", "")).lower().strip() == v and normalize_symbol(str(t.get("symbol", ""))) == s:
+             best = t
+     if not best:
+         return None
+@@ -28,29 +30,18 @@
+     }
+ 
+ 
+-def _from_venues_snapshot(snap: dict, venue: str) -> Optional[dict]:
+-    venues = snap.get("venues") if isinstance(snap, dict) else None
+-    if not isinstance(venues, dict):
+-        return None
+-    row = venues.get(str(venue).lower().strip())
+-    if not isinstance(row, dict):
+-        return None
+-    return {
+-        "ts_ms": int(snap.get("ts_ms") or row.get("timestamp") or 0),
+-        "bid": row.get("bid"),
+-        "ask": row.get("ask"),
+-        "last": row.get("last"),
+-    }
++def get_best_bid_ask_last(venue: str, symbol: str) -> Optional[dict]:
++    """Latest snapshot quote for exactly this venue and symbol, or None.
+ 
+-def get_best_bid_ask_last(venue: str, symbol: str) -> Optional[dict]:
++    The snapshot's venue-level row is the quote of whichever symbol was
++    fetched first for that venue. It is never returned here: a symbol with no
++    tick of its own has no quote.
++    """
+     try:
+         if not LATEST.exists():
+             return None
+         snap = json.loads(LATEST.read_text(encoding="utf-8"))
+-        best = _from_ticks_snapshot(snap, venue, symbol)
+-        if best is not None:
+-            return best
+-        return _from_venues_snapshot(snap, venue)
++        return _from_ticks_snapshot(snap, venue, symbol)
+     except Exception:
+         return None
+ 
+--- before/services/execution/paper_engine.py
++++ after/services/execution/paper_engine.py
+@@ -139,7 +139,13 @@
+             return q
+         if not self.cfg["use_ccxt_fallback"]:
+             return None
+-        ex = make_exchange(str(venue).lower().strip(), {"apiKey": None, "secret": None}, enable_rate_limit=True)
++        # A symbol with no snapshot tick reaches this fetch routinely; a
++        # failed fetch means no price, not a crashed paper loop.
++        try:
++            ex = make_exchange(str(venue).lower().strip(), {"apiKey": None, "secret": None}, enable_rate_limit=True)
++        except Exception as exc:
++            _LOG.warning("paper price fetch unavailable for %s %s: %s", venue, symbol, type(exc).__name__)
++            return None
+         try:
+             t = ex.fetch_ticker(symbol)
+             return {
+@@ -148,6 +154,9 @@
+                 "ask": t.get("ask"),
+                 "last": t.get("last"),
+             }
++        except Exception as exc:
++            _LOG.warning("paper price fetch failed for %s %s: %s", venue, symbol, type(exc).__name__)
++            return None
+         finally:
+             try:
+                 if hasattr(ex, "close"):
+--- before/tests/test_market_snapshot_readers.py
++++ after/tests/test_market_snapshot_readers.py
+@@ -20,7 +20,8 @@
+ 
+ 
+ 
+-def test_tick_reader_supports_venues_snapshot_shape(monkeypatch, tmp_path):
++def test_tick_reader_does_not_price_a_symbol_from_the_venue_level_row(monkeypatch, tmp_path):
++    # This row has no symbol identity; it cannot price an arbitrary request.
+     snap = tmp_path / "system_status.latest.json"
+     snap.write_text(
+         json.dumps(
+@@ -43,8 +44,7 @@
+ 
+     out = tick_reader.get_best_bid_ask_last("coinbase", "BTC/USD")
+ 
+-    assert out == {"ts_ms": 123456, "bid": 100.0, "ask": 102.0, "last": 101.0}
+-    assert tick_reader.mid_price(out) == 101.0
++    assert out is None
+ 
+ 
+ 
+--- before/tests/test_tick_reader_exact_symbol.py
++++ after/tests/test_tick_reader_exact_symbol.py
+@@ -0,0 +1,177 @@
++"""Current-caller regression for reviewed October 0010; no network or private config."""
++import ast
++import importlib.util
++import json
++import os
++import time
++from pathlib import Path
++from types import SimpleNamespace
++
++import pytest
++
++from services.market_data import tick_reader
++
++
++@pytest.fixture
++def snapshot(monkeypatch, tmp_path):
++    path = tmp_path / "snapshot.json"
++    now = int(time.time() * 1000)
++    path.write_text(json.dumps({"ts_ms": now,
++        "venues": {"coinbase": {"bid": 99, "ask": 101, "last": 100, "timestamp": now}},
++        "ticks": [{"venue": "coinbase", "symbol": "BTC/USDT", "bid": 99, "ask": 101, "last": 100, "ts_ms": now}]}))
++    getter = tick_reader.get_best_bid_ask_last
++    if os.getenv("CBP_R4_BEFORE_ROOT"):
++        before = Path(os.environ["CBP_R4_BEFORE_ROOT"]) / "services/market_data/tick_reader.py"
++        spec = importlib.util.spec_from_file_location("r4_before_reader", before)
++        module = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(module)
++        module.LATEST = path
++        getter = module.get_best_bid_ask_last
++    monkeypatch.setattr(tick_reader, "LATEST", path)
++    monkeypatch.setattr(tick_reader, "get_best_bid_ask_last", getter)
++    return SimpleNamespace(path=path, now=now, getter=getter)
++
++
++def test_exact_quote(snapshot):
++    assert snapshot.getter("coinbase", "BTC/USDT") == {"ts_ms": snapshot.now, "bid": 99, "ask": 101, "last": 100}
++
++
++@pytest.mark.parametrize("symbol", ["ADA/USD", "BTC/USD", "BTC/USDC", "ADA/EUR", "BTCUSDT", "USDT/BTC"])
++def test_wrong_symbol_never_borrows_venue_quote(snapshot, symbol):
++    assert snapshot.getter("coinbase", symbol) is None
++
++
++@pytest.mark.parametrize("spelling", ["btc/usdt", " BTC-USDT ", "btc-usdt"])
++def test_publisher_spelling_rule_is_reused(snapshot, spelling):
++    # No venue fallback is available to disguise a failed normalization.
++    payload = json.loads(snapshot.path.read_text())
++    payload.pop("venues")
++    snapshot.path.write_text(json.dumps(payload))
++    assert snapshot.getter("COINBASE", spelling)["bid"] == 99
++
++
++@pytest.mark.parametrize("ticks", [None, [], "invalid"])
++def test_venue_only_or_invalid_tick_list_cannot_price_symbol(snapshot, ticks):
++    payload = json.loads(snapshot.path.read_text())
++    payload["ticks"] = ticks
++    snapshot.path.write_text(json.dumps(payload))
++    assert snapshot.getter("coinbase", "BTC/USDT") is None
++
++
++@pytest.mark.parametrize("index", range(25))
++def test_each_of_twenty_five_published_symbols_gets_its_own_quote(snapshot, index):
++    ticks = [{"venue": "coinbase", "symbol": f"S{i}/USD", "bid": i + 1, "ask": i + 2,
++              "last": i + 1.5, "ts_ms": snapshot.now} for i in range(25)]
++    snapshot.path.write_text(json.dumps({"venues": {"coinbase": {"bid": -999}}, "ticks": ticks}))
++    assert snapshot.getter("coinbase", f"s{index}-usd")["last"] == index + 1.5
++
++
++def test_other_venue_and_broken_or_missing_snapshot_get_no_quote(snapshot):
++    assert snapshot.getter("kraken", "BTC/USDT") is None
++    snapshot.path.write_text("{broken")
++    assert snapshot.getter("coinbase", "BTC/USDT") is None
++    snapshot.path.unlink()
++    assert snapshot.getter("coinbase", "BTC/USDT") is None
++
++
++@pytest.fixture
++def engine(snapshot, monkeypatch, tmp_path):
++    from services.execution import paper_engine
++    import storage.paper_trading_sqlite as store
++    monkeypatch.setattr(store, "DB_PATH", tmp_path / "data" / "paper_trading.sqlite")
++    monkeypatch.setattr(paper_engine, "get_best_bid_ask_last", snapshot.getter)
++    monkeypatch.setattr(paper_engine, "_cfg", lambda: {"starting_cash_quote": 1000, "quote_currency": "USD",
++        "enabled": True, "max_order_qty": 1e9, "fee_bps": 50, "slippage_bps": 0, "use_ccxt_fallback": False})
++    if os.getenv("CBP_R4_BEFORE_ROOT"):
++        before = Path(os.environ["CBP_R4_BEFORE_ROOT"]) / "services/execution/paper_engine.py"
++        tree = ast.parse(before.read_text())
++        cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "PaperEngine")
++        method = next(node for node in cls.body if isinstance(node, ast.FunctionDef) and node.name == "_price")
++        namespace = {}
++        exec(compile(ast.Module(body=[method], type_ignores=[]), str(before), "exec"), paper_engine.__dict__, namespace)
++        monkeypatch.setattr(paper_engine.PaperEngine, "_price", namespace[method.name])
++    eng = paper_engine.PaperEngine()
++    monkeypatch.setattr(eng, "_pre_submit_gate", lambda **kw: (True, None))
++    return eng
++
++
++def test_real_paper_buy_cannot_fill_from_another_symbol(snapshot, engine):
++    result = engine.submit_order(client_order_id="r4-direct", venue="coinbase", symbol="ADA/USD",
++                                 side="buy", order_type="market", qty=1)
++    assert result["ok"]
++    assert engine.evaluate_open_orders()["filled"] == 0
++    assert engine.db.list_fills() == [] and engine.cash_quote() == 1000
++
++
++def test_real_paper_sell_waits_for_its_own_quote_then_fills(snapshot, engine):
++    engine.db.upsert_position("ADA/USD", 1, 50, 0)
++    engine.submit_order(client_order_id="r4-sell", venue="coinbase", symbol="ADA/USD",
++                        side="sell", order_type="market", qty=1)
++    assert engine.evaluate_open_orders()["filled"] == 0
++    assert engine.db.get_position("ADA/USD")["qty"] == 1
++    snapshot.path.write_text(json.dumps({"ticks": [{"venue": "coinbase", "symbol": "ADA/USD",
++        "bid": 2, "ask": 2, "last": 2, "ts_ms": snapshot.now}]}))
++    assert engine.evaluate_open_orders()["filled"] == 1
++    assert engine.db.list_fills()[0]["price"] == 2
++
++
++@pytest.mark.parametrize("failure", ["construction", "fetch"])
++def test_unavailable_exchange_price_is_none_not_a_loop_crash(snapshot, engine, monkeypatch, failure):
++    from services.execution import paper_engine
++    closed = []
++    class Exchange:
++        def fetch_ticker(self, symbol):
++            raise RuntimeError("synthetic fetch failure")
++        def close(self):
++            closed.append(True)
++    def make(*a, **kw):
++        if failure == "construction":
++            raise RuntimeError("synthetic construction failure")
++        return Exchange()
++    monkeypatch.setattr(paper_engine, "make_exchange", make)
++    engine.cfg["use_ccxt_fallback"] = True
++    assert engine._price("coinbase", "ADA/USD") is None
++    assert bool(closed) == (failure == "fetch")
++
++
++def test_exchange_fallback_requests_same_symbol(snapshot, engine, monkeypatch):
++    from services.execution import paper_engine
++    asked = []
++    class Exchange:
++        def fetch_ticker(self, symbol):
++            asked.append(symbol)
++            return {"timestamp": snapshot.now, "bid": 2, "ask": 4, "last": 3}
++        def close(self):
++            pass
++    monkeypatch.setattr(paper_engine, "make_exchange", lambda *a, **kw: Exchange())
++    engine.cfg["use_ccxt_fallback"] = True
++    assert engine._price("coinbase", "ADA/USD")["last"] == 3
++    assert asked == ["ADA/USD"]
++
++
++@pytest.mark.parametrize("side", ["buy", "sell"])
++def test_live_local_gate_has_no_borrowed_price(snapshot, monkeypatch, side):
++    from services.execution import _executor_shared
++    monkeypatch.setattr(_executor_shared, "get_best_bid_ask_last", snapshot.getter)
++    cfg = SimpleNamespace(exchange_id="coinbase", symbol="ADA/USD")
++    assert _executor_shared._local_gate_price(cfg, side=side) is None
++
++
++def test_shadow_does_not_record_a_borrowed_fill(snapshot, monkeypatch):
++    from services.execution import _executor_submit
++    monkeypatch.setattr(_executor_submit, "get_best_bid_ask_last", snapshot.getter)
++    monkeypatch.setattr(_executor_submit, "_shadow_would_be_fill_exists", lambda *a: False)
++    monkeypatch.setattr(_executor_submit, "_evidence_strategy_id_for_shadow", lambda row: "synthetic")
++    cfg = SimpleNamespace(exchange_id="coinbase", symbol="ADA/USD")
++    assert _executor_submit._record_shadow_would_be_fill(cfg, {"intent_id": "r4-shadow", "symbol": "ADA/USD",
++        "side": "buy", "qty": 1}) == "missing_quote"
++
++
++@pytest.mark.parametrize("strict", [False, True])
++def test_unknown_quote_guard_policy_is_not_silently_changed(snapshot, monkeypatch, strict):
++    from services.risk import market_quality_guard
++    monkeypatch.setattr(market_quality_guard, "get_best_bid_ask_last", snapshot.getter)
++    monkeypatch.setattr(market_quality_guard, "_cfg", lambda: {"enabled": True, "symbol_thresholds": {},
++        "max_tick_age_sec": 600, "max_spread_bps": 500, "require_bid_ask": False, "block_when_unknown": strict})
++    result = market_quality_guard.check("coinbase", "ADA/USD")
++    assert result["reason"] == "no_quote_data" and result["ok"] is (not strict)

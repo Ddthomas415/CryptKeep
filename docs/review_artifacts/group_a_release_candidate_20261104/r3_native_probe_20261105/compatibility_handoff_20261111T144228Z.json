@@ -1,0 +1,9 @@
+{
+  "native_session_id": 66754,
+  "receipt": "compatibility_attempt_20261111T144228Z.json",
+  "source_gate": "ACCEPTED_WITH_RISK",
+  "one_connection_only": true,
+  "observed_initial_stages": ["transport_connected", "ssh_authenticated"],
+  "no_authentication_url_observed": true,
+  "service_changes_authorized": false
+}

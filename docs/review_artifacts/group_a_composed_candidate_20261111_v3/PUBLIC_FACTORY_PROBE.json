@@ -1,0 +1,8 @@
+{
+  "client_constructors": 1,
+  "credentials_supplied": false,
+  "factory_sha256": "dae9e79ca7a2fb017e6c8b354b2ba3ef20a802549c9bc743cd25c34045a8e223",
+  "network_calls": 0,
+  "publisher_call_signature_compatible": true,
+  "scope": "synthetic_public_constructor_not_market_or_account_access"
+}

@@ -1,0 +1,36 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__intent_reconciler.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/intent_reconciler.py	2026-11-03 01:00:00
+@@ -10,7 +10,7 @@
+ from storage.trade_journal_sqlite import TradeJournalSQLite
+ from services.execution.state_authority import LiveStateContext, paper_queue_status
+ from services.execution.outcome_logger import log_strategy_outcome
+-from services.execution.paper_exit_retry import has_exit_marker
++from services.execution.paper_exit_retry import has_exit_marker, _prepare
+ from services.os.file_utils import atomic_write
+ from services.control.managed_component import clean_stale_lock_file
+ 
+@@ -160,6 +160,24 @@
+         if not order:
+             continue
+         st = str(order.get("status") or "").lower().strip()
++        if has_exit_marker(it):
++            try:
++                receipt = _prepare(pdb, it)
++                canonical = receipt.get("order")
++                linked_matches = canonical is not None and canonical.get("order_id") == order_id
++                valid = linked_matches and (
++                    (st == "filled" and receipt["state"] == "filled")
++                    or (st == "superseded" and receipt["state"] == "superseded")
++                    or (st in ("new", "rejected", "canceled") and receipt["state"] == "ready")
++                )
++                if not valid:
++                    qdb.paper_exit_transition(it["intent_id"], "held", event="reconcile_unresolved",
++                                              reason="canonical_receipt_mismatch")
++                    continue
++            except Exception as exc:
++                qdb.paper_exit_transition(it["intent_id"], "held", event="reconcile_unresolved",
++                                          reason=type(exc).__name__)
++                continue
+         if st in ("new",):
+             continue
+         if st in ("rejected", "canceled"):

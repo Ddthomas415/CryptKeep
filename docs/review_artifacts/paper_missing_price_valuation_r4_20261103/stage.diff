@@ -1,0 +1,270 @@
+--- before/services/execution/paper_engine.py
++++ after/services/execution/paper_engine.py
+@@ -493,16 +493,55 @@
+         return {"ok": True, "open_orders_seen": len(orders), "filled": n_filled, "rejected": n_rejected, "details_sample": details[:20]}
+ 
+     def mark_to_market(self, venue: str, symbol: str) -> dict:
+-        q = self._price(venue, symbol)
+-        m = mid_price(q) if q else None
+-        cash = self.cash_quote()
+-        realized = self.realized_pnl()
+-        pos = self.db.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0, "realized_pnl": 0.0}
+-        qty = float(pos["qty"])
+-        avg = float(pos["avg_price"])
+-        unreal = 0.0
+-        if m is not None and qty != 0.0:
+-            unreal = (float(m) - avg) * qty
+-        equity = cash + (float(m) * qty if m is not None else 0.0)
++        result = {"ok": False, "valuation_status": "incomplete", "equity_recorded": False,
++                  "venue": venue, "symbol": symbol, "valuation_scope": "requested_symbol_plus_cash",
++                  "cash_quote": None, "equity_quote": None, "unrealized_pnl": None,
++                  "realized_pnl": None, "mid": None}
++
++        def number(value):
++            if isinstance(value, bool):
++                raise ValueError("boolean_number")
++            value = float(value)
++            if not math.isfinite(value):
++                raise ValueError("nonfinite_number")
++            return value
++
++        try:
++            cash = number(self.db.get_state("cash_quote"))
++            result["cash_quote"] = cash
++            realized = number(self.db.get_state("realized_pnl"))
++            result["realized_pnl"] = realized
++            pos = self.db.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
++            qty = number(pos["qty"])
++            avg = number(pos["avg_price"]) if qty else 0.0
++        except (KeyError, TypeError, ValueError, OverflowError):
++            return {**result, "reason": "invalid_valuation_state"}
++        m = None
++        reason = "missing_reference_price"
++        try:
++            q = self._price(venue, symbol)
++            if q:
++                reason = "invalid_reference_price"
++                bid, ask = q.get("bid"), q.get("ask")
++                if bid is not None and ask is not None:
++                    bid, ask = number(bid), number(ask)
++                    if not 0 < bid <= ask:
++                        raise ValueError("invalid_book")
++                    m = bid + (ask - bid) / 2
++                else:
++                    m = number(q.get("last"))
++                if m <= 0:
++                    raise ValueError("nonpositive_price")
++        except Exception:
++            m = None
++            reason = "invalid_reference_price"
++        if qty and m is None:
++            return {**result, "reason": reason}
++        unreal = (m - avg) * qty if qty else 0.0
++        equity = cash + m * qty if qty else cash
++        if not math.isfinite(unreal) or not math.isfinite(equity):
++            return {**result, "reason": "nonfinite_valuation"}
+         self.db.insert_equity(_now(), cash, equity, unreal, realized)
+-        return {"ok": True, "cash_quote": cash, "equity_quote": equity, "unrealized_pnl": unreal, "realized_pnl": realized, "mid": m}
++        return {**result, "ok": True, "reason": None, "equity_recorded": True,
++                "valuation_status": "complete" if qty else "cash_only",
++                "equity_quote": equity, "unrealized_pnl": unreal, "mid": m}
+--- before/services/analytics/paper_sim_monitor.py
++++ after/services/analytics/paper_sim_monitor.py
+@@ -597,6 +597,16 @@
+     position_realized_pnl_total = _safe_float(position.get("realized_pnl"))
+     equity_realized_pnl_total = _safe_float(latest_equity.get("realized_pnl"))
+     unrealized_pnl = _safe_float(latest_equity.get("unrealized_pnl"))
++    marks = paper_engine.get("mtm")
++    current_mark = marks.get(symbol) if isinstance(marks, dict) else None
++    valuation_known = None
++    if isinstance(current_mark, dict):
++        if current_mark.get("ok") is False:
++            valuation_known = False
++            unrealized_pnl = None
++        elif (current_mark.get("ok") is True
++              and current_mark.get("valuation_status") in {"complete", "cash_only"}):
++            valuation_known = True
+     promotion_progress = _promotion_progress_snapshot(
+         strategy_id=strategy_preset,
+         target_strategy=strategy_name,
+@@ -615,6 +625,8 @@
+         latest_fill=latest_journal_fill or latest_paper_fill,
+     )
+     latest_fill = latest_journal_fill or latest_paper_fill
++    if valuation_known is False:
++        recommendation, recommendation_reason = "investigate", "paper_valuation_incomplete"
+     return {
+         "ok": True,
+         "ts": ts,
+@@ -639,6 +651,8 @@
+         "position_realized_pnl_total": position_realized_pnl_total,
+         "equity_realized_pnl_total": equity_realized_pnl_total,
+         "unrealized_pnl": unrealized_pnl,
++        "equity_valuation_known": valuation_known,
++        "current_valuation": current_mark,
+         "paper_position": position,
+         "latest_order": latest_order,
+         "latest_paper_fill": latest_paper_fill,
+@@ -904,7 +918,9 @@
+         "round_trips_observed": _safe_int(snapshot.get("round_trips_observed")),
+         "fills_observed": _safe_int(snapshot.get("fills_observed")),
+         "current_window_realized_pnl": round(_safe_float(snapshot.get("current_window_realized_pnl")), 8),
+-        "unrealized_pnl": round(_safe_float(snapshot.get("unrealized_pnl")), 8),
++        "unrealized_pnl": (None if snapshot.get("equity_valuation_known") is False
++                           else round(_safe_float(snapshot.get("unrealized_pnl")), 8)),
++        "equity_valuation_known": snapshot.get("equity_valuation_known"),
+         "promotion_thresholds_applicable": bool(
+             promotion_progress.get("applicable", True)
+         ),
+@@ -931,6 +947,7 @@
+         "fills_observed": "fill_count_changed",
+         "current_window_realized_pnl": "realized_pnl_changed",
+         "unrealized_pnl": "unrealized_pnl_changed",
++        "equity_valuation_known": "equity_valuation_changed",
+         "promotion_thresholds_applicable": "promotion_threshold_policy_changed",
+         "promotion_thresholds_ready": "promotion_threshold_state_changed",
+         "promotion_days_recorded": "promotion_day_count_changed",
+--- before/tests/test_paper_missing_price_valuation.py
++++ after/tests/test_paper_missing_price_valuation.py
+@@ -0,0 +1,141 @@
++import ast
++import json
++import os
++from pathlib import Path
++
++import pytest
++
++from tests.test_tick_reader_exact_symbol import engine, snapshot
++
++
++@pytest.fixture
++def valuation(engine, monkeypatch):
++    if os.getenv("CBP_VALUATION_BEFORE_ROOT"):
++        import services.execution.paper_engine as module
++        path = Path(os.environ["CBP_VALUATION_BEFORE_ROOT"]) / "services/execution/paper_engine.py"
++        tree = ast.parse(path.read_text())
++        cls = next(item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == "PaperEngine")
++        method = next(item for item in cls.body if isinstance(item, ast.FunctionDef) and item.name == "mark_to_market")
++        namespace = {}
++        exec(compile(ast.Module(body=[method], type_ignores=[]), str(path), "exec"), module.__dict__, namespace)
++        monkeypatch.setattr(module.PaperEngine, "mark_to_market", namespace[method.name])
++    return engine
++
++
++def finances(eng):
++    return {"cash": eng.db.get_state("cash_quote"), "realized": eng.db.get_state("realized_pnl"),
++            "positions": eng.db.list_positions(), "orders": eng.db.list_orders(), "fills": eng.db.list_fills()}
++
++
++@pytest.mark.parametrize("quote", [None, {}, {"last": None}, {"last": 0}, {"last": -1},
++    {"last": float("nan")}, {"last": float("inf")}, {"last": "invalid"}, {"last": True},
++    {"bid": 0, "ask": 2}, {"bid": 3, "ask": 2}, {"bid": float("nan"), "ask": 2}])
++def test_held_unknown_mark_never_writes_cash_only_equity(valuation, monkeypatch, quote):
++    eng = valuation
++    eng.db.upsert_position("ADA/USD", 2, 10, 0)
++    eng.db.insert_equity("historical", 1000, 1022, 2, 0)
++    before, equity = finances(eng), eng.db.list_equity()
++    monkeypatch.setattr(eng, "_price", lambda *a: quote)
++    result = eng.mark_to_market("coinbase", "ADA/USD")
++    assert result["ok"] is False
++    assert result["equity_quote"] is None and result["unrealized_pnl"] is None
++    assert result["valuation_status"] == "incomplete" and result["equity_recorded"] is False
++    assert result["cash_quote"] == 1000 and result["realized_pnl"] == 0
++    assert finances(eng) == before and eng.db.list_equity() == equity
++    json.dumps(result, allow_nan=False)
++
++
++@pytest.mark.parametrize("quote", [None, {"last": 0}, {"last": float("nan")}])
++def test_flat_cash_only_mark_is_legitimate_without_quote(valuation, monkeypatch, quote):
++    monkeypatch.setattr(valuation, "_price", lambda *a: quote)
++    result = valuation.mark_to_market("coinbase", "ADA/USD")
++    assert result["ok"] and result["equity_recorded"]
++    assert result["valuation_status"] == "cash_only"
++    assert result["equity_quote"] == 1000 and result["unrealized_pnl"] == 0
++    assert len(valuation.db.list_equity()) == 1
++
++
++@pytest.mark.parametrize("quote", [{"bid": 10, "ask": 12, "last": 999}, {"last": 11}, {"bid": 10, "last": 11}])
++def test_valid_mark_preserves_existing_numeric_results(valuation, monkeypatch, quote):
++    valuation.db.upsert_position("ADA/USD", 2, 10, 0)
++    before = finances(valuation)
++    monkeypatch.setattr(valuation, "_price", lambda *a: quote)
++    result = valuation.mark_to_market("coinbase", "ADA/USD")
++    assert result["ok"] and result["equity_recorded"]
++    assert result["mid"] == 11 and result["equity_quote"] == 1022 and result["unrealized_pnl"] == 2
++    assert finances(valuation) == before
++
++
++def test_quote_returning_recovers_without_rewriting_history(valuation, monkeypatch):
++    valuation.db.upsert_position("ADA/USD", 2, 10, 0)
++    quotes = iter([None, {"last": 11}])
++    monkeypatch.setattr(valuation, "_price", lambda *a: next(quotes))
++    assert not valuation.mark_to_market("coinbase", "ADA/USD")["ok"]
++    assert valuation.db.list_equity() == []
++    assert valuation.mark_to_market("coinbase", "ADA/USD")["ok"]
++    assert len(valuation.db.list_equity()) == 1
++
++
++@pytest.mark.parametrize("key,value", [("cash_quote", "NaN"), ("cash_quote", "bad"),
++                                       ("realized_pnl", "Infinity")])
++def test_invalid_required_state_cannot_be_recorded_as_valid_equity(valuation, monkeypatch, key, value):
++    valuation.db.set_state(key, value)
++    monkeypatch.setattr(valuation, "_price", lambda *a: {"last": 11})
++    result = valuation.mark_to_market("coinbase", "ADA/USD")
++    assert not result["ok"] and not result["equity_recorded"]
++    assert valuation.db.list_equity() == [] and valuation.db.get_state(key) == value
++    json.dumps(result, allow_nan=False)
++
++
++def test_arithmetic_overflow_cannot_record_infinite_valuation(valuation, monkeypatch):
++    valuation.db.upsert_position("ADA/USD", 1e308, 1, 0)
++    monkeypatch.setattr(valuation, "_price", lambda *a: {"last": 1e308})
++    result = valuation.mark_to_market("coinbase", "ADA/USD")
++    assert not result["ok"] and result["equity_quote"] is None
++    assert valuation.db.list_equity() == []
++
++
++@pytest.mark.parametrize("qty", ["invalid", float("nan"), True])
++def test_invalid_quantity_is_unknown_not_flat(valuation, monkeypatch, qty):
++    monkeypatch.setattr(valuation.db, "get_position", lambda symbol: {"qty": qty, "avg_price": 10})
++    result = valuation.mark_to_market("coinbase", "ADA/USD")
++    assert not result["ok"] and result["equity_quote"] is None
++    assert valuation.db.list_equity() == []
++
++
++def test_failed_price_lookup_cannot_record_held_value(valuation, monkeypatch):
++    valuation.db.upsert_position("ADA/USD", 2, 10, 0)
++    def unavailable(*args):
++        raise RuntimeError("synthetic price failure")
++    monkeypatch.setattr(valuation, "_price", unavailable)
++    result = valuation.mark_to_market("coinbase", "ADA/USD")
++    assert not result["ok"] and result["equity_quote"] is None
++    assert valuation.db.list_equity() == []
++
++
++def test_monitor_keeps_failed_current_valuation_unknown(monkeypatch):
++    from services.analytics import paper_sim_monitor as monitor
++    monkeypatch.setattr(monitor, "_configured_strategy_runner", lambda: {"primary_symbol": "ADA/USD"})
++    monkeypatch.setattr(monitor, "load_campaign_runtime_status", lambda: {"status": "running", "symbol": "ADA/USD"})
++    monkeypatch.setattr(monitor, "_strategy_runner_status", lambda: {})
++    monkeypatch.setattr(monitor, "_paper_engine_status", lambda: {"mtm": {"ADA/USD": {
++        "ok": False, "valuation_status": "incomplete", "equity_quote": None, "reason": "missing_reference_price"}}})
++    monkeypatch.setattr(monitor, "_paper_state_snapshot_window", lambda *a, **kw: {
++        "position": {"qty": 2}, "latest_equity": {"ts": "historical", "unrealized_pnl": 99}})
++    monkeypatch.setattr(monitor, "_trade_journal_snapshot", lambda *a, **kw: {})
++    monkeypatch.setattr(monitor, "_promotion_progress_snapshot", lambda **kw: {"applicable": False})
++    result = monitor.collect_once(monitor.PaperSimMonitorCfg())
++    assert result["equity_valuation_known"] is False and result["unrealized_pnl"] is None
++    assert result["recommendation"] == "investigate" and result["recommendation_reason"] == "paper_valuation_incomplete"
++    assert result["latest_equity"]["ts"] == "historical"
++    signature = monitor._signature_payload(result)
++    assert signature["unrealized_pnl"] is None
++    prior = dict(signature, equity_valuation_known=True, unrealized_pnl=0)
++    assert "equity_valuation_changed" in monitor._change_reasons(prior, signature)
++    monkeypatch.setattr(monitor, "_paper_engine_status", lambda: {"mtm": {"ADA/USD": {
++        "ok": True, "valuation_status": "complete", "equity_quote": 1022}}})
++    monkeypatch.setattr(monitor, "_paper_state_snapshot_window", lambda *a, **kw: {
++        "position": {"qty": 2}, "latest_equity": {"ts": "fresh", "unrealized_pnl": 2}})
++    restored = monitor.collect_once(monitor.PaperSimMonitorCfg())
++    assert restored["equity_valuation_known"] is True and restored["unrealized_pnl"] == 2
++    assert restored["recommendation_reason"] != "paper_valuation_incomplete"

@@ -1,0 +1,19 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________________ test_old_buy_cannot_commit_a_late_fill ____________________
+tests/test_paper_buy_before_boundary.py:33: in test_old_buy_cannot_commit_a_late_fill
+    assert not result["ok"], "an expired buy committed a fill"
+E   AssertionError: an expired buy committed a fill
+E   assert not True
+________ test_committed_order_response_loss_is_not_reported_as_refused _________
+tests/test_paper_buy_before_boundary.py:52: in test_committed_order_response_loss_is_not_reported_as_refused
+    assert rig.q.get_intent("buy")["status"] == "submitted", "durably written order was disposed as refused"
+E   AssertionError: durably written order was disposed as refused
+E   assert 'rejected' == 'submitted'
+E     
+E     - submitted
+E     + rejected
+=========================== short test summary info ============================
+FAILED tests/test_paper_buy_before_boundary.py::test_old_buy_cannot_commit_a_late_fill
+FAILED tests/test_paper_buy_before_boundary.py::test_committed_order_response_loss_is_not_reported_as_refused
+2 failed in 1.05s

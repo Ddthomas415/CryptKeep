@@ -1,0 +1,1 @@
+{"capture_result": {"error_type": "ValueError", "ok": false, "status": "failed"}, "last_close_is_nan": true, "quality_ok": false, "quality_reason": "invalid_ohlcv", "synthetic_only": true}

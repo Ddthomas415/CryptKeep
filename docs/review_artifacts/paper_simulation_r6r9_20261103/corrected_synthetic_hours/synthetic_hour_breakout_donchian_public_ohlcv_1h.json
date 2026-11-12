@@ -1,0 +1,47 @@
+{
+  "by_kind": {
+    "decision": 61
+  },
+  "cas_by_type": {
+    "completed_bar": {
+      "bytes": 17864,
+      "objects": 190
+    },
+    "completed_prefix": {
+      "bytes": 17092,
+      "objects": 4
+    },
+    "runner_code": {
+      "bytes": 38227,
+      "objects": 1
+    },
+    "runner_settings": {
+      "bytes": 1059,
+      "objects": 1
+    }
+  },
+  "cas_bytes": 74242,
+  "diagnostic_verified": 0,
+  "limits": [
+    "Three symbols round robin, not nine single-symbol services",
+    "Includes cold-start code/settings/history; linear 26-week extrapolation is not a storage forecast",
+    "Tick bars are model timestamps, not observed market candles",
+    "Held duration is distinct-bar count, not elapsed hours",
+    "No runtime configuration, real fills, infrastructure cost or operational performance inspected"
+  ],
+  "poll_step_seconds": 60,
+  "record_count": 61,
+  "recording_off_process_elapsed_seconds": 1.2511461249669082,
+  "recording_on_process_elapsed_seconds": 4.815160083991941,
+  "replay_matches": 61,
+  "scope": "synthetic_clockhour_diagnostic_only_not_runtime_benchmark",
+  "signal_source": "public_ohlcv_1h",
+  "strategy": "breakout_donchian",
+  "stream_bytes": 402969,
+  "symbols": [
+    "BTC/USD",
+    "ETH/USD",
+    "SOL/USD"
+  ],
+  "synthetic_seconds": 3600
+}

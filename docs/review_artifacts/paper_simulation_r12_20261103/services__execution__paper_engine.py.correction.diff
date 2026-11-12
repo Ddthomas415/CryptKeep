@@ -1,0 +1,11 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__paper_engine.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/paper_engine.py	2026-11-03 01:00:00
+@@ -310,7 +310,7 @@
+             "limit_price": limit_price,
+             "status": "new",
+             "reject_reason": None,
+-            "strategy_id": strategy_id or self.cfg.get("strategy_id"),
++            "strategy_id": strategy_id if pending else strategy_id or self.cfg.get("strategy_id"),
+             "meta": meta,
+         }
+         self.db.insert_order(row)

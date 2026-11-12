@@ -1,0 +1,24 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+________ test_enabled_profile_refuses_bad_candles_at_submission[stale] _________
+tests/test_hourly_candle_quality.py:171: in test_enabled_profile_refuses_bad_candles_at_submission
+    assert not result["ok"] and result["reason"].startswith("candle_data:")
+E   assert (not True)
+_________ test_enabled_profile_refuses_bad_candles_at_submission[gap] __________
+tests/test_hourly_candle_quality.py:171: in test_enabled_profile_refuses_bad_candles_at_submission
+    assert not result["ok"] and result["reason"].startswith("candle_data:")
+E   assert (not True)
+_________ test_enabled_profile_refuses_bad_candles_at_submission[zero] _________
+tests/test_hourly_candle_quality.py:171: in test_enabled_profile_refuses_bad_candles_at_submission
+    assert not result["ok"] and result["reason"].startswith("candle_data:")
+E   assert (not True)
+____________ test_fresh_at_submit_but_gapped_at_fill_does_not_fill _____________
+tests/test_hourly_candle_quality.py:183: in test_fresh_at_submit_but_gapped_at_fill_does_not_fill
+    assert market.eng.evaluate_open_orders()["filled"] == 0
+E   assert 1 == 0
+=========================== short test summary info ============================
+FAILED tests/test_hourly_candle_quality.py::test_enabled_profile_refuses_bad_candles_at_submission[stale]
+FAILED tests/test_hourly_candle_quality.py::test_enabled_profile_refuses_bad_candles_at_submission[gap]
+FAILED tests/test_hourly_candle_quality.py::test_enabled_profile_refuses_bad_candles_at_submission[zero]
+FAILED tests/test_hourly_candle_quality.py::test_fresh_at_submit_but_gapped_at_fill_does_not_fill
+4 failed, 40 deselected in 0.46s

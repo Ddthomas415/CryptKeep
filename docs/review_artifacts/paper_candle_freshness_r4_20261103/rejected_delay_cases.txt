@@ -1,0 +1,75 @@
+FFF.FFF                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[True-119.999] _
+tests/test_paper_candle_fill_boundary.py:307: in test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time
+    assert db.list_fills()[0]["ts"] == now[0].isoformat()
+E   AssertionError: assert '2026-11-04T01:01:59+00:00' == '2026-11-04T0....999000+00:00'
+E     
+E     - 2026-11-04T01:01:59.999000+00:00
+E     ?                    -------
+E     + 2026-11-04T01:01:59+00:00
+_ test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[True-120] _
+tests/test_paper_candle_fill_boundary.py:300: in test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time
+    assert result == {"ok": False, "reason": "paper_buy_ttl:expired"}
+E   AssertionError: assert {'ok': True, ...sd': 0.0, ...} == {'ok': False,..._ttl:expired'}
+E     
+E     Differing items:
+E     {'ok': True} != {'ok': False}
+E     Left contains 5 more items:
+E     {'fee': 0.5,
+E      'fill_id': 'paper:order:100.000000000000:1.000000000000',
+E      'idempotent': False,...
+E     
+E     ...Full output truncated (5 lines hidden), use '-vv' to show
+_ test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[True-121] _
+tests/test_paper_candle_fill_boundary.py:300: in test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time
+    assert result == {"ok": False, "reason": "paper_buy_ttl:expired"}
+E   AssertionError: assert {'ok': True, ...sd': 0.0, ...} == {'ok': False,..._ttl:expired'}
+E     
+E     Differing items:
+E     {'ok': True} != {'ok': False}
+E     Left contains 5 more items:
+E     {'fee': 0.5,
+E      'fill_id': 'paper:order:100.000000000000:1.000000000000',
+E      'idempotent': False,...
+E     
+E     ...Full output truncated (5 lines hidden), use '-vv' to show
+_ test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[False-120] _
+tests/test_paper_candle_fill_boundary.py:300: in test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time
+    assert result == {"ok": False, "reason": "paper_buy_ttl:expired"}
+E   AssertionError: assert {'ok': False,..._hour_stale'}} == {'ok': False,..._ttl:expired'}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Differing items:
+E     {'reason': 'candle_data:current_hour_stale'} != {'reason': 'paper_buy_ttl:expired'}
+E     Left contains 1 more item:
+E     {'candle_quality': {'ok': False, 'reason': 'current_hour_stale'}}
+E     Use -v to get more diff
+_ test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[False-121] _
+tests/test_paper_candle_fill_boundary.py:300: in test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time
+    assert result == {"ok": False, "reason": "paper_buy_ttl:expired"}
+E   AssertionError: assert {'ok': False,..._hour_stale'}} == {'ok': False,..._ttl:expired'}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Differing items:
+E     {'reason': 'candle_data:current_hour_stale'} != {'reason': 'paper_buy_ttl:expired'}
+E     Left contains 1 more item:
+E     {'candle_quality': {'ok': False, 'reason': 'current_hour_stale'}}
+E     Use -v to get more diff
+_________ test_guarded_default_clock_records_post_diagnostic_fill_time _________
+tests/test_paper_candle_fill_boundary.py:336: in test_guarded_default_clock_records_post_diagnostic_fill_time
+    assert db.list_fills()[0]["ts"] == now[0].isoformat()
+E   AssertionError: assert '2026-11-04T01:00:00+00:00' == '2026-11-04T0....999000+00:00'
+E     
+E     - 2026-11-04T01:01:59.999000+00:00
+E     ?                ^ -------
+E     + 2026-11-04T01:00:00+00:00
+E     ?                ^
+=========================== short test summary info ============================
+FAILED tests/test_paper_candle_fill_boundary.py::test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[True-119.999]
+FAILED tests/test_paper_candle_fill_boundary.py::test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[True-120]
+FAILED tests/test_paper_candle_fill_boundary.py::test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[True-121]
+FAILED tests/test_paper_candle_fill_boundary.py::test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[False-120]
+FAILED tests/test_paper_candle_fill_boundary.py::test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time[False-121]
+FAILED tests/test_paper_candle_fill_boundary.py::test_guarded_default_clock_records_post_diagnostic_fill_time
+6 failed, 1 passed, 46 deselected in 0.28s

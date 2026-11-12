@@ -1,0 +1,40 @@
+{
+  "bot_relation": "BOT_RULES",
+  "conditional_preflight_supported": true,
+  "route": {
+    "exit": 0,
+    "failure": null,
+    "fields": {
+      "destination": "100.86.128.9",
+      "flags": "<UP,DONE,CLONING,STATIC>",
+      "interface": "utun4"
+    }
+  },
+  "runtime_configuration_checked": false,
+  "settings_changed": false,
+  "ssh_attempted": false,
+  "tailscale": {
+    "backend_state": "Running",
+    "exit": 0,
+    "failure": null,
+    "self_ips": [
+      "100.76.178.88",
+      "fd7a:115c:a1e0::d501:b2b3"
+    ],
+    "self_online": true,
+    "target_peers": [
+      {
+        "Active": false,
+        "HostName": "ubuntu-4gb-nbg1-3",
+        "LastHandshake": "0001-01-01T00:00:00Z",
+        "LastSeen": "0001-01-01T00:00:00Z",
+        "Online": true,
+        "TailscaleIPs": [
+          "100.86.128.9",
+          "fd7a:115c:a1e0::ea32:800a"
+        ]
+      }
+    ]
+  },
+  "utc": "20261111T032723Z"
+}

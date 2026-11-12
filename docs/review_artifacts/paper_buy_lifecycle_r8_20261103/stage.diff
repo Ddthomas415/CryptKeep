@@ -1,0 +1,2076 @@
+--- before/services/execution/paper_engine.py
++++ after/services/execution/paper_engine.py
+@@ -237,6 +237,7 @@
+         ts: str | None = None,
+         strategy_id: str | None = None,
+         meta: dict | None = None,
++        intent_created_ts: str | None = None,
+     ) -> dict:
+         from services.execution.paper_exit_retry import has_exit_marker
+         pending = has_exit_marker({"meta": meta})
+@@ -284,6 +285,13 @@
+         )
+         if not gate_ok:
+             return {"ok": False, "reason": str(gate_reason or "paper_submit_gate_blocked")}
++        if side == "buy":
++            from services.execution.paper_buy_policy import buy_age_verdict, PAPER_BUY_CREATED_TS
++            created = intent_created_ts if intent_created_ts is not None else self._clock()
++            verdict = buy_age_verdict(created, self._clock())
++            if not verdict["ok"]:
++                return {"ok": False, "reason": verdict["reason"]}
++            meta = {**(meta or {}), PAPER_BUY_CREATED_TS: created}
+         if pending:
+             prepared = self.db.prepare_paper_exit(
+                 client_order_id=client_order_id, exit_id=(meta or {}).get("paper_exit_id"),
+@@ -366,6 +374,7 @@
+             fee=float(fee),
+             fee_currency=str(fee_ccy),
+             **identity_kwargs,
++            clock=self._clock,
+         )
+         if not result.get("ok"):
+             return result
+@@ -420,6 +429,11 @@
+         n_rejected = 0
+         details = []
+         for o in orders:
++            if o["side"] == "buy":
++                receipt = self.db.expire_buy_order(o["client_order_id"], clock=self._clock)
++                if receipt["state"] != "new":
++                    details.append({"client_order_id": o["client_order_id"], "result": receipt})
++                    continue
+             if has_exit_marker(o) and not is_snapshot_fresh()[0]:
+                 continue
+             q = self._price(o["venue"], o["symbol"])
+--- before/services/execution/paper_runner.py
++++ after/services/execution/paper_runner.py
+@@ -10,6 +10,8 @@
+ from services.execution.intent_reconciler import reconcile_once
+ from services.execution.state_authority import LiveStateContext, paper_queue_status
+ from services.execution.paper_engine import PaperEngine
++from services.execution.paper_buy_policy import buy_age_verdict
++from services.execution.paper_buy_lifecycle import recover_paper_buys, finish_buy, record_buy_alert
+ from services.execution.paper_exit_retry import (
+     has_exit_marker, consume_pending_paper_exit, _prepare,
+ )
+@@ -112,7 +114,14 @@
+         _LOG.warning("paper_exit_receipt_failed error_type=%s", type(receipt_exc).__name__)
+ 
+ 
++def _consumer_status(qdb, row, status, **kwargs):
++    paper_queue_status(qdb, row, status, **kwargs)
++    if str(row.get("side")).lower().strip() == "buy" and status == "rejected":
++        record_buy_alert(qdb, row, kwargs.get("last_error") or status, now_ts=_now())
++
++
+ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
++    recover_paper_buys(qdb, eng.db, clock=_now)
+     queued = qdb.claim_next_queued(limit=int(limit))
+     ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
+     submitted = 0
+@@ -133,6 +142,12 @@
+     originals = {str(row["intent_id"]): row for row in queued}
+     recovered = []
+     for it in queued:
++        if str(it.get("side") or "").strip().lower() == "buy":
++            verdict = buy_age_verdict(it.get("created_ts"), _now())
++            if not verdict["ok"]:
++                finish_buy(qdb, it, "expired" if verdict["reason"].startswith("paper_buy_ttl:expired") else "rejected",
++                           verdict["reason"], now_ts=_now())
++                continue
+         if not has_exit_marker(it):
+             routed.append(it)
+             continue
+@@ -162,7 +177,7 @@
+                 except Exception as exc:
+                     _hold_pending_failure(qdb, it, exc)
+                 continue
+-            paper_queue_status(
++            _consumer_status(
+                 qdb,
+                 it,
+                 "rejected",
+@@ -198,7 +213,7 @@
+             continue
+ 
+         if isinstance(decision_or_exc, Exception):
+-            paper_queue_status(
++            _consumer_status(
+                 qdb,
+                 it,
+                 "rejected",
+@@ -213,7 +228,7 @@
+         if not bool(getattr(decision, "allowed", False)):
+             reason = str(getattr(decision, "reason", "blocked"))
+             _LOG.info("paper_runner.decide_order_blocked intent_id=%s reason=%s", intent_id, reason)
+-            paper_queue_status(
++            _consumer_status(
+                 qdb,
+                 it,
+                 "rejected",
+@@ -236,9 +251,20 @@
+                 ts=str(it.get("ts") or _now()),
+                 strategy_id=it.get("strategy_id"),
+                 meta=it.get("meta"),
++                **({"intent_created_ts": it.get("created_ts")} if str(it.get("side")).lower().strip() == "buy" else {}),
+             )
+         except Exception as e:
+-            paper_queue_status(
++            if str(it.get("side")).lower().strip() == "buy":
++                # An exception may follow a durable order or fill. Recovery owns
++                # disposal; never report refusal while that order can execute.
++                try:
++                    qdb.record_paper_buy_event(intent_id, "submit_uncertain", reason=type(e).__name__)
++                except Exception as receipt_exc:
++                    _LOG.warning("paper_buy_receipt_failed error_type=%s", type(receipt_exc).__name__)
++                record_buy_alert(qdb, it, "paper_buy_submit_uncertain", now_ts=_now())
++                recover_paper_buys(qdb, eng.db, clock=_now)
++                continue
++            _consumer_status(
+                 qdb,
+                 it,
+                 "rejected",
+@@ -250,7 +276,13 @@
+             continue
+ 
+         if not bool(resp.get("ok")):
+-            paper_queue_status(
++            reason = str(resp.get("reason") or "paper_submit_failed")
++            if str(it.get("side")).lower().strip() == "buy" and reason.startswith("paper_buy_ttl:"):
++                finish_buy(qdb, it, "expired" if reason.startswith("paper_buy_ttl:expired") else "rejected",
++                           reason, now_ts=_now())
++                rejected += 1
++                continue
++            _consumer_status(
+                 qdb,
+                 it,
+                 "rejected",
+@@ -264,7 +296,7 @@
+         order = dict(resp.get("order") or {})
+         order_id = str(order.get("order_id") or "").strip() or None
+         reject_reason = order.get("reject_reason")
+-        paper_queue_status(
++        _consumer_status(
+             qdb,
+             it,
+             "submitted",
+--- before/services/execution/intent_reconciler.py
++++ after/services/execution/intent_reconciler.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ import json
++import math
+ import os
+ import time
+ from datetime import datetime, timezone
+@@ -11,6 +12,7 @@
+ from services.execution.state_authority import LiveStateContext, paper_queue_status
+ from services.execution.outcome_logger import log_strategy_outcome
+ from services.execution.paper_exit_retry import has_exit_marker, _prepare
++from services.execution.paper_buy_lifecycle import recover_paper_buys, record_buy_alert
+ from services.os.file_utils import atomic_write
+ from services.control.managed_component import clean_stale_lock_file
+ 
+@@ -147,18 +149,34 @@
+     qdb = qdb or IntentQueueSQLite()
+     pdb = pdb or PaperTradingSQLite()
+     jdb = jdb or TradeJournalSQLite()
++    recovery = recover_paper_buys(qdb, pdb, clock=_now)
++    unresolved_buys = {fault["intent_id"] for fault in recovery["faults"] if "intent_id" in fault}
++    buy_inventory_unknown = any("intent_id" not in fault for fault in recovery["faults"]
++                                if fault.get("reason", "").startswith("buy_inventory_unreadable:"))
+     submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
+-    intents_updated = 0
++    intents_updated = recovery["updated"]
+     ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
+     fills_journaled = 0
+ 
+     for it in submitted:
++        if str(it.get("side")).lower().strip() == "buy" and (
++                buy_inventory_unknown or it["intent_id"] in unresolved_buys):
++            continue
+         order_id = (it.get("linked_order_id") or "").strip()
+         if not order_id:
+             continue
+         order = pdb.get_order_by_order_id(order_id)
+         if not order:
+             continue
++        if str(it.get("side")).lower().strip() == "buy":
++            client = it.get("client_order_id") or "paper_intent_" + it["intent_id"]
++            canonical = pdb.get_order_by_client_id(client)
++            if (not canonical or canonical["order_id"] != order_id
++                    or not PaperTradingSQLite._paper_buy_order_matches(canonical, it)):
++                reason = "paper_buy_order_identity_mismatch"
++                recovery["faults"].append({"intent_id": it["intent_id"], "reason": reason})
++                record_buy_alert(qdb, it, reason, now_ts=_now())
++                continue
+         st = str(order.get("status") or "").lower().strip()
+         if has_exit_marker(it):
+             try:
+@@ -180,7 +198,7 @@
+                 continue
+         if st in ("new",):
+             continue
+-        if st in ("rejected", "canceled"):
++        if st in ("rejected", "canceled", "expired"):
+             if has_exit_marker(it):
+                 qdb.paper_exit_transition(it["intent_id"], "held", event="refused",
+                                           reason=order.get("reject_reason") or st,
+@@ -197,6 +215,8 @@
+                 linked_order_id=order_id,
+             )
+             intents_updated += 1
++            if order.get("side") == "buy":
++                record_buy_alert(qdb, it, order.get("reject_reason") or st, now_ts=_now())
+             continue
+         if st == "superseded" and has_exit_marker(it):
+             qdb.paper_exit_transition(it["intent_id"], "superseded", event="ledger_recovery",
+@@ -205,6 +225,22 @@
+             continue
+         if st == "filled":
+             fills = pdb.list_fills_for_order(order_id, limit=5000)
++            if str(it.get("side")).lower().strip() == "buy":
++                valid = len(fills) == 1
++                if valid:
++                    fill = fills[0]
++                    try:
++                        valid = (fill["order_id"] == order_id and float(fill["qty"]) == float(order["qty"])
++                                 and math.isfinite(float(fill["qty"])) and float(fill["qty"]) > 0
++                                 and math.isfinite(float(fill["price"])) and float(fill["price"]) > 0
++                                 and math.isfinite(float(fill["fee"])))
++                    except (KeyError, TypeError, ValueError, OverflowError):
++                        valid = False
++                if not valid:
++                    reason = "paper_buy_fill_receipt_mismatch"
++                    recovery["faults"].append({"intent_id": it["intent_id"], "reason": reason})
++                    record_buy_alert(qdb, it, reason, now_ts=_now())
++                    continue
+             pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
+             meta = dict(it.get("meta") or {})
+             try:
+@@ -269,6 +305,7 @@
+         "intents_updated": int(intents_updated),
+         "fills_journaled": int(fills_journaled),
+         "journal_count": int(jdb.count()),
++        "buy_recovery_faults": recovery["faults"],
+     }
+ 
+ def run_forever() -> None:
+--- before/storage/intent_queue_sqlite.py
++++ after/storage/intent_queue_sqlite.py
+@@ -49,6 +49,15 @@
+   reason TEXT
+ );
+ CREATE INDEX IF NOT EXISTS idx_paper_exit_events_intent ON paper_exit_events(intent_id, event_id);
++CREATE TABLE IF NOT EXISTS paper_buy_events (
++  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
++  intent_id TEXT NOT NULL,
++  ts TEXT NOT NULL,
++  event TEXT NOT NULL,
++  status TEXT NOT NULL,
++  reason TEXT
++);
++CREATE INDEX IF NOT EXISTS idx_paper_buy_events_intent ON paper_buy_events(intent_id, event_id);
+ """
+ 
+ def _now() -> str:
+@@ -139,6 +148,11 @@
+                         now,
+                     ),
+                 )
++                if str(row["side"]).strip().lower() == "buy":
++                    con.execute(
++                        "INSERT INTO paper_buy_events(intent_id,ts,event,status,reason) VALUES(?,?,?,?,?)",
++                        (intent_id, now, "created", normalize_live_queue_status(row["status"]), None),
++                    )
+                 con.execute("COMMIT")
+                 return
+ 
+@@ -401,6 +415,11 @@
+                 item["status"] = "submitting"
+                 item["client_order_id"] = client_order_id
+                 item["updated_ts"] = now
++                if str(item["side"]).strip().lower() == "buy":
++                    con.execute(
++                        "INSERT INTO paper_buy_events(intent_id,ts,event,status,reason) VALUES(?,?,?,?,?)",
++                        (intent_id, now, "picked_up", "submitting", None),
++                    )
+                 claimed.append(item)
+             con.execute("COMMIT")
+             return claimed
+@@ -416,15 +435,19 @@
+     def update_status(self, intent_id: str, status: str, *, last_error: str | None = None, client_order_id: str | None = None, linked_order_id: str | None = None) -> bool:
+         con = _connect()
+         try:
++            con.execute("BEGIN IMMEDIATE")
+             nxt = normalize_live_queue_status(status)
++            before = _fetch_intent_row(con, intent_id)
++            now = _now()
+             cur = con.execute(
+                 """
+                 UPDATE trade_intents
+                    SET status=?, last_error=?, client_order_id=COALESCE(?, client_order_id), linked_order_id=COALESCE(?, linked_order_id), updated_ts=?
+                  WHERE intent_id=?
+-                   AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error')
++                   AND status NOT IN ('filled', 'rejected', 'canceled', 'cancelled', 'error', 'expired')
+                    AND (
+                         status = ?
++                     OR (lower(trim(side)) = 'buy' AND ? = 'expired' AND status IN ('queued','submitting','submitted','held'))
+                      OR (status = 'queued' AND ? IN ('submitting', 'submitted', 'rejected', 'held'))
+                      OR (status = 'submitting' AND ? IN ('submitted', 'rejected'))
+                      OR (status = 'submitted' AND ? IN ('filled', 'canceled', 'cancelled', 'rejected', 'error', 'held'))
+@@ -436,8 +459,9 @@
+                     last_error,
+                     client_order_id,
+                     linked_order_id,
+-                    _now(),
++                    now,
+                     str(intent_id),
++                    nxt,
+                     nxt,
+                     nxt,
+                     nxt,
+@@ -445,11 +469,68 @@
+                     nxt,
+                 ),
+             )
++            if cur.rowcount == 1 and before and str(before[8]).strip().lower() == "buy" and (
++                    before[12] != nxt or before[13] != last_error):
++                con.execute(
++                    "INSERT INTO paper_buy_events(intent_id,ts,event,status,reason) VALUES(?,?,?,?,?)",
++                    (str(intent_id), now, "transition", nxt, last_error),
++                )
+             con.commit()
+             return cur.rowcount == 1
+         finally:
+             con.close()
+ 
++    def list_pending_paper_buys(self) -> List[Dict[str, Any]]:
++        con = _connect()
++        try:
++            rows = con.execute(
++                "SELECT intent_id,created_ts,ts,source,strategy_id,action,venue,symbol,side,order_type,qty,"
++                "limit_price,status,last_error,client_order_id,linked_order_id,meta,updated_ts "
++                "FROM trade_intents WHERE lower(trim(side))='buy' "
++                "AND status IN ('queued','submitting','submitted','held') ORDER BY created_ts,intent_id"
++            ).fetchall()
++            return [_decode_intent_row(row) for row in rows]
++        finally:
++            con.close()
++
++    def record_paper_buy_event(self, intent_id: str, event: str, *, reason: str | None = None) -> None:
++        con = _connect()
++        try:
++            con.execute(
++                "INSERT INTO paper_buy_events(intent_id,ts,event,status,reason) "
++                "SELECT intent_id,?,?,status,? FROM trade_intents WHERE intent_id=? AND lower(trim(side))='buy'",
++                (_now(), str(event), reason, str(intent_id)),
++            )
++        finally:
++            con.close()
++
++    def list_paper_buys_needing_alert(self) -> List[Dict[str, Any]]:
++        con = _connect()
++        try:
++            rows = con.execute(
++                "SELECT intent_id,created_ts,ts,source,strategy_id,action,venue,symbol,side,order_type,qty,"
++                "limit_price,status,last_error,client_order_id,linked_order_id,meta,updated_ts "
++                "FROM trade_intents t WHERE lower(trim(side))='buy' "
++                "AND status IN ('expired','rejected','canceled','cancelled') "
++                "AND EXISTS (SELECT 1 FROM paper_buy_events e WHERE e.intent_id=t.intent_id) "
++                "AND NOT EXISTS (SELECT 1 FROM paper_buy_events e WHERE e.intent_id=t.intent_id "
++                "AND e.event='alert_result' AND e.reason='external_channel_accepted') "
++                "ORDER BY updated_ts,intent_id"
++            ).fetchall()
++            return [_decode_intent_row(row) for row in rows]
++        finally:
++            con.close()
++
++    def list_paper_buy_events(self, intent_id: str) -> List[Dict[str, Any]]:
++        con = _connect()
++        try:
++            return [dict(zip(("event_id", "ts", "event", "status", "reason"), row)) for row in con.execute(
++                "SELECT event_id,ts,event,status,reason FROM paper_buy_events WHERE intent_id=? ORDER BY event_id",
++                (str(intent_id),),
++            ).fetchall()]
++        finally:
++            con.close()
++
+     def get_state(self, k: str) -> Optional[str]:
+         con = _connect()
+         try:
+--- before/storage/paper_trading_sqlite.py
++++ after/storage/paper_trading_sqlite.py
+@@ -4,8 +4,12 @@
+ import math
+ from datetime import datetime, timezone
+ from pathlib import Path
+-from typing import Optional, List, Dict, Any
++from typing import Optional, List, Dict, Any, Callable
++from urllib.parse import quote
++from services.execution.intent_ttl import _parse_created_epoch
++from services.execution.paper_buy_policy import PAPER_BUY_CREATED_TS, buy_age_verdict
+ from services.os.app_paths import data_dir
++from storage.exit_event_journal import _decode_payload
+ 
+ DB_PATH = data_dir() / "paper_trading.sqlite"
+ FLOAT_CASH_EPSILON = 1e-9
+@@ -69,6 +73,62 @@
+     return datetime.now(timezone.utc).isoformat()
+ 
+ 
++def _paper_buy_now(clock: Callable[[], Any] | None) -> Any:
++    try:
++        return datetime.now(timezone.utc) if clock is None else clock()
++    except Exception:
++        return None
++
++
++def _paper_buy_queue_origins(client_order_id: str) -> tuple[list[Any], str | None]:
++    """Read only queue creation evidence; absence is inconclusive for intent clients."""
++    canonical = client_order_id.startswith("paper_intent_")
++    queue_path = DB_PATH.parent / "intent_queue.sqlite"
++    try:
++        queue_path.stat()
++    except FileNotFoundError:
++        return [], "paper_buy_queue_origin_missing" if canonical else None
++    except OSError:
++        return [], "paper_buy_queue_origin_unreadable"
++    con = None
++    try:
++        uri = "file:" + quote(str(queue_path.absolute()), safe="/") + "?mode=ro"
++        con = sqlite3.connect(uri, uri=True, timeout=0.25)
++        sql = "SELECT created_ts FROM trade_intents WHERE client_order_id=?"
++        args = [client_order_id]
++        if canonical:
++            sql += " OR intent_id=?"
++            args.append(client_order_id[len("paper_intent_"):])
++        origins = [row[0] for row in con.execute(sql, args).fetchall()]
++        if not origins and canonical:
++            return [], "paper_buy_queue_origin_missing"
++        return origins, None
++    except (sqlite3.Error, OSError, ValueError):
++        return [], "paper_buy_queue_origin_unreadable"
++    finally:
++        if con is not None:
++            con.close()
++
++
++def _paper_buy_age_verdict(created_ts, meta_json, now_ts, queue_created_ts=None, *, queue_origins=()) -> dict:
++    if meta_json is None or (isinstance(meta_json, str) and meta_json.strip() == "null"):
++        meta = None
++    else:
++        meta = _decode_payload(meta_json)
++        if meta is None:
++            return {"ok": False, "reason": "invalid_stored_order_meta", "age_s": None, "created_ts": None}
++    origin = meta[PAPER_BUY_CREATED_TS] if isinstance(meta, dict) and PAPER_BUY_CREATED_TS in meta else created_ts
++    verdicts = [{**buy_age_verdict(origin, now_ts), "created_ts": origin}]
++    if queue_created_ts is not None:
++        verdicts.append({**buy_age_verdict(queue_created_ts, now_ts), "created_ts": queue_created_ts})
++    verdicts.extend({**buy_age_verdict(value, now_ts), "created_ts": value} for value in queue_origins)
++    # Invalid/future evidence cannot be hidden by a valid alternative origin.
++    for verdict in verdicts:
++        if not verdict["ok"] and verdict["reason"] != "paper_buy_ttl:expired":
++            return verdict
++    return max(verdicts, key=lambda verdict: verdict["age_s"])
++
++
+ def _paper_fill_id(order_id: Any, price: Any, qty: Any) -> str:
+     return f"paper:{str(order_id)}:{float(price):.12f}:{float(qty):.12f}"
+ 
+@@ -333,6 +393,126 @@
+             (str(status), reject_reason, str(order_id)),
+         )
+ 
++    def _paper_buy_terminal_conn(self, con: sqlite3.Connection, client_order_id: str) -> dict | None:
++        raw = self._get_state_conn(con, "paper_buy_terminal:" + client_order_id)
++        if raw is None:
++            return None
++        terminal = _decode_payload(raw)
++        if (terminal is None or terminal.get("client_order_id") != client_order_id
++                or not isinstance(terminal.get("state"), str)
++                or terminal["state"] not in {"expired", "rejected"}
++                or not isinstance(terminal.get("reason"), str) or not terminal["reason"]):
++            return {"state": "rejected", "reason": "invalid_buy_terminal"}
++        return terminal
++
++    def _write_paper_buy_terminal_conn(
++        self, con: sqlite3.Connection, client_order_id: str, state: str, reason: str, created_ts: Any,
++    ) -> None:
++        self._set_state_conn(con, "paper_buy_terminal:" + client_order_id, json.dumps({
++            "client_order_id": client_order_id, "state": state, "reason": reason,
++            "created_ts": str(created_ts) if created_ts is not None else None,
++        }, sort_keys=True, allow_nan=False))
++
++    @classmethod
++    def _paper_buy_order_matches(cls, existing: dict, expected: dict) -> bool:
++        if not isinstance(expected, dict):
++            return False
++        for key in ("venue", "symbol", "side", "order_type"):
++            left, right = existing.get(key), expected.get(key)
++            if not isinstance(left, str) or not isinstance(right, str):
++                return False
++            left, right = left.strip(), right.strip()
++            if key != "symbol":
++                left, right = left.lower(), right.lower()
++            if not left or left != right or (key == "side" and left != "buy"):
++                return False
++        if (not cls._exit_number(existing.get("qty")) or not cls._exit_number(expected.get("qty"))
++                or existing["qty"] != expected["qty"]):
++            return False
++        left, right = existing.get("limit_price"), expected.get("limit_price")
++        if left is not None and not cls._exit_number(left):
++            return False
++        if right is not None and not cls._exit_number(right):
++            return False
++        linked = expected.get("linked_order_id")
++        return left == right and (linked is None or linked == existing["order_id"])
++
++    def expire_buy_order(
++        self, client_order_id: str, *, created_ts: Any = None,
++        clock: Callable[[], Any] | None = None,
++        fence_missing: bool = False, expected_order: Optional[Dict[str, Any]] = None,
++    ) -> Dict[str, Any]:
++        """Fence buys atomically, retaining queue age and optional missing-order expiry."""
++        client_order_id = str(client_order_id)
++        con = _connect()
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            cur = con.execute("SELECT * FROM paper_orders WHERE client_order_id=?", (str(client_order_id),))
++            raw = cur.fetchone()
++            if raw is None:
++                terminal = self._paper_buy_terminal_conn(con, client_order_id)
++                if terminal is not None:
++                    con.execute("COMMIT")
++                    return {"state": terminal["state"], "reason": terminal["reason"], "order": None}
++                if fence_missing:
++                    verdict = buy_age_verdict(created_ts, _paper_buy_now(clock))
++                    if not verdict["ok"]:
++                        reason = verdict["reason"]
++                        state = "expired" if reason == "paper_buy_ttl:expired" else "rejected"
++                        self._write_paper_buy_terminal_conn(con, client_order_id, state, reason, created_ts)
++                        con.execute("COMMIT")
++                        return {"state": state, "reason": reason, "order": None}
++                con.execute("COMMIT")
++                return {"state": "missing", "order": None, "reason": "order_not_found"}
++            existing = dict(zip((col[0] for col in cur.description), raw))
++            meta_json = existing.pop("meta_json")
++            existing["meta"] = _decode_payload(meta_json) if meta_json is not None else None
++            if expected_order is not None and not self._paper_buy_order_matches(existing, expected_order):
++                con.execute("COMMIT")
++                return {"state": "blocked", "reason": "paper_buy_order_identity_mismatch", "order": existing}
++            state = str(existing["status"]).strip().lower()
++            reason = existing.get("reject_reason") or state
++            if str(existing["side"]).strip().lower() == "buy" and state in {"new", "open"}:
++                terminal = self._paper_buy_terminal_conn(con, client_order_id)
++                if terminal is not None:
++                    state, reason = terminal["state"], terminal["reason"]
++                    self._update_order_status_conn(con, existing["order_id"], state, reason)
++                    existing.update(status=state, reject_reason=reason)
++                    con.execute("COMMIT")
++                    return {"state": state, "reason": reason, "order": existing}
++                queue_origins, lookup_error = _paper_buy_queue_origins(client_order_id)
++                if lookup_error is not None:
++                    con.execute("COMMIT")
++                    return {"state": "blocked", "reason": lookup_error, "order": existing}
++                now_ts = _paper_buy_now(clock)
++                verdict = _paper_buy_age_verdict(
++                    existing["created_ts"], meta_json, now_ts, created_ts, queue_origins=queue_origins,
++                )
++                reason = verdict["reason"]
++                meta = existing["meta"]
++                origin = meta[PAPER_BUY_CREATED_TS] if isinstance(meta, dict) and PAPER_BUY_CREATED_TS in meta else existing["created_ts"]
++                if not verdict["ok"]:
++                    state = "expired" if reason == "paper_buy_ttl:expired" else "rejected"
++                    self._update_order_status_conn(con, existing["order_id"], state, reason)
++                    self._write_paper_buy_terminal_conn(
++                        con, client_order_id, state, reason, verdict["created_ts"],
++                    )
++                    existing.update(status=state, reject_reason=reason)
++                elif _parse_created_epoch(verdict["created_ts"]) < _parse_created_epoch(origin):
++                    # Only shorten the authoritative lifetime; preserve all other metadata.
++                    meta = {**(meta or {}), PAPER_BUY_CREATED_TS: datetime.fromtimestamp(
++                        _parse_created_epoch(verdict["created_ts"]), timezone.utc).isoformat()}
++                    con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?",
++                                (json.dumps(meta, allow_nan=False), existing["order_id"]))
++                    existing["meta"] = meta
++            con.execute("COMMIT")
++            return {"state": state, "order": existing, "reason": reason}
++        except Exception:
++            con.rollback()
++            raise
++        finally:
++            con.close()
++
+     def list_orders(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
+         con = _connect()
+         try:
+@@ -459,12 +639,13 @@
+         fee: float,
+         fee_currency: str,
+         execution_identity_evidence: Optional[Dict[str, Any]] = None,
++        clock: Callable[[], Any] | None = None,
+     ) -> Dict[str, Any]:
+         con = _connect()
+         try:
+             con.execute("BEGIN IMMEDIATE")
+             order_row = con.execute(
+-                "SELECT order_id, symbol, side, status, reject_reason, client_order_id, meta_json "
++                "SELECT order_id, symbol, side, status, reject_reason, client_order_id, meta_json, created_ts "
+                 "FROM paper_orders WHERE order_id=?",
+                 (str(order["order_id"]),),
+             ).fetchone()
+@@ -476,6 +657,36 @@
+             symbol = str(order_row[1])
+             side = str(order_row[2]).strip().lower()
+             status = str(order_row[3]).strip().lower()
++            if side == "buy":
++                # A late retry must not reclassify an already committed fill.
++                if status == "filled":
++                    con.execute("COMMIT")
++                    return {"ok": True, "fill_id": _paper_fill_id(order_id, price, qty),
++                            "fee": float(fee), "idempotent": True}
++                if status not in {"new", "open"}:
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": status}
++                client_id = str(order_row[5])
++                terminal = self._paper_buy_terminal_conn(con, client_id)
++                if terminal is not None:
++                    self._update_order_status_conn(con, order_id, terminal["state"], terminal["reason"])
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": terminal["reason"]}
++                queue_origins, lookup_error = _paper_buy_queue_origins(client_id)
++                if lookup_error is not None:
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": lookup_error}
++                now_ts = _paper_buy_now(clock)
++                verdict = _paper_buy_age_verdict(order_row[7], order_row[6], now_ts, queue_origins=queue_origins)
++                if not verdict["ok"]:
++                    reason = verdict["reason"]
++                    state = "expired" if reason == "paper_buy_ttl:expired" else "rejected"
++                    self._update_order_status_conn(con, order_id, state, reason)
++                    self._write_paper_buy_terminal_conn(con, client_id, state, reason, verdict["created_ts"])
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": reason}
++                if clock is not None:
++                    ts = datetime.fromtimestamp(_parse_created_epoch(now_ts), timezone.utc).isoformat()
+             try:
+                 stored_meta = json.loads(order_row[6] if order_row[6] is not None else "null")
+             except (TypeError, ValueError):
+--- before/services/execution/paper_buy_policy.py
++++ after/services/execution/paper_buy_policy.py
+@@ -0,0 +1,43 @@
++"""Fixed, fail-closed age policy for paper buys (independent of live TTL)."""
++from __future__ import annotations
++
++from typing import Any
++
++from services.execution.intent_ttl import _parse_created_epoch
++
++
++PAPER_BUY_CREATED_TS = "paper_buy_created_ts"
++PAPER_BUY_MAX_AGE_S = 120.0
++
++
++def buy_age_verdict(created_ts: Any, now_ts: Any) -> dict[str, Any]:
++    """Accept only a known non-future creation age strictly below 120 seconds."""
++    out = {"ok": False, "reason": "paper_buy_ttl:invalid_now", "age_s": None}
++
++    def epoch(value):
++        if isinstance(value, bool):
++            return None
++        try:
++            return _parse_created_epoch(value)
++        except (TypeError, ValueError, OverflowError, OSError):
++            return None
++
++    now = epoch(now_ts)
++    if now is None:
++        return out
++    if created_ts is None or (isinstance(created_ts, str) and not created_ts.strip()):
++        out["reason"] = "paper_buy_ttl:missing_created_ts"
++        return out
++    created = epoch(created_ts)
++    if created is None:
++        out["reason"] = "paper_buy_ttl:invalid_created_ts"
++        return out
++    age = now - created
++    out["age_s"] = age
++    if age < 0:
++        out["reason"] = "paper_buy_ttl:future_created_ts"
++    elif age >= PAPER_BUY_MAX_AGE_S:
++        out["reason"] = "paper_buy_ttl:expired"
++    else:
++        out.update(ok=True, reason="ok")
++    return out
+--- before/services/execution/paper_buy_lifecycle.py
++++ after/services/execution/paper_buy_lifecycle.py
+@@ -0,0 +1,109 @@
++"""Paper-only buy expiry/recovery. Durable ledger evidence precedes queue disposal."""
++from datetime import datetime, timezone
++import logging
++
++from services.execution.paper_buy_policy import buy_age_verdict
++from services.execution.intent_ttl import _parse_created_epoch
++
++_LOG = logging.getLogger(__name__)
++
++
++def record_buy_alert(qdb, row, reason, *, now_ts):
++    """Retain dispatch outcome; an alert skip is not external delivery."""
++    try:
++        epoch = _parse_created_epoch(now_ts)
++        key = "paper_buy_alert:" + row["intent_id"] + ":" + reason
++        last = qdb.get_state(key)
++        if last and epoch is not None and epoch - float(last) < 120:
++            return
++        qdb.set_state(key, str(epoch or 0))
++        from services.admin.config_editor import load_user_yaml
++        from services.alerts.alert_dispatcher import send_alert
++        try:
++            result = send_alert(cfg=load_user_yaml(strict=True), level="error",
++                                message="Paper buy lifecycle requires attention",
++                                payload={"intent_id": row["intent_id"], "symbol": row["symbol"],
++                                         "venue": row["venue"], "reason": reason})
++            accepted = bool(result.get("ok")) and not result.get("skipped", False)
++            qdb.record_paper_buy_event(row["intent_id"], "alert_result",
++                                      reason="external_channel_accepted" if accepted else "not_delivered")
++        except Exception as exc:
++            qdb.record_paper_buy_event(row["intent_id"], "alert_error", reason=type(exc).__name__)
++    except Exception as exc:
++        _LOG.warning("paper_buy_alert_failed error_type=%s", type(exc).__name__)
++
++
++def finish_buy(qdb, row, status, reason, *, now_ts):
++    changed = qdb.update_status(row["intent_id"], status, last_error=reason)
++    if changed:
++        record_buy_alert(qdb, row, reason, now_ts=now_ts)
++    return changed
++
++
++def recover_paper_buys(qdb, pdb, *, clock=None):
++    """No resubmission: re-link existing orders, or expire unwritten old buys.
++
++    A missing *linked* order is ambiguous and reported, not treated as proof
++    nothing filled. The full account/deletion watchdog remains a separate gate.
++    """
++    clock = clock or (lambda: datetime.now(timezone.utc).isoformat())
++    faults = []
++    updated = 0
++    try:
++        rows = qdb.list_pending_paper_buys()
++    except Exception as exc:
++        _LOG.warning("paper_buy_inventory_failed error_type=%s", type(exc).__name__)
++        return {"updated": 0, "faults": [{"reason": "buy_inventory_unreadable:" + type(exc).__name__}]}
++    for row in rows:
++        try:
++            now_ts = clock()
++            client = row.get("client_order_id") or "paper_intent_" + row["intent_id"]
++            order = pdb.get_order_by_client_id(client)
++            if not order and (row.get("linked_order_id") or row["status"] == "submitted"):
++                raise ValueError("paper_buy_linked_order_missing")
++            verdict = buy_age_verdict(row["created_ts"], now_ts)
++            if order or not verdict["ok"]:
++                # Fence in the ledger first. A late submit may race this recovery;
++                # a queue terminal alone cannot prevent that order from filling.
++                receipt = pdb.expire_buy_order(client, created_ts=row["created_ts"], clock=clock,
++                                               fence_missing=not order, expected_order=row)
++                if receipt["state"] == "blocked":
++                    raise ValueError(receipt["reason"])
++                order = receipt.get("order")
++            else:
++                receipt = {"state": "missing"}
++            if order:
++                if (order["symbol"] != row["symbol"].strip() or order["venue"] != row["venue"].strip().lower()
++                        or order["side"] != "buy" or order["qty"] != row["qty"]
++                        or (row.get("linked_order_id") and row["linked_order_id"] != order["order_id"])):
++                    raise ValueError("paper_buy_order_identity_mismatch")
++                if receipt["state"] not in ("expired", "rejected") and row["status"] in ("queued", "submitting", "held"):
++                    # Filled rows still pass through the normal journal-before-terminal path.
++                    if row["status"] == "held":
++                        qdb.update_status(row["intent_id"], "queued")
++                        qdb.update_status(row["intent_id"], "submitting", client_order_id=client)
++                    updated += int(qdb.update_status(row["intent_id"], "submitted", client_order_id=client,
++                                                     linked_order_id=order["order_id"]))
++            if receipt["state"] in ("expired", "rejected"):
++                updated += int(finish_buy(qdb, row, receipt["state"], receipt.get("reason") or receipt["state"], now_ts=now_ts))
++            elif not order and row["status"] == "submitting":
++                picked_up = _parse_created_epoch(row.get("updated_ts"))
++                now_epoch = _parse_created_epoch(now_ts)
++                if picked_up is None or now_epoch is None:
++                    raise ValueError("paper_buy_invalid_pickup_time")
++                if now_epoch - picked_up >= 60:
++                    record_buy_alert(qdb, row, "paper_buy_submitting_over_60s", now_ts=now_ts)
++        except Exception as exc:
++            reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
++            faults.append({"intent_id": row["intent_id"], "reason": reason})
++            try:
++                qdb.record_paper_buy_event(row["intent_id"], "recovery_error", reason=reason)
++            except Exception as receipt_exc:
++                _LOG.warning("paper_buy_receipt_failed error_type=%s", type(receipt_exc).__name__)
++            record_buy_alert(qdb, row, reason, now_ts=datetime.now(timezone.utc).isoformat())
++    try:
++        for row in qdb.list_paper_buys_needing_alert():
++            record_buy_alert(qdb, row, row.get("last_error") or row["status"], now_ts=clock())
++    except Exception as exc:
++        faults.append({"reason": "buy_alert_inventory_unreadable:" + type(exc).__name__})
++    return {"updated": updated, "faults": faults}
+--- before/tests/test_paper_buy_fill_expiry.py
++++ after/tests/test_paper_buy_fill_expiry.py
+@@ -0,0 +1,873 @@
++from concurrent.futures import ThreadPoolExecutor
++from datetime import datetime, timedelta, timezone
++import copy
++import json
++import sqlite3
++import threading
++
++import pytest
++
++from services.execution.paper_buy_policy import (
++    PAPER_BUY_CREATED_TS, PAPER_BUY_MAX_AGE_S, buy_age_verdict,
++)
++from storage import paper_trading_sqlite as store
++
++
++CREATED = datetime(2026, 11, 3, tzinfo=timezone.utc)
++
++
++@pytest.fixture
++def db(monkeypatch, tmp_path):
++    monkeypatch.setattr(store, "DB_PATH", tmp_path / "paper.sqlite")
++    result = store.PaperTradingSQLite()
++    result.set_state("cash_quote", "1000")
++    result.set_state("realized_pnl", "0")
++    return result
++
++
++def insert(db, *, origin=CREATED.isoformat(), legacy=None, **changes):
++    row = dict(order_id="order-1", client_order_id="buy-1", venue="coinbase",
++               symbol="BTC/USD", side="buy", order_type="market", qty=1.0,
++               ts="2099-01-01T00:00:00Z", status="new",
++               meta={PAPER_BUY_CREATED_TS: origin})
++    row.update(changes)
++    db.insert_order(row)
++    if legacy is not None:
++        with sqlite3.connect(store.DB_PATH) as con:
++            con.execute("UPDATE paper_orders SET created_ts=? WHERE order_id=?",
++                        (legacy, row["order_id"]))
++    return db.get_order_by_client_id(row["client_order_id"])
++
++
++def fill(db, order, *, clock=lambda: CREATED + timedelta(seconds=30), **changes):
++    args = dict(order=order, ts="2000-01-01T00:00:00Z", price=100.0,
++                qty=1.0, fee=1.0, fee_currency="USD", clock=clock)
++    args.update(changes)
++    return db.apply_fill(**args)
++
++
++def unchanged_accounting(db):
++    assert db.list_fills() == []
++    assert db.list_positions() == []
++    assert float(db.get_state("cash_quote")) == 1000.0
++    assert float(db.get_state("realized_pnl")) == 0.0
++
++
++@pytest.mark.parametrize("age,ok", [(119.999, True), (120, False), (120.001, False)])
++@pytest.mark.parametrize("representation", ["datetime", "iso", "z", "naive", "offset", "epoch"])
++def test_policy_exact_boundary_and_timestamp_forms(age, ok, representation, monkeypatch):
++    monkeypatch.setenv("CBP_MAX_INTENT_AGE_SEC", "999999")
++    now = CREATED + timedelta(seconds=age)
++    created = CREATED
++    if representation == "iso":
++        created, now = created.isoformat(), now.isoformat()
++    elif representation == "z":
++        created, now = created.isoformat().replace("+00:00", "Z"), now.isoformat().replace("+00:00", "Z")
++    elif representation == "naive":
++        created, now = created.replace(tzinfo=None), now.replace(tzinfo=None)
++    elif representation == "offset":
++        created = created.astimezone(timezone(timedelta(hours=-5))).isoformat()
++    elif representation == "epoch":
++        created, now = created.timestamp(), now.timestamp()
++    verdict = buy_age_verdict(created, now)
++    assert PAPER_BUY_MAX_AGE_S == 120
++    assert verdict["ok"] is ok
++    assert verdict["age_s"] == pytest.approx(age, abs=1e-6)
++    assert verdict["reason"] == ("ok" if ok else "paper_buy_ttl:expired")
++
++
++@pytest.mark.parametrize("value", [None, "", "broken", float("nan"), float("inf"),
++                                  -1, 0, True, 10 ** 1000, [], {}])
++def test_policy_invalid_creation_and_now_fail_closed(value):
++    assert not buy_age_verdict(value, CREATED)["ok"]
++    assert buy_age_verdict(CREATED, value)["reason"] == "paper_buy_ttl:invalid_now"
++
++
++def test_policy_future_even_one_microsecond_fails_closed():
++    assert buy_age_verdict(CREATED + timedelta(microseconds=1), CREATED)["reason"] == "paper_buy_ttl:future_created_ts"
++
++
++@pytest.mark.parametrize("age,status", [(119.999, "filled"), (120, "expired")])
++def test_fill_exact_boundary(db, age, status):
++    order = insert(db)
++    result = fill(db, order, clock=lambda: CREATED + timedelta(seconds=age))
++    assert result["ok"] is (status == "filled")
++    assert db.get_order_by_order_id(order["order_id"])["status"] == status
++    if status == "expired":
++        assert result["reason"] == "paper_buy_ttl:expired"
++        assert db.get_order_by_order_id(order["order_id"])["reject_reason"] == result["reason"]
++        unchanged_accounting(db)
++    else:
++        assert float(db.get_state("cash_quote")) == 899
++        assert db.get_position("BTC/USD")["qty"] == 1
++
++
++def test_default_clock_does_not_use_historical_fill_evidence_time(db):
++    order = insert(db, origin="2000-01-01T00:00:00Z")
++    result = db.apply_fill(order=order, ts="2000-01-01T00:00:01Z", price=100,
++                           qty=1, fee=1, fee_currency="USD")
++    assert result["reason"] == "paper_buy_ttl:expired"
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("origin,reason", [(None, "missing_created_ts"), ("bad", "invalid_created_ts"),
++                                         ((CREATED + timedelta(seconds=1)).isoformat(), "future_created_ts")])
++def test_bad_reserved_origin_never_falls_back_to_legacy(db, origin, reason):
++    order = insert(db, origin=origin, legacy=CREATED.isoformat())
++    result = fill(db, order, clock=lambda: CREATED)
++    assert result["reason"] == "paper_buy_ttl:" + reason
++    stored = db.get_order_by_order_id(order["order_id"])
++    assert stored["status"] == "rejected" and stored["reject_reason"] == result["reason"]
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("legacy,reason", [("2000-01-01T00:00:00Z", "expired"),
++                                         ("bad", "invalid_created_ts"),
++                                         ((CREATED + timedelta(seconds=60)).isoformat(), "future_created_ts")])
++def test_legacy_uses_stored_created_not_decision_ts(db, legacy, reason):
++    order = insert(db, meta=None, legacy=legacy, ts=CREATED.isoformat())
++    result = fill(db, order)
++    assert result["reason"] == "paper_buy_ttl:" + reason
++    assert db.get_order_by_order_id(order["order_id"])["status"] == ("expired" if reason == "expired" else "rejected")
++    unchanged_accounting(db)
++
++
++def test_legacy_fresh_created_allows_old_decision_timestamp(db):
++    order = insert(db, meta={}, legacy=CREATED.isoformat(), ts="2000-01-01T00:00:00Z")
++    assert fill(db, order)["ok"]
++
++
++def test_stale_or_forged_caller_side_metadata_and_time_cannot_bypass(db):
++    order = insert(db, origin="2000-01-01T00:00:00Z")
++    caller = copy.deepcopy(order)
++    caller.update(side="sell", created_ts=CREATED.isoformat(), ts=CREATED.isoformat(),
++                  meta={PAPER_BUY_CREATED_TS: CREATED.isoformat()})
++    assert fill(db, caller)["reason"] == "paper_buy_ttl:expired"
++    unchanged_accounting(db)
++
++
++def test_stored_origin_update_after_caller_read_is_authoritative(db):
++    order = insert(db)
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?",
++                    (json.dumps({PAPER_BUY_CREATED_TS: "2000-01-01T00:00:00Z"}), order["order_id"]))
++    assert fill(db, order)["reason"] == "paper_buy_ttl:expired"
++    unchanged_accounting(db)
++
++
++def test_malformed_stored_json_rejected_durably(db):
++    order = insert(db)
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("UPDATE paper_orders SET meta_json='{' WHERE order_id=?", (order["order_id"],))
++    result = fill(db, order)
++    assert result["reason"] == "invalid_stored_order_meta"
++    with sqlite3.connect(store.DB_PATH) as con:
++        assert con.execute("SELECT status, reject_reason FROM paper_orders").fetchone() == ("rejected", result["reason"])
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("raw", [
++    '{"paper_buy_created_ts":"2000-01-01T00:00:00Z","paper_buy_created_ts":"2026-11-03T00:00:00Z"}',
++    '{"paper_buy_created_ts":"2026-11-03T00:00:00Z","nested":{"x":1,"x":2}}',
++    '{"paper_buy_created_ts":NaN}', '{"paper_buy_created_ts":Infinity}',
++    '{"paper_buy_created_ts":1e999}',
++    '{"paper_buy_created_ts":"2026-11-03T00:00:00Z","nested":[NaN]}',
++    '[]', '"not-an-object"',
++])
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++def test_strict_stored_metadata_rejects_ambiguous_or_nonfinite_payload(db, raw, operation):
++    order = insert(db)
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?", (raw, order["order_id"]))
++    if operation == "fill":
++        result = fill(db, order)
++        assert not result["ok"]
++    else:
++        result = db.expire_buy_order("buy-1", clock=lambda: CREATED)
++        assert result["state"] == "rejected"
++    assert result["reason"] == "invalid_stored_order_meta"
++    with sqlite3.connect(store.DB_PATH) as con:
++        assert con.execute("SELECT status, reject_reason FROM paper_orders").fetchone() == ("rejected", result["reason"])
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("bad_clock", [lambda: "bad", lambda: None, lambda: 1 / 0])
++def test_invalid_or_failing_clock_rejects_without_accounting(db, bad_clock):
++    order = insert(db)
++    assert fill(db, order, clock=bad_clock)["reason"] == "paper_buy_ttl:invalid_now"
++    assert db.get_order_by_order_id(order["order_id"])["status"] == "rejected"
++    unchanged_accounting(db)
++
++
++def test_injected_clock_is_fresh_fill_and_position_evidence(db):
++    order = insert(db)
++    now = CREATED + timedelta(seconds=45)
++    assert fill(db, order, clock=lambda: now.isoformat())["ok"]
++    assert db.list_fills()[0]["ts"] == now.isoformat()
++    assert db.get_position("BTC/USD")["updated_ts"] == now.isoformat()
++
++
++def test_filled_idempotence_precedes_age_metadata_and_clock(db):
++    order = insert(db)
++    first = fill(db, order)
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("UPDATE paper_orders SET meta_json='{' WHERE order_id=?", (order["order_id"],))
++    retry = fill(db, order, clock=lambda: 1 / 0)
++    assert first["ok"] and retry["ok"] and retry["idempotent"]
++    assert len(db.list_fills()) == 1
++    assert float(db.get_state("cash_quote")) == 899
++    assert db.get_position("BTC/USD")["qty"] == 1
++
++
++@pytest.mark.parametrize("status", ["expired", "rejected", "canceled", "cancelled", "superseded"])
++def test_terminal_buy_cannot_fill_even_with_fresh_clock(db, status):
++    order = insert(db, status=status, reject_reason="prior_reason")
++    assert not fill(db, order)["ok"]
++    assert db.get_order_by_order_id(order["order_id"])["status"] == status
++    unchanged_accounting(db)
++
++
++def test_expire_missing_and_fresh_are_read_only(db):
++    missing = db.expire_buy_order("missing", clock=lambda: CREATED)
++    assert missing["state"] == "missing" and missing["order"] is None
++    order = insert(db)
++    fresh = db.expire_buy_order("buy-1", clock=lambda: CREATED + timedelta(seconds=119.999))
++    assert fresh["state"] == "new" and fresh["order"] == order
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("stored_age,queue_age", [(120, 30), (30, 120), (120, None)])
++def test_expire_uses_oldest_valid_origin(db, stored_age, queue_age):
++    now = CREATED + timedelta(seconds=300)
++    order = insert(db, origin=(now - timedelta(seconds=stored_age)).isoformat())
++    supplied = None if queue_age is None else (now - timedelta(seconds=queue_age)).isoformat()
++    result = db.expire_buy_order("buy-1", created_ts=supplied, clock=lambda: now)
++    assert result["state"] == "expired" and result["reason"] == "paper_buy_ttl:expired"
++    assert result["order"] == db.get_order_by_order_id(order["order_id"])
++    assert result["order"]["reject_reason"] == result["reason"]
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("bad_origin", ["bad", "", (CREATED + timedelta(seconds=60)).isoformat()])
++@pytest.mark.parametrize("source", ["stored", "queue", "legacy"])
++def test_expire_invalid_either_source_rejects(db, bad_origin, source):
++    changes = {"origin": bad_origin} if source == "stored" else {}
++    if source == "legacy":
++        changes.update(meta=None, legacy=bad_origin)
++    order = insert(db, **changes)
++    result = db.expire_buy_order("buy-1", created_ts=bad_origin if source == "queue" else None,
++                                 clock=lambda: CREATED)
++    assert result["state"] == "rejected"
++    assert result["order"] == db.get_order_by_order_id(order["order_id"])
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("status", ["filled", "expired", "rejected", "canceled", "cancelled", "superseded"])
++def test_expire_never_resurrects_or_reclassifies_terminal(db, status):
++    order = insert(db, status=status, reject_reason="prior_reason")
++    result = db.expire_buy_order("buy-1", created_ts="bad", clock=lambda: 1 / 0)
++    assert result["state"] == status and result["order"] == order
++    assert db.get_order_by_order_id(order["order_id"]) == order
++
++
++@pytest.mark.parametrize("age", [120, 100000])
++def test_sell_never_expires_or_calls_buy_clock(db, age):
++    db.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
++    order = insert(db, side="sell", origin="bad", legacy="bad")
++    result = db.expire_buy_order("buy-1", created_ts="bad", clock=lambda: 1 / 0)
++    assert result["state"] == "new" and result["order"] == order
++    result = fill(db, order, clock=lambda: 1 / 0, ts=(CREATED + timedelta(seconds=age)).isoformat())
++    assert result["ok"]
++    assert db.get_order_by_order_id(order["order_id"])["status"] == "filled"
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++@pytest.mark.parametrize("injected", [True, False])
++def test_clock_sampled_after_waiting_for_write_lock(db, monkeypatch, operation, injected):
++    order = insert(db)
++    connecting = threading.Event()
++    clock_called = threading.Event()
++    original_connect = store._connect
++    con = original_connect()
++    con.execute("BEGIN IMMEDIATE")
++    current = [CREATED + timedelta(seconds=119)]
++
++    def connect():
++        result = original_connect()
++        connecting.set()
++        return result
++
++    def clock():
++        clock_called.set()
++        return current[0]
++
++    class ClockDateTime(datetime):
++        @classmethod
++        def now(cls, tz=None):
++            return clock()
++
++    if not injected:
++        monkeypatch.setattr(store, "datetime", ClockDateTime)
++    monkeypatch.setattr(store, "_connect", connect)
++    try:
++        with ThreadPoolExecutor(max_workers=1) as pool:
++            kwargs = {"clock": clock if injected else None}
++            future = (pool.submit(fill, db, order, **kwargs) if operation == "fill" else
++                      pool.submit(db.expire_buy_order, "buy-1", **kwargs))
++            assert connecting.wait(3)
++            assert not clock_called.is_set()
++            current[0] = CREATED + timedelta(seconds=120)
++            con.execute("COMMIT")
++            assert future.result(timeout=5)["reason"] == "paper_buy_ttl:expired"
++    finally:
++        con.close()
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("winner", ["expiry", "fill"])
++def test_expiry_and_fill_serialize_without_overwriting_winner(db, winner):
++    order = insert(db)
++    inside_lock = threading.Event()
++    release = threading.Event()
++
++    def blocked_clock():
++        inside_lock.set()
++        assert release.wait(3)
++        return CREATED + timedelta(seconds=120 if winner == "expiry" else 119)
++
++    def expire(clock):
++        return db.expire_buy_order("buy-1", clock=clock)
++
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        first = pool.submit(expire, blocked_clock) if winner == "expiry" else pool.submit(fill, db, order, clock=blocked_clock)
++        assert inside_lock.wait(3)
++        second = pool.submit(fill, db, order) if winner == "expiry" else pool.submit(expire, lambda: CREATED + timedelta(seconds=120))
++        release.set()
++        one, two = first.result(timeout=5), second.result(timeout=5)
++    if winner == "expiry":
++        assert one["state"] == "expired" and not two["ok"]
++        assert db.get_order_by_order_id(order["order_id"])["status"] == "expired"
++        unchanged_accounting(db)
++    else:
++        assert one["ok"] and two["state"] == "filled"
++        assert db.get_order_by_order_id(order["order_id"])["status"] == "filled"
++        assert len(db.list_fills()) == 1
++        assert float(db.get_state("cash_quote")) == 899
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++def test_expiry_write_rolls_back_atomically_on_failure(db, monkeypatch, operation):
++    order = insert(db)
++    original = db._update_order_status_conn
++
++    def fail_after_write(*args, **kwargs):
++        original(*args, **kwargs)
++        raise RuntimeError("simulated commit failure")
++
++    monkeypatch.setattr(db, "_update_order_status_conn", fail_after_write)
++    with pytest.raises(RuntimeError, match="simulated commit failure"):
++        clock = lambda: CREATED + timedelta(seconds=120)
++        if operation == "fill":
++            fill(db, order, clock=clock)
++        else:
++            db.expire_buy_order("buy-1", clock=clock)
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    unchanged_accounting(db)
++
++
++def buy_terminal(db, client="buy-1"):
++    raw = db.get_state("paper_buy_terminal:" + client)
++    return json.loads(raw) if raw is not None else None
++
++
++@pytest.mark.parametrize("created,reason,state", [
++    (CREATED.isoformat(), "paper_buy_ttl:expired", "expired"),
++    ("bad", "paper_buy_ttl:invalid_created_ts", "rejected"),
++    (None, "paper_buy_ttl:missing_created_ts", "rejected"),
++    (float("nan"), "paper_buy_ttl:invalid_created_ts", "rejected"),
++    ((CREATED + timedelta(seconds=121)).isoformat(), "paper_buy_ttl:future_created_ts", "rejected"),
++])
++def test_missing_expiry_fence_blocks_late_fresh_order_after_restart(db, created, reason, state):
++    receipt = db.expire_buy_order("buy-1", created_ts=created, fence_missing=True,
++                                  clock=lambda: CREATED + timedelta(seconds=120))
++    assert receipt == {"state": state, "reason": reason, "order": None}
++    terminal = buy_terminal(db)
++    assert terminal["state"] == state and terminal["reason"] == reason
++    assert terminal["client_order_id"] == "buy-1"
++    assert "created_ts" in terminal
++    assert db.list_orders() == []
++    restarted = store.PaperTradingSQLite()
++    order = insert(restarted, origin=(CREATED + timedelta(seconds=120)).isoformat())
++    forged = {**order, "side": "sell", "client_order_id": "another"}
++    result = fill(restarted, forged, clock=lambda: CREATED + timedelta(seconds=121))
++    assert not result["ok"] and result["reason"] == reason
++    canonical = restarted.get_order_by_order_id(order["order_id"])
++    assert canonical["status"] == state and canonical["reject_reason"] == reason
++    assert buy_terminal(restarted) == terminal
++    unchanged_accounting(restarted)
++
++
++@pytest.mark.parametrize("fence_missing,age", [(False, 120), (True, 119.999)])
++def test_missing_default_or_fresh_does_not_write_fence(db, fence_missing, age):
++    result = db.expire_buy_order("buy-1", created_ts=CREATED.isoformat(),
++                                 fence_missing=fence_missing,
++                                 clock=lambda: CREATED + timedelta(seconds=age))
++    assert result["state"] == "missing" and result["order"] is None
++    assert buy_terminal(db) is None
++    unchanged_accounting(db)
++
++
++def test_missing_fence_is_sticky_for_repeated_fresh_or_invalid_calls(db):
++    first = db.expire_buy_order("buy-1", created_ts=CREATED.isoformat(), fence_missing=True,
++                                 clock=lambda: CREATED + timedelta(seconds=120))
++    terminal = buy_terminal(db)
++    for clock in (lambda: CREATED, lambda: 1 / 0):
++        assert db.expire_buy_order("buy-1", created_ts="bad", clock=clock) == first
++    assert buy_terminal(db) == terminal
++    order = insert(db)
++    result = db.expire_buy_order("buy-1", clock=lambda: CREATED)
++    assert result["state"] == "expired" and result["order"]["order_id"] == order["order_id"]
++    assert buy_terminal(db) == terminal
++    unchanged_accounting(db)
++
++
++def test_filled_order_wins_before_missing_fence_attempt(db):
++    order = insert(db)
++    assert fill(db, order)["ok"]
++    receipt = db.expire_buy_order("buy-1", created_ts="bad", fence_missing=True,
++                                  clock=lambda: 1 / 0)
++    assert receipt["state"] == "filled"
++    assert buy_terminal(db) is None
++    assert len(db.list_fills()) == 1
++    assert fill(db, order, clock=lambda: 1 / 0)["idempotent"]
++
++
++@pytest.mark.parametrize("legacy", [True, False])
++def test_older_valid_queue_origin_persists_restart_deadline_and_other_meta(db, legacy):
++    later = (CREATED + timedelta(seconds=60)).isoformat()
++    original_meta = {"retained": {"identity": ["exact", 2, False]}}
++    if not legacy:
++        original_meta[PAPER_BUY_CREATED_TS] = later
++    order = insert(db, legacy=later, meta=original_meta)
++    receipt = db.expire_buy_order("buy-1", created_ts=CREATED,
++                                  clock=lambda: CREATED + timedelta(seconds=90))
++    assert receipt["state"] == "new"
++    stored = db.get_order_by_order_id(order["order_id"])
++    expected = {**original_meta, PAPER_BUY_CREATED_TS: CREATED.isoformat()}
++    assert stored["meta"] == expected and receipt["order"] == stored
++    assert {key: value for key, value in stored.items() if key != "meta"} == {
++        key: value for key, value in order.items() if key != "meta"}
++    assert buy_terminal(db) is None
++    restarted = store.PaperTradingSQLite()
++    result = fill(restarted, order, clock=lambda: CREATED + timedelta(seconds=120))
++    assert result["reason"] == "paper_buy_ttl:expired"
++    assert buy_terminal(restarted)["state"] == "expired"
++    unchanged_accounting(restarted)
++
++
++@pytest.mark.parametrize("legacy", [True, False])
++def test_later_queue_origin_never_overwrites_earlier_stored_origin(db, legacy):
++    meta = {"keep": 1} if legacy else {PAPER_BUY_CREATED_TS: CREATED.isoformat(), "keep": 1}
++    order = insert(db, legacy=CREATED.isoformat(), meta=meta)
++    result = db.expire_buy_order("buy-1", created_ts=(CREATED + timedelta(seconds=20)).isoformat(),
++                                 clock=lambda: CREATED + timedelta(seconds=30))
++    assert result["state"] == "new" and result["order"] == order
++    assert db.get_order_by_order_id(order["order_id"]) == order
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++def test_existing_bad_age_commits_order_and_fence_together(db, operation):
++    order = insert(db)
++    clock = lambda: CREATED + timedelta(seconds=120)
++    if operation == "fill":
++        assert not fill(db, order, clock=clock)["ok"]
++    else:
++        assert db.expire_buy_order("buy-1", created_ts=CREATED.isoformat(), clock=clock)["state"] == "expired"
++    terminal = buy_terminal(db)
++    assert terminal["state"] == "expired" and terminal["reason"] == "paper_buy_ttl:expired"
++    stored = db.get_order_by_order_id(order["order_id"])
++    assert stored["status"] == terminal["state"] and stored["reject_reason"] == terminal["reason"]
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("operation", ["missing", "existing", "fill"])
++def test_fence_write_failure_rolls_back_order_and_tombstone(db, monkeypatch, operation):
++    order = insert(db) if operation != "missing" else None
++    original = db._set_state_conn
++
++    def fail_after_fence(con, key, value):
++        original(con, key, value)
++        if key.startswith("paper_buy_terminal:"):
++            raise RuntimeError("fence write failure")
++
++    monkeypatch.setattr(db, "_set_state_conn", fail_after_fence)
++    with pytest.raises(RuntimeError, match="fence write failure"):
++        clock = lambda: CREATED + timedelta(seconds=120)
++        if operation == "fill":
++            fill(db, order, clock=clock)
++        else:
++            db.expire_buy_order("buy-1", created_ts=CREATED.isoformat(), clock=clock, fence_missing=True)
++    assert buy_terminal(db) is None
++    assert db.get_order_by_client_id("buy-1") == order
++    unchanged_accounting(db)
++
++
++def test_missing_fence_serializes_with_late_insert_and_fill(db):
++    inside_lock = threading.Event()
++    release = threading.Event()
++    inserting = threading.Event()
++
++    def blocked_clock():
++        inside_lock.set()
++        assert release.wait(3)
++        return CREATED + timedelta(seconds=120)
++
++    def late_fill():
++        inserting.set()
++        order = insert(db, origin=(CREATED + timedelta(seconds=120)).isoformat())
++        return fill(db, order, clock=lambda: CREATED + timedelta(seconds=121))
++
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        expiry = pool.submit(db.expire_buy_order, "buy-1", created_ts=CREATED,
++                             clock=blocked_clock, fence_missing=True)
++        assert inside_lock.wait(3)
++        late = pool.submit(late_fill)
++        assert inserting.wait(3)
++        release.set()
++        assert expiry.result(timeout=5)["state"] == "expired"
++        assert late.result(timeout=5)["reason"] == "paper_buy_ttl:expired"
++    assert buy_terminal(db)["state"] == "expired"
++    unchanged_accounting(db)
++
++
++def test_fill_commits_before_waiting_missing_fence_and_wins(db):
++    order = insert(db)
++    inside_lock = threading.Event()
++    release = threading.Event()
++
++    def blocked_clock():
++        inside_lock.set()
++        assert release.wait(3)
++        return CREATED + timedelta(seconds=119)
++
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        filling = pool.submit(fill, db, order, clock=blocked_clock)
++        assert inside_lock.wait(3)
++        expiry = pool.submit(db.expire_buy_order, "buy-1", created_ts=CREATED,
++                             clock=lambda: CREATED + timedelta(seconds=120), fence_missing=True)
++        release.set()
++        assert filling.result(timeout=5)["ok"]
++        assert expiry.result(timeout=5)["state"] == "filled"
++    assert buy_terminal(db) is None
++    assert len(db.list_fills()) == 1
++    assert float(db.get_state("cash_quote")) == 899
++
++
++def test_buy_fence_does_not_affect_canonical_sell(db):
++    db.expire_buy_order("buy-1", created_ts=CREATED, fence_missing=True,
++                        clock=lambda: CREATED + timedelta(seconds=120))
++    terminal = buy_terminal(db)
++    db.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
++    order = insert(db, side="sell", origin="bad")
++    assert db.expire_buy_order("buy-1", clock=lambda: 1 / 0)["state"] == "new"
++    assert fill(db, order, clock=lambda: 1 / 0)["ok"]
++    assert buy_terminal(db) == terminal
++
++
++@pytest.mark.parametrize("raw", ['{', '{}', '{"state":"filled"}',
++                                 '{"state":"expired","reason":"expired","client_order_id":"other"}',
++                                 '{"state":[],"reason":"expired","client_order_id":"buy-1"}'])
++def test_corrupt_buy_fence_fails_closed_without_rewrite(db, raw):
++    db.set_state("paper_buy_terminal:buy-1", raw)
++    order = insert(db)
++    result = fill(db, order)
++    assert not result["ok"] and result["reason"] == "invalid_buy_terminal"
++    assert db.get_order_by_order_id(order["order_id"])["status"] == "rejected"
++    assert db.get_state("paper_buy_terminal:buy-1") == raw
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("change", [
++    {"venue": "other"}, {"symbol": "ETH/USD"}, {"side": "sell"}, {"qty": 2.0},
++    {"order_type": "limit"}, {"limit_price": 100.0}, {"linked_order_id": "other-order"},
++    {"qty": True},
++])
++def test_expected_identity_mismatch_blocks_before_any_mutation(db, change):
++    order = insert(db)
++    expected = {**order, **change}
++    receipt = db.expire_buy_order("buy-1", created_ts=CREATED, expected_order=expected,
++                                  fence_missing=True, clock=lambda: CREATED + timedelta(seconds=120))
++    assert receipt == {"state": "blocked", "reason": "paper_buy_order_identity_mismatch", "order": order}
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    assert buy_terminal(db) is None
++    unchanged_accounting(db)
++
++
++def test_expected_identity_accepts_normalization_and_ignores_strategy_id(db):
++    order = insert(db)
++    expected = {**order, "venue": " Coinbase ", "symbol": " BTC/USD ", "side": " BUY ",
++                "order_type": " MARKET ", "linked_order_id": order["order_id"],
++                "strategy_id": "legacy-fallback-is-not-identity"}
++    receipt = db.expire_buy_order("buy-1", created_ts=CREATED, expected_order=expected,
++                                  clock=lambda: CREATED + timedelta(seconds=30))
++    assert receipt["state"] == "new" and receipt["order"] == order
++    assert buy_terminal(db) is None
++
++
++def test_expected_identity_does_not_mutate_wrong_order_appearing_after_initial_missing_read(db, monkeypatch):
++    assert db.get_order_by_client_id("buy-1") is None
++    expected = dict(venue="coinbase", symbol="BTC/USD", side="buy", qty=1.0,
++                    order_type="market", limit_price=None)
++    locked = threading.Event()
++    original_connect = store._connect
++    writer = original_connect()
++    writer.execute("BEGIN IMMEDIATE")
++
++    def connect():
++        con = original_connect()
++        locked.set()
++        return con
++
++    monkeypatch.setattr(store, "_connect", connect)
++    try:
++        with ThreadPoolExecutor(max_workers=1) as pool:
++            expiry = pool.submit(db.expire_buy_order, "buy-1", created_ts=CREATED,
++                                 clock=lambda: CREATED + timedelta(seconds=120),
++                                 fence_missing=True, expected_order=expected)
++            assert locked.wait(3)
++            writer.execute(
++                "INSERT INTO paper_orders(order_id,client_order_id,created_ts,ts,venue,symbol,side,"
++                "order_type,qty,status,meta_json) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
++                ("wrong-order", "buy-1", CREATED.isoformat(), CREATED.isoformat(), "coinbase",
++                 "ETH/USD", "buy", "market", 1.0, "new", "{}"),
++            )
++            writer.execute("COMMIT")
++            receipt = expiry.result(timeout=5)
++    finally:
++        writer.close()
++    assert receipt["state"] == "blocked" and receipt["reason"] == "paper_buy_order_identity_mismatch"
++    canonical = db.get_order_by_client_id("buy-1")
++    assert canonical["order_id"] == "wrong-order" and canonical["status"] == "new"
++    assert canonical["meta"] == {} and buy_terminal(db) is None
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++@pytest.mark.parametrize("age", [119.999, 120])
++def test_legacy_open_buy_is_active_and_obeys_same_ttl(db, operation, age):
++    order = insert(db, status="open")
++    clock = lambda: CREATED + timedelta(seconds=age)
++    if operation == "fill":
++        receipt = fill(db, order, clock=clock)
++        assert receipt["ok"] is (age < 120)
++    else:
++        receipt = db.expire_buy_order("buy-1", clock=clock)
++        assert receipt["state"] == ("open" if age < 120 else "expired")
++    canonical = db.get_order_by_order_id(order["order_id"])
++    if age >= 120:
++        assert receipt["reason"] == "paper_buy_ttl:expired"
++        assert canonical["status"] == "expired"
++        assert canonical["reject_reason"] == "paper_buy_ttl:expired"
++        assert buy_terminal(db)["state"] == "expired"
++        unchanged_accounting(db)
++    elif operation == "fill":
++        assert canonical["status"] == "filled"
++        assert len(db.list_fills()) == 1
++        assert float(db.get_state("cash_quote")) == 899
++    else:
++        assert canonical == order and buy_terminal(db) is None
++        unchanged_accounting(db)
++
++
++def queue_origin(*, client="buy-1", intent_id="queue-1", created=CREATED.isoformat()):
++    path = store.DB_PATH.parent / "intent_queue.sqlite"
++    with sqlite3.connect(path) as con:
++        con.execute("CREATE TABLE IF NOT EXISTS trade_intents "
++                    "(intent_id TEXT PRIMARY KEY, client_order_id TEXT, created_ts TEXT)")
++        con.execute("INSERT INTO trade_intents(intent_id,client_order_id,created_ts) VALUES(?,?,?)",
++                    (intent_id, client, created))
++    return path
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++@pytest.mark.parametrize("reserved_meta", [False, True])
++def test_authoritative_queue_age_blocks_custom_legacy_client_after_origin_write_failure(db, operation, reserved_meta):
++    queue_origin(client="legacy-custom")
++    later = (CREATED + timedelta(seconds=110)).isoformat()
++    meta = {PAPER_BUY_CREATED_TS: later, "retained": "identity"} if reserved_meta else None
++    order = insert(db, client_order_id="legacy-custom", meta=meta, legacy=later)
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("CREATE TRIGGER fail_origin BEFORE UPDATE OF meta_json ON paper_orders "
++                    "BEGIN SELECT RAISE(ABORT, 'transient_origin_failure'); END")
++    with pytest.raises(sqlite3.IntegrityError, match="transient_origin_failure"):
++        db.expire_buy_order("legacy-custom", created_ts=CREATED,
++                            clock=lambda: CREATED + timedelta(seconds=110))
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("DROP TRIGGER fail_origin")
++    restarted = store.PaperTradingSQLite()
++    clock = lambda: CREATED + timedelta(seconds=121)
++    if operation == "fill":
++        result = fill(restarted, order, clock=clock)
++        assert not result["ok"]
++    else:
++        result = restarted.expire_buy_order("legacy-custom", clock=clock)
++        assert result["state"] == "expired"
++    assert result["reason"] == "paper_buy_ttl:expired"
++    assert restarted.get_order_by_order_id(order["order_id"])["status"] == "expired"
++    unchanged_accounting(restarted)
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++@pytest.mark.parametrize("queue_exists", [False, True])
++def test_canonical_missing_queue_origin_stays_unresolved_without_creating_queue(db, operation, queue_exists):
++    if queue_exists:
++        queue_origin(client="unrelated", intent_id="unrelated")
++    order = insert(db, client_order_id="paper_intent_unwritten")
++    path = store.DB_PATH.parent / "intent_queue.sqlite"
++    if operation == "fill":
++        result = fill(db, order)
++        assert not result["ok"]
++    else:
++        result = db.expire_buy_order(order["client_order_id"], clock=lambda: CREATED)
++        assert result["state"] == "blocked"
++    assert result["reason"] == "paper_buy_queue_origin_missing"
++    assert path.exists() is queue_exists
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    assert buy_terminal(db, order["client_order_id"]) is None
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("client,queued_client", [("paper_intent_queue-1", None), ("custom-legacy", "custom-legacy")])
++def test_fresh_queue_origin_resolves_canonical_id_or_custom_client(db, client, queued_client):
++    queue_origin(client=queued_client)
++    order = insert(db, client_order_id=client)
++    assert fill(db, order)["ok"]
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++@pytest.mark.parametrize("client", ["paper_intent_queue-1", "custom-legacy"])
++@pytest.mark.parametrize("damage", ["corrupt", "schema", "locked"])
++def test_existing_unreadable_queue_blocks_all_active_buys_without_terminalizing(db, operation, client, damage):
++    path = queue_origin(client=client)
++    lock = None
++    with sqlite3.connect(path) as con:
++        if damage == "corrupt":
++            con.execute("PRAGMA writable_schema=ON")
++            con.execute("UPDATE sqlite_master SET sql='not valid sql' WHERE name='trade_intents'")
++        elif damage == "schema":
++            con.execute("DROP TABLE trade_intents")
++    if damage == "locked":
++        lock = sqlite3.connect(path)
++        lock.execute("BEGIN EXCLUSIVE")
++    order = insert(db, client_order_id=client, status="open")
++    try:
++        if operation == "fill":
++            result = fill(db, order)
++            assert not result["ok"]
++        else:
++            result = db.expire_buy_order(client, clock=lambda: CREATED)
++            assert result["state"] == "blocked"
++    finally:
++        if lock is not None:
++            lock.rollback()
++            lock.close()
++    assert result["reason"] == "paper_buy_queue_origin_unreadable"
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    assert buy_terminal(db, client) is None
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("operation", ["fill", "expire"])
++@pytest.mark.parametrize("created,reason", [(None, "missing_created_ts"), ("bad", "invalid_created_ts"),
++                                           ((CREATED + timedelta(seconds=31)).isoformat(), "future_created_ts")])
++def test_known_bad_queue_origin_cannot_hide_behind_fresh_metadata(db, operation, created, reason):
++    queue_origin(created=created)
++    order = insert(db)
++    if operation == "fill":
++        result = fill(db, order)
++        assert not result["ok"]
++    else:
++        result = db.expire_buy_order("buy-1", clock=lambda: CREATED + timedelta(seconds=30))
++        assert result["state"] == "rejected"
++    assert result["reason"] == "paper_buy_ttl:" + reason
++    assert db.get_order_by_order_id(order["order_id"])["status"] == "rejected"
++    unchanged_accounting(db)
++
++
++@pytest.mark.parametrize("second_origin,reason", [(CREATED.isoformat(), "expired"),
++                                                ("bad", "invalid_created_ts"),
++                                                ((CREATED + timedelta(seconds=121)).isoformat(), "future_created_ts")])
++def test_multiple_queue_matches_never_ignore_older_or_invalid_origin(db, second_origin, reason):
++    later = (CREATED + timedelta(seconds=110)).isoformat()
++    queue_origin(intent_id="newer", created=later)
++    queue_origin(intent_id="older-or-invalid", created=second_origin)
++    order = insert(db, origin=later)
++    result = fill(db, order, clock=lambda: CREATED + timedelta(seconds=120))
++    assert not result["ok"] and result["reason"] == "paper_buy_ttl:" + reason
++    unchanged_accounting(db)
++
++
++def test_noncanonical_direct_order_with_unmatched_existing_queue_retains_own_age(db):
++    queue_origin(client="unrelated", created="bad")
++    order = insert(db)
++    assert fill(db, order)["ok"]
++
++
++@pytest.mark.parametrize("status", ["filled", "expired", "rejected", "canceled", "cancelled", "superseded"])
++def test_terminal_order_does_not_depend_on_readable_queue(db, status):
++    path = queue_origin()
++    with sqlite3.connect(path) as con:
++        con.execute("DROP TABLE trade_intents")
++    order = insert(db, status=status)
++    result = db.expire_buy_order("buy-1", clock=lambda: 1 / 0)
++    assert result["state"] == status and result["order"] == order
++    result = fill(db, order, clock=lambda: 1 / 0)
++    assert result["ok"] is (status == "filled")
++    assert db.get_order_by_order_id(order["order_id"]) == order
++
++
++def test_existing_fence_precedes_queue_lookup_and_sells_ignore_unreadable_queue(db):
++    db.expire_buy_order("buy-1", created_ts=CREATED, fence_missing=True,
++                        clock=lambda: CREATED + timedelta(seconds=120))
++    path = queue_origin()
++    with sqlite3.connect(path) as con:
++        con.execute("DROP TABLE trade_intents")
++    order = insert(db)
++    assert fill(db, order)["reason"] == "paper_buy_ttl:expired"
++    sell = insert(db, side="sell", client_order_id="sell-1", order_id="sell-1", origin="bad")
++    db.upsert_position("BTC/USD", 1, 100, 0)
++    assert fill(db, sell, clock=lambda: 1 / 0)["ok"]
++
++
++def test_queue_lookup_is_readonly_path_quoted_and_after_paper_write_lock(db, monkeypatch):
++    quoted_parent = store.DB_PATH.parent / "space #?% directory"
++    quoted_parent.mkdir()
++    monkeypatch.setattr(store, "DB_PATH", quoted_parent / "paper.sqlite")
++    isolated = store.PaperTradingSQLite()
++    isolated.set_state("cash_quote", "1000")
++    isolated.set_state("realized_pnl", "0")
++    path = queue_origin()
++    before = path.read_bytes()
++    order = insert(isolated)
++    original_connect = sqlite3.connect
++    seen = []
++
++    def connect(database, *args, **kwargs):
++        if kwargs.get("uri"):
++            seen.append(database)
++            assert str(database).endswith("?mode=ro")
++            assert "#" not in str(database) and "%23%3F%25" in str(database)
++            assert 0 < kwargs["timeout"] <= 1
++            with original_connect(store.DB_PATH, timeout=0) as writer:
++                with pytest.raises(sqlite3.OperationalError, match="locked"):
++                    writer.execute("BEGIN IMMEDIATE")
++            con = original_connect(database, *args, **kwargs)
++            with pytest.raises(sqlite3.OperationalError, match="readonly"):
++                con.execute("DELETE FROM trade_intents")
++            return con
++        return original_connect(database, *args, **kwargs)
++
++    monkeypatch.setattr(sqlite3, "connect", connect)
++    assert fill(isolated, order)["ok"]
++    assert len(seen) == 1 and path.read_bytes() == before
+--- before/tests/test_paper_buy_lifecycle.py
++++ after/tests/test_paper_buy_lifecycle.py
+@@ -0,0 +1,248 @@
++"""Real SQLite paper queue/engine tests; no provider or process is contacted."""
++import importlib
++from datetime import datetime, timedelta, timezone
++from types import SimpleNamespace
++
++import pytest
++
++
++@pytest.fixture
++def rig(monkeypatch, tmp_path):
++    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
++    import services.os.app_paths as paths
++    import storage.intent_queue_sqlite as queue
++    import storage.paper_trading_sqlite as ledger
++    import storage.trade_journal_sqlite as journal
++    import services.execution.paper_engine as engine
++    import services.execution.paper_runner as runner
++    import services.execution.intent_reconciler as reconciler
++    for module in (paths, queue, ledger, journal, engine, runner, reconciler):
++        importlib.reload(module)
++    now = [datetime.now(timezone.utc)]
++    clock = lambda: now[0].isoformat()
++    monkeypatch.setattr(runner, "_now", clock)
++    monkeypatch.setattr(reconciler, "_now", clock)
++    monkeypatch.setattr(engine, "load_user_yaml", lambda: {"paper_trading": {
++        "starting_cash_quote": 1000, "fee_bps": 50, "slippage_bps": 0, "use_ccxt_fallback": False}})
++    monkeypatch.setattr(engine.PaperEngine, "_pre_submit_gate", lambda *a, **kw: (True, None))
++    monkeypatch.setattr(engine.PaperEngine, "_price", lambda *a: {"bid": 100, "ask": 100, "last": 100})
++    async def allowed(*args, **kwargs):
++        return SimpleNamespace(allowed=True)
++    monkeypatch.setattr(runner, "decide_order", allowed)
++    import services.alerts.alert_dispatcher as alerts
++    import services.admin.config_editor as config
++    monkeypatch.setattr(config, "load_user_yaml", lambda **kw: {})
++    dispatches = []
++    monkeypatch.setattr(alerts, "send_alert", lambda **kw: dispatches.append(kw) or {"ok": True, "skipped": True})
++    qdb, eng, jdb = queue.IntentQueueSQLite(), engine.PaperEngine(clock=clock), journal.TradeJournalSQLite()
++    return SimpleNamespace(q=qdb, eng=eng, j=jdb, runner=runner, rec=reconciler, now=now,
++                           clock=clock, alerts=dispatches)
++
++
++def seed(rig, iid="buy", *, age=0, side="buy", status="queued"):
++    created = (rig.now[0] - timedelta(seconds=age)).isoformat()
++    rig.q.upsert_intent({"intent_id": iid, "created_ts": created, "ts": created,
++        "source": "strategy", "strategy_id": "test", "venue": "coinbase", "symbol": "ADA/USD",
++        "side": side, "order_type": "market", "qty": 1, "status": status})
++    return rig.q.get_intent(iid)
++
++
++@pytest.mark.parametrize("status", ["queued", "submitting", "held"])
++def test_restart_expires_unwritten_old_buy_with_receipt_and_alert(rig, status):
++    seed(rig, age=180, status=status)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    row = rig.q.get_intent("buy")
++    assert row["status"] == "expired"
++    assert "expired" in row["last_error"]
++    assert rig.eng.db.list_orders() == []
++    assert rig.eng.db.list_fills() == []
++    assert rig.eng.cash_quote() == 1000
++    assert len(rig.alerts) == 1
++    events = rig.q.list_paper_buy_events("buy")
++    assert any(e["status"] == "expired" and e["event"] == "transition" for e in events)
++    assert events[-1]["reason"] == "not_delivered"
++
++
++def test_route_delay_cannot_refresh_original_creation_time(rig, monkeypatch):
++    seed(rig)
++    async def delayed(*a, **kw):
++        rig.now[0] += timedelta(seconds=121)
++        return SimpleNamespace(allowed=True)
++    monkeypatch.setattr(rig.runner, "decide_order", delayed)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert rig.q.get_intent("buy")["status"] == "expired"
++    assert rig.eng.db.list_orders() == []
++
++
++def test_limit_expires_without_quote_or_cross_and_cannot_later_fill(rig, monkeypatch):
++    seed(rig)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    order = rig.eng.db.get_order_by_client_id("paper_intent_buy")
++    monkeypatch.setattr(rig.eng, "_price", lambda *a: None)
++    rig.now[0] += timedelta(seconds=120)
++    rig.eng.evaluate_open_orders()
++    assert rig.eng.db.get_order_by_client_id("paper_intent_buy")["status"] == "expired"
++    result = rig.eng._apply_fill(order, 100, 1)
++    assert not result["ok"]
++    assert rig.eng.db.list_fills() == []
++    assert rig.eng.cash_quote() == 1000
++
++
++@pytest.mark.parametrize("stage", ["new", "filled"])
++def test_crash_after_ledger_write_recovers_without_second_order_or_fill(rig, stage):
++    row = seed(rig)
++    rig.q.claim_next_queued()
++    response = rig.eng.submit_order(client_order_id="paper_intent_buy", venue="coinbase", symbol="ADA/USD",
++        side="buy", order_type="market", qty=1, intent_created_ts=row["created_ts"])
++    assert response["ok"]
++    if stage == "filled":
++        assert rig.eng.evaluate_open_orders()["filled"] == 1
++    out = rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    assert out["buy_recovery_faults"] == []
++    assert rig.q.get_intent("buy")["status"] == ("filled" if stage == "filled" else "submitted")
++    if stage == "new":
++        assert rig.eng.evaluate_open_orders()["filled"] == 1
++        rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    assert len(rig.eng.db.list_orders()) == len(rig.eng.db.list_fills()) == rig.j.count() == 1
++    assert rig.eng.cash_quote() == 899.5
++    assert rig.eng.db.get_position("ADA/USD")["qty"] == 1
++    events = rig.q.list_paper_buy_events("buy")
++    assert sum(e["event"] == "picked_up" for e in events) == 1
++    assert sum(e["status"] == "filled" for e in events) == 1
++
++
++def test_old_sell_is_not_expired(rig):
++    rig.eng.db.upsert_position("ADA/USD", 1, 100, 0)
++    seed(rig, "sell", age=86400, side="sell")
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert rig.eng.evaluate_open_orders()["filled"] == 1
++    rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    assert rig.q.get_intent("sell")["status"] == "filled"
++
++
++def test_expired_queue_cannot_be_resurrected(rig):
++    original = seed(rig, age=180)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert not rig.q.update_status("buy", "submitted")
++    rig.q.upsert_intent({**original, "created_ts": rig.clock(), "status": "queued"})
++    assert rig.q.get_intent("buy")["status"] == "expired"
++
++
++def test_missing_linked_order_is_reported_not_assumed_unwritten(rig):
++    row = seed(rig, status="submitted", age=180)
++    rig.q.update_status(row["intent_id"], "submitted", linked_order_id="missing")
++    result = rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    assert result["buy_recovery_faults"] == [{"intent_id": "buy", "reason": "paper_buy_linked_order_missing"}]
++    assert rig.q.get_intent("buy")["status"] == "submitted"
++    assert rig.alerts
++
++
++@pytest.mark.parametrize("filled", [False, True])
++def test_submit_exception_after_commit_recovers_before_disposal(rig, monkeypatch, filled):
++    seed(rig)
++    submit = rig.eng.submit_order
++    def uncertain(**kwargs):
++        result = submit(**kwargs)
++        assert result["ok"]
++        if filled:
++            assert rig.eng.evaluate_open_orders()["filled"] == 1
++        raise RuntimeError("lost_response_after_commit")
++    monkeypatch.setattr(rig.eng, "submit_order", uncertain)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert rig.q.get_intent("buy")["status"] == "submitted"
++    assert any(e["event"] == "submit_uncertain" for e in rig.q.list_paper_buy_events("buy"))
++    rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    if not filled:
++        assert rig.eng.evaluate_open_orders()["filled"] == 1
++        rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert rig.q.get_intent("buy")["status"] == "filled"
++    assert len(rig.eng.db.list_fills()) == len(rig.eng.db.list_orders()) == rig.j.count() == 1
++    assert rig.eng.cash_quote() == 899.5
++
++
++def test_resting_limit_original_queue_age_survives_recovery_restart(rig):
++    from services.execution.paper_buy_lifecycle import recover_paper_buys
++    row = seed(rig, age=90)
++    rig.q.upsert_intent({**row, "order_type": "limit", "limit_price": 50})
++    rig.q.claim_next_queued()
++    result = rig.eng.submit_order(client_order_id="paper_intent_buy", venue="coinbase", symbol="ADA/USD",
++                                  side="buy", order_type="limit", qty=1, limit_price=50)
++    assert result["ok"]
++    # Legacy order knew only its own later creation. Recovery must bind the older intent.
++    recover_paper_buys(rig.q, rig.eng.db, clock=rig.clock)
++    rig.now[0] += timedelta(seconds=31)
++    rig.eng.evaluate_open_orders()
++    assert rig.eng.db.get_order_by_client_id("paper_intent_buy")["status"] == "expired"
++    assert rig.eng.db.list_fills() == []
++
++
++def test_terminal_alert_dispatch_failure_is_retained_and_retried(rig, monkeypatch):
++    from services.execution.paper_buy_lifecycle import recover_paper_buys
++    import services.alerts.alert_dispatcher as alerts
++    seed(rig, age=180)
++    def failed(**kwargs):
++        raise ConnectionError("synthetic")
++    monkeypatch.setattr(alerts, "send_alert", failed)
++    recover_paper_buys(rig.q, rig.eng.db, clock=rig.clock)
++    assert rig.q.get_intent("buy")["status"] == "expired"
++    assert rig.q.list_paper_buy_events("buy")[-1]["event"] == "alert_error"
++    delivered = []
++    monkeypatch.setattr(alerts, "send_alert", lambda **kw: delivered.append(kw) or {"ok": True})
++    rig.now[0] += timedelta(seconds=121)
++    recover_paper_buys(rig.q, rig.eng.db, clock=rig.clock)
++    recover_paper_buys(rig.q, rig.eng.db, clock=rig.clock)
++    assert len(delivered) == 1
++    assert rig.q.list_paper_buy_events("buy")[-1]["reason"] == "external_channel_accepted"
++    assert rig.eng.db.list_fills() == []
++
++
++def test_router_refusal_has_durable_reason_and_dispatch_receipt(rig, monkeypatch):
++    seed(rig)
++    async def refused(*a, **kw):
++        return SimpleNamespace(allowed=False, reason="synthetic_block")
++    monkeypatch.setattr(rig.runner, "decide_order", refused)
++    rig.runner._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert rig.q.get_intent("buy")["status"] == "rejected"
++    assert rig.q.get_intent("buy")["last_error"] == "decide_order:synthetic_block"
++    assert len(rig.alerts) == 1
++    assert rig.q.list_paper_buy_events("buy")[-1]["reason"] == "not_delivered"
++
++
++def test_recently_picked_up_old_buy_is_not_a_minute_stranded(rig):
++    from services.execution.paper_buy_lifecycle import recover_paper_buys
++    seed(rig, age=90)
++    rig.q.claim_next_queued()
++    recover_paper_buys(rig.q, rig.eng.db, clock=rig.clock)
++    assert rig.q.get_intent("buy")["status"] == "submitting"
++    assert not rig.alerts
++
++
++def test_newly_submitted_buy_after_inventory_is_still_identity_checked(rig, monkeypatch):
++    seed(rig)
++    rig.q.claim_next_queued()
++    order = rig.eng.submit_order(client_order_id="paper_intent_buy", venue="coinbase", symbol="BTC/USD",
++                                  side="buy", order_type="market", qty=1)["order"]
++    rig.eng.evaluate_open_orders()
++    rig.q.update_status("buy", "submitted", linked_order_id=order["order_id"])
++    monkeypatch.setattr(rig.q, "list_pending_paper_buys", lambda: [])
++    result = rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    assert result["buy_recovery_faults"] == [{"intent_id": "buy", "reason": "paper_buy_order_identity_mismatch"}]
++    assert rig.q.get_intent("buy")["status"] == "submitted"
++    assert rig.j.count() == 0
++
++
++def test_filled_flag_without_a_fill_receipt_cannot_complete_buy(rig):
++    row = seed(rig)
++    rig.q.claim_next_queued()
++    order = rig.eng.submit_order(client_order_id="paper_intent_buy", venue="coinbase", symbol="ADA/USD",
++                                  side="buy", order_type="market", qty=1,
++                                  intent_created_ts=row["created_ts"])["order"]
++    rig.eng.db.update_order_status(order["order_id"], "filled")
++    rig.q.update_status("buy", "submitted", linked_order_id=order["order_id"])
++    result = rig.rec.reconcile_once(qdb=rig.q, pdb=rig.eng.db, jdb=rig.j)
++    assert result["buy_recovery_faults"] == [{"intent_id": "buy", "reason": "paper_buy_fill_receipt_mismatch"}]
++    assert rig.q.get_intent("buy")["status"] == "submitted"
++    assert rig.j.count() == 0
+--- before/tests/test_paper_buy_before_boundary.py
++++ after/tests/test_paper_buy_before_boundary.py
+@@ -0,0 +1,53 @@
++"""Same behavioral assertions against current source or preserved before-source."""
++import importlib.util
++import os
++from pathlib import Path
++
++from tests.test_paper_buy_lifecycle import rig, seed
++
++
++def _baseline_module(name, relative):
++    root = os.environ.get("CBP_BUY_BEFORE_ROOT")
++    if not root:
++        return None
++    path = Path(root) / relative
++    spec = importlib.util.spec_from_file_location(name, path)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def test_old_buy_cannot_commit_a_late_fill(rig, monkeypatch, tmp_path):
++    from storage import paper_trading_sqlite as current
++    baseline = _baseline_module("buy_before_store", "storage/paper_trading_sqlite.py")
++    module = baseline or current
++    monkeypatch.setattr(module, "DB_PATH", tmp_path / "probe.sqlite")
++    db = module.PaperTradingSQLite()
++    db.set_state("cash_quote", "1000")
++    db.set_state("realized_pnl", "0")
++    db.insert_order({"order_id": "late", "client_order_id": "late", "ts": "2000-01-01T00:00:00Z",
++                     "venue": "coinbase", "symbol": "ADA/USD", "side": "buy", "order_type": "market",
++                     "qty": 1, "status": "new", "meta": {"paper_buy_created_ts": "2000-01-01T00:00:00Z"}})
++    order = db.get_order_by_client_id("late")
++    result = db.apply_fill(order=order, ts=rig.clock(), price=100, qty=1, fee=.5, fee_currency="USD")
++    assert not result["ok"], "an expired buy committed a fill"
++    assert db.list_fills() == [] and float(db.get_state("cash_quote")) == 1000
++
++
++def test_committed_order_response_loss_is_not_reported_as_refused(rig, monkeypatch):
++    baseline = _baseline_module("buy_before_runner", "paper_runner.py")
++    consumer = baseline or rig.runner
++    if baseline:
++        async def allowed(*args, **kwargs):
++            from types import SimpleNamespace
++            return SimpleNamespace(allowed=True)
++        monkeypatch.setattr(consumer, "decide_order", allowed)
++    seed(rig)
++    submit = rig.eng.submit_order
++    def lost_response(**kwargs):
++        assert submit(**kwargs)["ok"]
++        raise RuntimeError("response_lost")
++    monkeypatch.setattr(rig.eng, "submit_order", lost_response)
++    consumer._consume_queued_intents_once(qdb=rig.q, eng=rig.eng)
++    assert rig.q.get_intent("buy")["status"] == "submitted", "durably written order was disposed as refused"
++    assert len(rig.eng.db.list_orders()) == 1
+--- before/tests/test_paper_reconciler_recovery.py
++++ after/tests/test_paper_reconciler_recovery.py
+@@ -13,6 +13,7 @@
+ 
+ import importlib
+ import json
++from datetime import datetime, timezone
+ from pathlib import Path
+ 
+ 
+@@ -54,7 +55,7 @@
+ def _base_intent(intent_id: str, status: str = "queued", linked_order_id: str | None = None) -> dict:
+     return {
+         "intent_id": intent_id,
+-        "created_ts": "2026-01-01T00:00:00+00:00",
++        "created_ts": datetime.now(timezone.utc).isoformat(),
+         "ts": "2026-01-01T00:00:00+00:00",
+         "source": "strategy",
+         "strategy_id": "es_daily_trend_v1",
+--- before/tests/test_paper_runner_lifecycle.py
++++ after/tests/test_paper_runner_lifecycle.py
+@@ -3,6 +3,7 @@
+ 
+ import importlib
+ import json
++from datetime import datetime, timezone
+ 
+ 
+ def _reload_paper_runner():
+@@ -96,7 +97,7 @@
+     qdb.upsert_intent(
+         {
+             "intent_id": "intent-1",
+-            "created_ts": "2026-03-19T12:00:00Z",
++            "created_ts": datetime.now(timezone.utc).isoformat(),
+             "ts": "2026-03-19T12:00:00Z",
+             "source": "strategy",
+             "strategy_id": "ema_cross",
+@@ -117,23 +118,26 @@
+         }
+     )
+ 
+-    class FakeEngine:
+-        def submit_order(self, **kwargs) -> dict:
+-            assert kwargs["client_order_id"] == "paper_intent_intent-1"
+-            return {
+-                "ok": True,
+-                "idempotent": False,
+-                "order": {"order_id": "paper-order-1", "reject_reason": None},
+-            }
+-
+-    out = paper_runner._consume_queued_intents_once(qdb=qdb, eng=FakeEngine(), limit=10)
++    import services.execution.paper_engine as engine_module
++    importlib.reload(engine_module)
++    monkeypatch.setattr(engine_module.PaperEngine, "_pre_submit_gate", lambda *a, **kw: (True, None))
++    monkeypatch.setattr(engine_module, "load_user_yaml", lambda: {"paper_trading": {"use_ccxt_fallback": False}})
++    async def allowed(**kwargs):
++        from types import SimpleNamespace
++        return SimpleNamespace(allowed=True)
++    monkeypatch.setattr(paper_runner, "decide_order", allowed)
++    eng = engine_module.PaperEngine()
++    out = paper_runner._consume_queued_intents_once(qdb=qdb, eng=eng, limit=10)
+ 
+     assert out == {"queued_seen": 1, "submitted": 1, "rejected": 0, "idempotent": 0}
+     row = qdb.get_intent("intent-1")
+     assert row is not None
+     assert row["status"] == "submitted"
+     assert row["client_order_id"] == "paper_intent_intent-1"
+-    assert row["linked_order_id"] == "paper-order-1"
++    order = eng.db.get_order_by_client_id("paper_intent_intent-1")
++    assert row["linked_order_id"] == order["order_id"]
++    assert order["qty"] == 0.5 and order["status"] == "new"
++    assert len(eng.db.list_orders()) == 1 and eng.db.list_fills() == []
+ 
+ 
+ def test_paper_runner_acquire_lock_reclaims_stale_lock(monkeypatch, tmp_path):

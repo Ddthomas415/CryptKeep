@@ -1,0 +1,1545 @@
+from __future__ import annotations
+import pytest
+
+import importlib
+import json
+from pathlib import Path
+
+
+def _reload_strategy_runner(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("CBP_STARTUP_CONFIRM_FLAT", "true")
+
+    import services.os.app_paths as app_paths
+    import services.admin.config_editor as config_editor
+    import storage.intent_queue_sqlite as intent_queue_sqlite
+    import storage.paper_trading_sqlite as paper_trading_sqlite
+    import storage.strategy_state_sqlite as strategy_state_sqlite
+    import services.execution.strategy_runner as runner
+
+    importlib.reload(app_paths)
+    importlib.reload(config_editor)
+    importlib.reload(intent_queue_sqlite)
+    importlib.reload(paper_trading_sqlite)
+    importlib.reload(strategy_state_sqlite)
+    importlib.reload(runner)
+    # These unit doubles exercise decision policy, not the real pending-exit DB.
+    # R12 recovery is covered by the real-store integration harness instead.
+    monkeypatch.setattr(runner, "service_pending_paper_exits", lambda *_a, **_kw: False)
+    return runner
+
+
+def _breakout_runner_cfg(*, max_bars_hold: int) -> dict:
+    return {
+        "enabled": True,
+        "strategy_id": "breakout_donchian",
+        "strategy": {
+            "name": "breakout_donchian",
+            "trade_enabled": True,
+            "donchian_len": 3,
+        },
+        "strategy_preset": "breakout_default",
+        "venue": "coinbase",
+        "symbol": "BTC/USD",
+        "fast_n": 12,
+        "slow_n": 26,
+        "min_bars": 5,
+        "max_bars": 20,
+        "loop_interval_sec": 0.0,
+        "qty": 0.5,
+        "order_type": "market",
+        "allow_first_signal_trade": False,
+        "use_ccxt_fallback": False,
+        "max_tick_age_sec": 5.0,
+        "position_aware": True,
+        "sell_full_position": True,
+        "signal_source": "synthetic_mid_ohlcv",
+        "auto_select_best_venue": False,
+        "switch_only_when_blocked": True,
+        "venue_candidates": [],
+        "max_bars_hold": max_bars_hold,
+    }
+
+
+def test_cfg_uses_canonical_breakout_strategy(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "breakout")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "breakout_donchian"
+    assert cfg["strategy"]["name"] == "breakout_donchian"
+    assert cfg["strategy_preset"] == "breakout_default"
+    assert cfg["strategy"]["donchian_len"] == 20
+
+
+def test_cfg_uses_canonical_pullback_recovery_strategy(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "pullback")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "pullback_recovery"
+    assert cfg["strategy"]["name"] == "pullback_recovery"
+    assert cfg["strategy_preset"] == "pullback_recovery_default"
+    assert cfg["strategy"]["trend_sma_period"] == 50
+    assert cfg["min_bars"] >= 55
+
+
+def test_cfg_honors_env_min_bars_override_without_going_below_required_history(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "ema_cross")
+    monkeypatch.setenv("CBP_STRATEGY_MIN_BARS", "28")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "ema_cross"
+    assert cfg["min_bars"] == 28
+
+
+def test_cfg_honors_signal_source_and_first_signal_trade_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_5m")
+    monkeypatch.setenv("CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE", "1")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["signal_source"] == "public_ohlcv_5m"
+    assert cfg["allow_first_signal_trade"] is True
+
+
+def test_cfg_prefers_component_symbol_and_venue_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_VENUE", "should_not_win")
+    monkeypatch.setenv("CBP_SYMBOLS", "SHOULD/NOT_WIN")
+    monkeypatch.setenv("CBP_COMPONENT_VENUE", "coinbase")
+    monkeypatch.setenv("CBP_COMPONENT_SYMBOLS", "BTC/USD,ETH/USD")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["venue"] == "coinbase"
+    assert cfg["symbol"] == "BTC/USD"
+    assert cfg["symbols"] == ["BTC/USD", "ETH/USD"]
+
+
+def test_cfg_preserves_explicit_unknown_strategy_as_unsupported(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extrem", "trade_enabled": True},
+                "strategy_preset": "funding_extreme_default",
+            }
+        },
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "funding_extrem"
+    assert cfg["strategy"]["name"] == "funding_extrem"
+    assert cfg["strategy"]["unsupported"] is True
+    assert cfg["strategy_preset"] == "funding_extreme_default"
+
+
+def test_cfg_uses_canonical_funding_extreme_strategy(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extreme", "trade_enabled": True},
+                "strategy_preset": "funding_extreme_default",
+                "strategy_context_source": "live_public",
+                "strategy_context_max_age_sec": 3600,
+                "strategy_context_symbol": "BTC/USDT:USDT",
+                "strategy_context_venue": "okx",
+                "strategy_context_db_path": "/var/lib/cbp/data/crypto_edge_research.sqlite",
+            }
+        },
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "funding_extreme"
+    assert cfg["strategy"]["name"] == "funding_extreme"
+    assert cfg["strategy_preset"] == "funding_extreme_default"
+    assert cfg["strategy_context_source"] == "live_public"
+    assert cfg["strategy_context_max_age_sec"] == 3600.0
+    assert cfg["strategy_context_symbol"] == "BTC/USDT:USDT"
+    assert cfg["strategy_context_venue"] == "okx"
+    assert cfg["strategy_context_db_path"] == "/var/lib/cbp/data/crypto_edge_research.sqlite"
+
+
+def test_cfg_prefers_context_db_path_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_CRYPTO_EDGE_DB_PATH", "/tmp/context.sqlite")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extreme", "trade_enabled": True},
+                "strategy_context_db_path": "/var/lib/cbp/data/crypto_edge_research.sqlite",
+            }
+        },
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_context_db_path"] == "/tmp/context.sqlite"
+
+
+def test_cfg_treats_explicit_empty_strategy_name_as_unsupported(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {"strategy_runner": {"strategy": {"name": "", "trade_enabled": True}}},
+    )
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == ""
+    assert cfg["strategy"]["name"] == ""
+    assert cfg["strategy"]["unsupported"] is True
+
+
+def test_strategy_resolution_sites_do_not_substitute_empty_identity(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    src = Path(runner.__file__).read_text(encoding="utf-8")
+    assignments = [
+        line.strip()
+        for line in src.splitlines()
+        if line.strip().startswith("selected_strategy = str(")
+    ]
+
+    assert len(assignments) == 2
+    assert assignments == ['selected_strategy = str(cfg.get("strategy_id") or "")'] * 2
+
+
+def test_explicit_empty_identity_flows_to_registry_fail_closed(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {"strategy_runner": {"strategy": {"name": "", "trade_enabled": True}}},
+    )
+
+    cfg = runner._cfg()
+    selected_strategy = str(cfg.get("strategy_id") or "")
+    block = runner._signal_strategy_block_from_selected_name(selected_strategy, {})
+
+    assert selected_strategy == ""
+    assert block["unsupported"] is True
+
+    signal = runner.compute_signal(cfg={"strategy": block}, symbol="BTC/USDT", ohlcv=[])
+    assert signal["ok"] is False
+    assert signal["action"] == "hold"
+    assert signal["reason"] == "unknown_strategy"
+
+
+def test_missing_strategy_name_keeps_existing_ema_cross_default(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {}})
+
+    cfg = runner._cfg()
+
+    assert cfg["strategy_id"] == "ema_cross"
+    assert cfg["strategy"]["name"] == "ema_cross"
+    assert not cfg["strategy"].get("unsupported")
+
+
+def test_synthetic_signal_executes_from_strategy_block_not_selected_label(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    captured = {}
+
+    def fake_compute_signal(*, cfg, symbol, ohlcv, context=None):
+        captured["strategy"] = dict(cfg.get("strategy") or {})
+        return {"ok": False, "action": "hold", "reason": "unknown_strategy"}
+
+    monkeypatch.setattr(runner, "compute_signal", fake_compute_signal)
+
+    runner._strategy_signal(
+        {"strategy_id": "ema_cross", "strategy": {"name": "", "unsupported": True}, "symbol": "BTC/USDT"},
+        [100.0, 101.0, 102.0],
+        ts_ms=1_700_000_000_000,
+    )
+
+    assert captured["strategy"] == {"name": "", "unsupported": True}
+
+
+def test_registry_signal_with_context_passes_funding_context(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    captured = {}
+    captured_context_kwargs = {}
+
+    def fake_funding_context(**kwargs):
+        captured_context_kwargs.update(kwargs)
+        return {
+            "ok": True,
+            "reason": "funding_context_ready",
+            "source": "live_public",
+            "symbol": kwargs.get("symbol"),
+            "venue": kwargs.get("venue"),
+            "capture_ts": "2026-07-10T16:00:00+00:00",
+            "snapshot_id": "funding-ctx",
+            "context": {"funding": {"funding_rate": 0.0008, "funding_rate_pct": 0.08}},
+        }
+
+    monkeypatch.setattr(
+        runner,
+        "funding_context_from_crypto_edge_store",
+        fake_funding_context,
+    )
+
+    def fake_compute_signal(*, cfg, symbol, ohlcv, context=None):
+        captured["context"] = context
+        return {"ok": True, "action": "sell", "reason": "funding_extreme_longs", "ind": {}}
+
+    monkeypatch.setattr(runner, "compute_signal", fake_compute_signal)
+
+    signal = runner._registry_signal_with_context(
+        cfg={
+            "strategy_context_source": "live_public",
+            "strategy_context_max_age_sec": 3600,
+            "strategy_context_symbol": "BTC/USDT:USDT",
+            "strategy_context_venue": "okx",
+            "strategy_context_db_path": "/var/lib/cbp/data/crypto_edge_research.sqlite",
+        },
+        strategy_block={"name": "funding_extreme", "long_crowded_threshold": 0.05},
+        symbol="BTC/USDT",
+        venue="okx",
+        ohlcv=[],
+    )
+
+    assert captured_context_kwargs["symbol"] == "BTC/USDT:USDT"
+    assert captured_context_kwargs["venue"] == "okx"
+    assert captured_context_kwargs["store_path"] == "/var/lib/cbp/data/crypto_edge_research.sqlite"
+    assert captured["context"]["funding"]["funding_rate_pct"] == 0.08
+    assert signal["action"] == "sell"
+    assert signal["strategy_context_ok"] is True
+    assert signal["strategy_context_reason"] == "funding_context_ready"
+    assert signal["strategy_context_symbol"] == "BTC/USDT:USDT"
+    assert signal["strategy_context_venue"] == "okx"
+    assert signal["strategy_context_snapshot_id"] == "funding-ctx"
+
+
+def test_registry_signal_with_context_fails_closed_when_funding_context_missing(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "funding_context_from_crypto_edge_store",
+        lambda **kwargs: {
+            "ok": False,
+            "reason": "funding_context_missing",
+            "source": "live_public",
+        },
+    )
+
+    signal = runner._registry_signal_with_context(
+        cfg={"strategy_context_source": "live_public", "strategy_context_max_age_sec": 3600},
+        strategy_block={"name": "funding_extreme"},
+        symbol="BTC/USDT:USDT",
+        venue="okx",
+        ohlcv=[],
+    )
+
+    assert signal["ok"] is False
+    assert signal["action"] == "hold"
+    assert signal["reason"] == "missing_funding_context"
+    assert signal["strategy_context_ok"] is False
+    assert signal["strategy_context_reason"] == "funding_context_missing"
+
+
+def test_held_bar_counter_advances_only_for_new_market_bar(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    count, bar_ts, advanced = runner._advance_held_bar_counter(
+        bars_held=0,
+        last_bar_ts=0,
+        current_bar_ts=1000,
+    )
+    assert (count, bar_ts, advanced) == (0, 1000, False)
+
+    count, bar_ts, advanced = runner._advance_held_bar_counter(
+        bars_held=count,
+        last_bar_ts=bar_ts,
+        current_bar_ts=1000,
+    )
+    assert (count, bar_ts, advanced) == (0, 1000, False)
+
+    count, bar_ts, advanced = runner._advance_held_bar_counter(
+        bars_held=count,
+        last_bar_ts=bar_ts,
+        current_bar_ts=2000,
+    )
+    assert (count, bar_ts, advanced) == (1, 2000, True)
+
+
+def test_strategy_state_delete_removes_value(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    store = runner.StrategyStateSQLite()
+
+    store.set("bars_held:test", "60")
+    store.delete("bars_held:test")
+
+    assert store.get("bars_held:test") is None
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("capture_enabled", [False, True, "failure"])
+@pytest.mark.parametrize("identity_mode", ["off", "on", "failure"])
+def test_run_forever_enqueues_buy_from_public_ohlcv_first_signal(monkeypatch, tmp_path, capture_enabled, identity_mode):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_CAPTURE_EXECUTION_IDENTITY", "0" if identity_mode == "off" else "1")
+    monkeypatch.setenv("CBP_EXECUTION_IDENTITY_COHORT_ID", "synthetic-only" if identity_mode == "on" else "")
+    from services.strategies import market_context_capture
+    monkeypatch.setenv("CBP_CAPTURE_MARKET_CONTEXT", "1" if capture_enabled else "0")
+    monkeypatch.setattr(market_context_capture, "data_dir", lambda: tmp_path / "capture")
+    if capture_enabled == "failure":
+        class BrokenCapture:
+            def __getattr__(self, name):
+                raise OSError("injected capture failure")
+        monkeypatch.setattr(runner, "start_capture", lambda cfg: BrokenCapture())
+    qdb = runner.IntentQueueSQLite()
+
+    monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_1m")
+    monkeypatch.setenv("CBP_STRATEGY_ALLOW_FIRST_SIGNAL_TRADE", "1")
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {
+                    "name": "breakout_donchian",
+                    "trade_enabled": True,
+                    "donchian_len": 3,
+                    "filter_window": 3,
+                    "min_volatility_pct": 0.0,
+                    "min_volume_ratio": 0.0,
+                    "min_trend_efficiency": 0.0,
+                    "min_channel_width_pct": 0.0,
+                    "breakout_buffer_pct": 0.0,
+                    "require_directional_confirmation": False,
+                },
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "min_bars": 5,
+                "max_bars": 20,
+                "loop_interval_sec": 0.0,
+                "qty": 0.5,
+                "allow_first_signal_trade": True,
+            }
+        },
+    )
+    monkeypatch.setattr(
+        runner,
+        "_fetch_public_ohlcv",
+        lambda cfg, **kwargs: (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        ),
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if int(status.get("enqueued_total") or 0) >= 1:
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["strategy_id"] == "breakout_donchian"
+    assert queued[0]["meta"]["strategy_preset"] == "breakout_default"
+    assert queued[0]["meta"]["market_data_source"] == "public_ohlcv"
+    assert queued[0]["meta"]["ohlcv_sample_mode"] is False
+    assert queued[0]["meta"]["ohlcv_timeframe"] == "1m"
+    assert queued[0]["side"] == "buy"
+    assert queued[0]["qty"] == .5
+    assert queued[0]["meta"].get("execution_identity_capture_status") == (None if identity_mode == "off" else "failed")
+    files = list((tmp_path / "capture").glob("market_context/*.jsonl"))
+    assert len(files) == int(capture_enabled is True)
+    assert not runner.LOCK_FILE.exists()
+    if capture_enabled is True:
+        rows = [json.loads(line) for line in files[0].read_text().splitlines()]
+        entries = [row for row in rows if row["kind"] == "admitted_entry"]
+        assert len(entries) == 1
+        assert entries[0]["quote_event_id"] in {row["event_id"] for row in rows if row["kind"] == "quote"}
+
+
+@pytest.mark.parametrize("trade_enabled", [True, False])
+def test_public_loop_uses_isolated_managed_parameters(monkeypatch, tmp_path, trade_enabled):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_STRATEGY_NAME", "sma_200_trend")
+    monkeypatch.delenv("CBP_STRATEGY_PRESET", raising=False)
+    monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_1d")
+    monkeypatch.setenv("CBP_SAMPLE_OHLCV", "0")
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {
+        "strategy_runner": {
+            "strategy": {"name": "momentum", "sma_period": 20,
+                         "trade_enabled": trade_enabled},
+            "strategy_preset": "momentum_default",
+            "symbol": "BTC/USD", "venue": "coinbase",
+        }
+    })
+    rows = [[1700000000000 + i * 86400000, 100, 101, 99, 100, 1] for i in range(220)]
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg, **kwargs: (
+        rows, {"source": "public_ohlcv", "sample_path": None,
+               "sample_fallback": False, "row_count": len(rows), "env_sample_mode": False}
+    ))
+    captured = []
+
+    class SignalObserved(BaseException):
+        pass
+
+    def capture(**kwargs):
+        captured.append(kwargs["strategy_block"])
+        raise SignalObserved()
+
+    monkeypatch.setattr(runner, "_registry_signal_with_context", capture)
+    # Bound the test even if a future guard prevents reaching signal dispatch.
+    monkeypatch.setattr(runner.time, "sleep", lambda _: pytest.fail("signal dispatch not reached"))
+    with pytest.raises(SignalObserved):
+        runner.run_forever()
+    assert captured[0]["name"] == "sma_200_trend"
+    assert captured[0]["sma_period"] == 200
+    assert captured[0]["trade_enabled"] is trade_enabled
+
+
+@pytest.mark.parametrize("selected, expected", [
+    ("sma_200_trend", (0.0, 0.0, 0.0, None)),
+    ("breakout_donchian", (0.03, 0.06, 0.02, 60)),
+])
+def test_managed_exit_policy_reaches_exit_stack(monkeypatch, tmp_path, selected, expected):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_STRATEGY_NAME", selected)
+    monkeypatch.delenv("CBP_STRATEGY_PRESET", raising=False)
+    monkeypatch.setenv("CBP_STRATEGY_SIGNAL_SOURCE", "public_ohlcv_1d")
+    monkeypatch.setenv("CBP_SAMPLE_OHLCV", "0")
+    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {
+        "strategy": {"name": "momentum"}, "risk": {"trailing_stop_pct": .99},
+        "symbol": "BTC/USD", "venue": "coinbase",
+    }})
+    rows = [[1700000000000 + i * 86400000, 100, 101, 99, 100, 1] for i in range(220)]
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", lambda cfg, **kwargs: (
+        rows, {"source": "public_ohlcv", "env_sample_mode": False, "row_count": 220}
+    ))
+    monkeypatch.setattr(runner, "_registry_signal_with_context", lambda **kw: {
+        "ok": True, "action": "hold", "reason": "test", "ind": {}})
+    monkeypatch.setattr(runner.PaperTradingSQLite, "get_position", lambda *a: {"qty": 1, "avg_price": 100})
+    captured = []
+
+    class ExitObserved(BaseException):
+        pass
+
+    def capture(**kwargs):
+        captured.append(kwargs)
+        raise ExitObserved()
+
+    monkeypatch.setattr(runner, "evaluate_strategy_exit_stack", capture)
+    monkeypatch.setattr(runner.time, "sleep", lambda _: pytest.fail("exit stack not reached"))
+    with pytest.raises(ExitObserved):
+        runner.run_forever()
+    assert tuple(captured[0][k] for k in (
+        "stop_loss_pct", "take_profit_pct", "trailing_stop_pct", "max_bars_hold"
+    )) == expected
+
+
+def test_fetch_public_ohlcv_returns_empty_on_exchange_error(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "make_exchange",
+        lambda venue, creds, enable_rate_limit=True: (_ for _ in ()).throw(RuntimeError("boom")),
+    )
+
+    out, source_info = runner._fetch_public_ohlcv(
+        {
+            "signal_source": "public_ohlcv_5m",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "min_bars": 20,
+            "max_bars": 50,
+        }
+    )
+
+    assert out == []
+    assert source_info["source"] == "none"
+
+
+def test_fetch_public_ohlcv_persists_sample_snapshot(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    rows, source_info = runner._fetch_public_ohlcv(
+        {
+            "signal_source": "public_ohlcv_1d",
+            "venue": "coinbase",
+            "symbol": "BTC/USDT",
+            "min_bars": 20,
+            "max_bars": 50,
+        }
+    )
+
+    assert rows
+    assert source_info["source"] == "sample_ohlcv"
+    assert str(source_info["sample_path"]).endswith("BTC_USDT_1d.json")
+    assert source_info["sample_fallback"] is False
+    from services.market_data.local_data_reader import _load_local_ohlcv
+
+    loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=5000)
+    assert loaded
+    assert loaded[-1][4] == rows[-1][4]
+
+
+def test_fetch_public_ohlcv_persists_live_snapshot(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    class _FakeExchange:
+        def fetch_ohlcv(self, symbol, timeframe="1d", limit=50):
+            return [
+                [1, 100.0, 101.0, 99.0, 100.0, 1.0],
+                [2, 100.0, 110.0, 100.0, 109.0, 1.0],
+            ]
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr(runner, "make_exchange", lambda venue, creds, enable_rate_limit=True: _FakeExchange())
+
+    rows, source_info = runner._fetch_public_ohlcv(
+        {
+            "signal_source": "public_ohlcv_1d",
+            "venue": "coinbase",
+            "symbol": "BTC/USDT",
+            "min_bars": 2,
+            "max_bars": 2,
+        }
+    )
+
+    assert rows[-1][4] == 109.0
+    assert source_info["source"] == "public_ohlcv"
+    from services.market_data.local_data_reader import _load_local_ohlcv
+
+    loaded = _load_local_ohlcv("coinbase", "BTC/USDT", timeframe="1d", limit=10)
+    assert loaded == rows
+
+
+def test_public_ohlcv_evidence_extra_marks_sample_mode(monkeypatch, tmp_path):
+    monkeypatch.setenv("CBP_USE_SAMPLE_OHLCV", "1")
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    out = runner._public_ohlcv_evidence_extra(
+        {"venue": "coinbase", "symbol": "BTC/USDT"},
+        "1d",
+    )
+
+    assert out["market_data_source"] == "sample_ohlcv"
+    assert out["ohlcv_sample_mode"] is True
+    assert out["ohlcv_timeframe"] == "1d"
+
+
+def test_public_ohlcv_evidence_extra_marks_public_mode(monkeypatch, tmp_path):
+    monkeypatch.delenv("CBP_USE_SAMPLE_OHLCV", raising=False)
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    out = runner._public_ohlcv_evidence_extra(
+        {"venue": "coinbase", "symbol": "BTC/USDT"},
+        "1d",
+    )
+
+    assert out["market_data_source"] == "public_ohlcv"
+    assert out["ohlcv_sample_mode"] is False
+
+
+def test_market_quality_evidence_extra_includes_spread(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        runner,
+        "mq_check",
+        lambda venue, symbol: {
+            "ok": True,
+            "reason": "ok",
+            "bid": 100.0,
+            "ask": 100.5,
+            "last": 100.25,
+            "price_used": 100.25,
+            "age_sec": 1.5,
+            "spread_bps": 50.0,
+            "max_spread_bps": 500.0,
+            "max_tick_age_sec": 600.0,
+        },
+    )
+
+    out = runner._market_quality_evidence_extra("coinbase", "BTC/USDT")
+
+    assert out["market_quality_ok"] is True
+    assert out["market_quality_reason"] == "ok"
+    assert out["market_bid"] == 100.0
+    assert out["market_ask"] == 100.5
+    assert out["spread_bps"] == 50.0
+    assert out["market_quality_venue"] == "coinbase"
+    assert out["market_quality_symbol"] == "BTC/USDT"
+
+
+def test_market_quality_evidence_extra_records_errors(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    def _raise(_venue, _symbol):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(runner, "mq_check", _raise)
+
+    out = runner._market_quality_evidence_extra("coinbase", "BTC/USDT")
+
+    assert out["market_quality_ok"] is False
+    assert out["market_quality_reason"] == "error:RuntimeError"
+
+
+def test_fetch_mid_returns_none_when_ccxt_fallback_raises(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setattr(runner, "get_best_bid_ask_last", lambda venue, symbol: None)
+    monkeypatch.setattr(
+        runner,
+        "make_exchange",
+        lambda venue, creds, enable_rate_limit=True: (_ for _ in ()).throw(RuntimeError("boom")),
+    )
+
+    out = runner._fetch_mid(
+        {
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "use_ccxt_fallback": True,
+            "max_tick_age_sec": 5.0,
+        }
+    )
+
+    assert out is None
+
+
+def test_no_fresh_tick_note_when_snapshot_missing(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    note = runner._no_fresh_tick_note()
+
+    assert note == "no_fresh_tick:snapshot_file_missing:start_tick_publisher"
+
+
+def test_no_fresh_tick_note_when_snapshot_stale(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    runner.TICK_SNAPSHOT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    runner.TICK_SNAPSHOT_FILE.write_text('{"ticks":[]}', encoding="utf-8")
+    monkeypatch.setattr(runner.time, "time", lambda: runner.TICK_SNAPSHOT_FILE.stat().st_mtime + 60.0)
+
+    note = runner._no_fresh_tick_note(stale_after_sec=30.0)
+
+    assert note == "no_fresh_tick:snapshot_stale:publisher_stopped_or_network_blocked"
+
+
+def test_strategy_signal_supports_mean_reversion_runtime_prices(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+
+    signal = runner._strategy_signal(
+        {
+            "symbol": "BTC/USD",
+            "strategy": {
+                "name": "mean_reversion_rsi",
+                "trade_enabled": True,
+                "rsi_len": 2,
+                "rsi_buy": 45.0,
+                "rsi_sell": 60.0,
+                "sma_len": 3,
+            },
+        },
+        [100.0, 100.0, 100.0, 100.0, 95.0, 90.0],
+        ts_ms=1,
+    )
+
+    assert signal["ok"] is True
+    assert signal["action"] == "buy"
+    assert signal["reason"] == "rsi_oversold_below_sma"
+
+
+@pytest.mark.slow
+def test_run_forever_enqueues_breakout_intent_with_canonical_strategy_id(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    # Isolate runtime row collection; this test is about breakout enqueue behavior,
+    # not paper DB-backed runtime validation state.
+    monkeypatch.setattr(
+        runner,
+        "collect_runtime_rows",
+        lambda paper_db, intent_db: ([], []),
+    )
+
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {
+                    "name": "breakout_donchian",
+                    "trade_enabled": True,
+                    "donchian_len": 3,
+                    "filter_window": 3,
+                    "min_volatility_pct": 0.0,
+                    "min_volume_ratio": 0.0,
+                    "min_trend_efficiency": 0.0,
+                    "min_channel_width_pct": 0.0,
+                    "breakout_buffer_pct": 0.0,
+                    "require_directional_confirmation": False,
+                },
+                "symbol": "BTC/USD",
+                "venue": "coinbase",
+                "min_bars": 5,
+                "max_bars": 20,
+                "loop_interval_sec": 0.0,
+                "qty": 0.5,
+                "signal_source": "public_ohlcv_1m",
+                "allow_first_signal_trade": True,
+            }
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if int(status.get("enqueued_total") or 0) >= 1:
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        runner,
+        "_fetch_public_ohlcv",
+        lambda cfg, **kwargs: (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        ),
+    )
+    monkeypatch.setattr(
+        runner,
+        "compute_signal",
+        lambda cfg, symbol, ohlcv: {"ok": True, "action": "buy", "reason": "breakout", "ind": {}},
+    )
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["strategy_id"] == "breakout_donchian"
+    assert queued[0]["side"] == "buy"
+    assert "exit_reason" not in queued[0]["meta"]
+    assert "exit_stack_rule" not in queued[0]["meta"]
+
+
+@pytest.mark.parametrize("blocker", ["none", "cooldown", "intent", "restart"])
+def test_daily_flat_exit_retries_without_duplicate_enqueue(monkeypatch, tmp_path, blocker):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    emitted = []
+    calls = {"gate": 0, "queue": 0, "sleep": 0}
+    class Queue:
+        def list_intents(self, **kwargs):
+            calls['queue'] += 1
+            if blocker == 'intent' and calls['queue'] == 1:
+                return [{'source':'strategy','symbol':'BTC/USD','status':'submitted'}]
+            return emitted
+        def upsert_intent(self, row):
+            emitted.append(dict(row))
+    class Paper:
+        def get_position(self, symbol):
+            return {'qty':1.,'avg_price':100.,'symbol':symbol}
+    monkeypatch.setattr(runner,'IntentQueueSQLite',Queue)
+    monkeypatch.setattr(runner,'PaperTradingSQLite',Paper)
+    monkeypatch.setattr(runner,'collect_runtime_rows',lambda **kw:([],[]))
+    cfg = dict(enabled=True,strategy_id='sma_200_trend',strategy={'name':'sma_200_trend'},
+        strategy_preset='es_daily_trend_v1',venue='coinbase',symbol='BTC/USD',
+        fast_n=2,slow_n=4,min_bars=1,max_bars=20,loop_interval_sec=0.,qty=.5,
+        order_type='market',allow_first_signal_trade=False,use_ccxt_fallback=False,
+        max_tick_age_sec=5.,position_aware=True,sell_full_position=True,
+        signal_source='synthetic_mid_ohlcv',auto_select_best_venue=False,
+        switch_only_when_blocked=True,venue_candidates=[])
+    monkeypatch.setattr(runner,'_cfg',lambda:dict(cfg))
+    monkeypatch.setattr(runner,'_fetch_mid',lambda cfg:(90.,1))
+    monkeypatch.setattr(runner,'_strategy_signal',lambda *a,**kw:{'ok':True,'action':'hold','signal':'flat','reason':'sma200:flat'})
+    monkeypatch.setattr(runner,'evaluate_strategy_exit_stack',lambda **kw:{'action':'hold'})
+    def gate(**kw):
+        calls['gate'] += 1
+        return {'ok':not(blocker=='cooldown' and calls['gate']==1)}
+    monkeypatch.setattr(runner,'should_block_symbol',gate)
+    if blocker=='restart':
+        state=runner.StrategyStateSQLite()
+        state.set('last_action:coinbase:BTC/USD:sma_200_trend','sell')
+        state.set('warmed:coinbase:BTC/USD:sma_200_trend','1')
+    def sleep(_):
+        calls['sleep']+=1
+        if calls['sleep']>=6:
+            runner.STOP_FILE.parent.mkdir(parents=True,exist_ok=True)
+            runner.STOP_FILE.write_text('stop')
+    monkeypatch.setattr(runner.time,'sleep',sleep)
+    runner.run_forever()
+    assert len(emitted)==1
+    assert emitted[0]['side']=='sell' and emitted[0]['qty']==1.
+
+
+def test_run_forever_keeps_sma_200_trend_fixed_size_when_risk_sizing_config_present(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    monkeypatch.setattr(
+        runner,
+        "collect_runtime_rows",
+        lambda paper_db, intent_db: ([], []),
+    )
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "sma_200_trend",
+            "strategy": {
+                "name": "sma_200_trend",
+                "trade_enabled": True,
+                "sma_period": 3,
+                "capital_at_risk_per_trade_pct": 0.50,
+                "max_position_notional_pct": 10.0,
+            },
+            "strategy_preset": "es_daily_trend_v1",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "symbols": ["BTC/USD"],
+            "min_bars": 1,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": True,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (100.0, 1))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {
+            "ok": True,
+            "action": "buy",
+            "reason": "sma_above_trend",
+            "ind": {},
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if qdb.list_intents(limit=10, status="queued"):
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["strategy_id"] == "sma_200_trend"
+    assert queued[0]["side"] == "buy"
+    assert queued[0]["qty"] == 0.5
+
+
+@pytest.mark.slow
+def test_run_forever_does_not_sell_on_buy_to_hold_without_exit_rule(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    sdb = runner.StrategyStateSQLite()
+
+    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    sdb.set("warmed:coinbase:BTC/USD:breakout_donchian", "1")
+    sdb.set("last_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("last_emitted_action:coinbase:BTC/USD:breakout_donchian", "buy")
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda **kwargs: {
+            "enabled": True,
+            "strategy_id": "breakout_donchian",
+            "strategy": {
+                "name": "breakout_donchian",
+                "trade_enabled": True,
+                "donchian_len": 3,
+            },
+            "strategy_preset": "breakout_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "fast_n": 12,
+            "slow_n": 26,
+            "min_bars": 5,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": False,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (110.0, 1))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "inside_channel", "ind": {}},
+    )
+    monkeypatch.setattr(
+        runner,
+        "evaluate_strategy_exit_stack",
+        lambda **kwargs: {"action": "hold", "reason": "within_limits", "stack_rule": "none"},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 4:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    intents = qdb.list_intents(limit=10)
+    assert intents == []
+
+
+def test_run_forever_synthetic_mid_uses_strategy_signal_after_warmup(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    signal_calls: list[tuple[dict, list[float], int | None]] = []
+    ticks = {"count": 0}
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "ema_cross",
+            "strategy": {
+                "name": "ema_cross",
+                "trade_enabled": True,
+                "ema_fast": 2,
+                "ema_slow": 3,
+            },
+            "strategy_preset": "ema_cross_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "fast_n": 2,
+            "slow_n": 3,
+            "min_bars": 3,
+            "max_bars": 10,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": True,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+
+    def fake_fetch_mid(_cfg):
+        ticks["count"] += 1
+        return 100.0 + float(ticks["count"]), ticks["count"] * 1000
+
+    def fake_strategy_signal(cfg, prices, ts_ms=None):
+        signal_calls.append((dict(cfg), list(prices), ts_ms))
+        return {"ok": True, "action": "buy", "reason": "synthetic_buy", "ind": {}}
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if int(status.get("enqueued_total") or 0) >= 1:
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner, "_fetch_mid", fake_fetch_mid)
+    monkeypatch.setattr(runner, "_strategy_signal", fake_strategy_signal)
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert signal_calls
+    assert signal_calls[0][0]["signal_source"] == "synthetic_mid_ohlcv"
+    assert len(signal_calls[0][1]) >= 3
+    queued = qdb.list_intents(limit=10, status="queued")
+    assert len(queued) == 1
+    assert queued[0]["strategy_id"] == "ema_cross"
+    assert queued[0]["side"] == "buy"
+    assert queued[0]["meta"]["signal_reason"] == "synthetic_buy"
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
+@pytest.mark.slow
+def test_run_forever_does_not_consume_time_stop_on_repeated_same_bar(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    sdb = runner.StrategyStateSQLite()
+
+    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    sdb.set("warmed:coinbase:BTC/USD:breakout_donchian", "1")
+    sdb.set("last_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("last_emitted_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("entry_price:coinbase:BTC/USD:breakout_donchian", "100")
+    sdb.set("bars_held:coinbase:BTC/USD:breakout_donchian", "0")
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: _breakout_runner_cfg(max_bars_hold=2),
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (100.0, 1000))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "inside_channel", "ind": {}},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 5:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert qdb.list_intents(limit=10) == []
+    assert sdb.get("bars_held:coinbase:BTC/USD:breakout_donchian") == "0"
+    assert sdb.get("last_held_bar_ts:coinbase:BTC/USD:breakout_donchian") == "1000"
+
+
+def test_run_forever_unknown_strategy_records_status_without_side_effects(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+
+    monkeypatch.setattr(
+        runner,
+        "load_user_yaml",
+        lambda **kwargs: {
+            "strategy_runner": {
+                "strategy": {"name": "funding_extrem", "trade_enabled": True},
+                "strategy_preset": "funding_extreme_default",
+                "venue": "coinbase",
+                "symbol": "BTC/USD",
+                "min_bars": 5,
+                "max_bars": 10,
+                "loop_interval_sec": 0.0,
+                "qty": 0.5,
+                "allow_first_signal_trade": True,
+                "use_ccxt_fallback": False,
+                "signal_source": "public_ohlcv_1m",
+            }
+        },
+    )
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            if status.get("signal_reason") == "unknown_strategy":
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        runner,
+        "_fetch_public_ohlcv",
+        lambda cfg, **kwargs: (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 100.0, 100.0, 100.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        ),
+    )
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+    assert status["strategy_id"] == "funding_extrem"
+    assert status["signal_ok"] is False
+    assert status["signal_action"] == "hold"
+    assert status["signal_reason"] == "unknown_strategy"
+    assert qdb.list_intents(limit=10) == []
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
+def test_run_forever_config_load_failure_stops_without_side_effects(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+
+    import services.admin.config_editor as config_editor
+
+    config_editor.CONFIG_PATH.write_text("strategy_runner: [unterminated\n", encoding="utf-8")
+
+    runner.run_forever()
+
+    status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+    assert status["ok"] is False
+    assert status["status"] == "stopped"
+    assert status["reason"] == "config_load_failed"
+    assert status["error"] == "config_load_failed:ConfigLoadError"
+    assert status["error_type"] == "ConfigLoadError"
+    assert qdb.list_intents(limit=10) == []
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
+def test_run_forever_mid_session_config_load_failure_holds_without_side_effects(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+
+    import services.admin.config_editor as config_editor
+
+    config_editor.CONFIG_PATH.write_text(
+        """
+strategy_runner:
+  strategy:
+    name: breakout_donchian
+    trade_enabled: true
+    donchian_len: 3
+    filter_window: 3
+    min_volatility_pct: 0.0
+    min_volume_ratio: 0.0
+    min_trend_efficiency: 0.0
+    min_channel_width_pct: 0.0
+    breakout_buffer_pct: 0.0
+    require_directional_confirmation: false
+  symbol: BTC/USD
+  venue: coinbase
+  min_bars: 5
+  max_bars: 10
+  loop_interval_sec: 0.0
+  qty: 0.5
+  allow_first_signal_trade: true
+  use_ccxt_fallback: false
+  signal_source: public_ohlcv_1m
+""",
+        encoding="utf-8",
+    )
+
+    def _fetch_public_ohlcv(_cfg, **kwargs):
+        config_editor.CONFIG_PATH.write_text("strategy_runner: [unterminated\n", encoding="utf-8")
+        return (
+            [
+                [1, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [2, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [3, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [4, 100.0, 100.0, 100.0, 100.0, 1.0],
+                [5, 100.0, 101.0, 100.0, 101.0, 1.0],
+            ],
+            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False, "row_count": 5, "env_sample_mode": False},
+        )
+
+    captured_statuses: list[dict[str, object]] = []
+
+    def fake_sleep(_seconds: float) -> None:
+        if runner.STATUS_FILE.exists():
+            status = json.loads(runner.STATUS_FILE.read_text(encoding="utf-8"))
+            captured_statuses.append(status)
+            if status.get("reason") == "config_load_failed":
+                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+                runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner, "_fetch_public_ohlcv", _fetch_public_ohlcv)
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert any(status.get("reason") == "config_load_failed" for status in captured_statuses)
+    failed_status = next(status for status in captured_statuses if status.get("reason") == "config_load_failed")
+    assert failed_status["signal_action"] == "hold"
+    assert failed_status["signal_reason"] == "config_load_failed"
+    assert failed_status["strategy_id"] == "breakout_donchian"
+    assert failed_status["symbol"] == "BTC/USD"
+    assert qdb.list_intents(limit=10) == []
+    assert pdb.list_orders(limit=10) == []
+    assert pdb.list_fills(limit=10) == []
+
+
+@pytest.mark.slow
+def test_run_forever_time_stop_advances_on_new_market_bars(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    qdb = runner.IntentQueueSQLite()
+    pdb = runner.PaperTradingSQLite()
+    sdb = runner.StrategyStateSQLite()
+
+    pdb.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    sdb.set("warmed:coinbase:BTC/USD:breakout_donchian", "1")
+    sdb.set("last_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("last_emitted_action:coinbase:BTC/USD:breakout_donchian", "buy")
+    sdb.set("entry_price:coinbase:BTC/USD:breakout_donchian", "100")
+    sdb.set("bars_held:coinbase:BTC/USD:breakout_donchian", "0")
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: _breakout_runner_cfg(max_bars_hold=2),
+    )
+    market_timestamps = (1000, 1000, 2000, 3000, 3000)
+    fetch_counter = {"count": 0}
+
+    def fake_fetch_mid(_cfg):
+        index = min(fetch_counter["count"], len(market_timestamps) - 1)
+        fetch_counter["count"] += 1
+        return 100.0, market_timestamps[index]
+
+    monkeypatch.setattr(runner, "_fetch_mid", fake_fetch_mid)
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "inside_channel", "ind": {}},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 10:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    intents = qdb.list_intents(limit=10)
+    assert len(intents) == 1
+    assert intents[0]["side"] == "sell"
+    assert fetch_counter["count"] >= 4
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("capture_enabled", [False, True, "failure"])
+@pytest.mark.parametrize("identity_mode", ["off", "on", "failure"])
+def test_run_forever_exit_action_emits_sell_once_while_condition_persists(monkeypatch, tmp_path, capture_enabled, identity_mode):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    monkeypatch.setenv("CBP_CAPTURE_EXECUTION_IDENTITY", "0" if identity_mode == "off" else "1")
+    monkeypatch.setenv("CBP_EXECUTION_IDENTITY_COHORT_ID", "synthetic-only" if identity_mode == "on" else "")
+    from services.strategies import market_context_capture
+    monkeypatch.setenv("CBP_CAPTURE_MARKET_CONTEXT", "1" if capture_enabled else "0")
+    monkeypatch.setattr(market_context_capture, "data_dir", lambda: tmp_path / "capture")
+    if capture_enabled == "failure":
+        class BrokenCapture:
+            def __getattr__(self, name):
+                raise OSError("injected capture failure")
+        monkeypatch.setattr(runner, "start_capture", lambda cfg: BrokenCapture())
+    emitted: list[dict[str, object]] = []
+
+    class FakeIntentQueue:
+        def upsert_intent(self, row):
+            emitted.append(dict(row))
+
+    class FakePaperTrading:
+        def get_position(self, symbol):
+            return {"symbol": symbol, "qty": 1.0, "avg_price": 100.0}
+
+    monkeypatch.setattr(runner, "IntentQueueSQLite", lambda: FakeIntentQueue())
+    monkeypatch.setattr(runner, "PaperTradingSQLite", lambda: FakePaperTrading())
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "ema_cross",
+            "strategy": {
+                "name": "ema_cross",
+                "trade_enabled": True,
+                "ema_fast": 2,
+                "ema_slow": 4,
+            },
+            "strategy_preset": "ema_cross_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "fast_n": 2,
+            "slow_n": 4,
+            "min_bars": 5,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": False,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": False,
+            "switch_only_when_blocked": True,
+            "venue_candidates": [],
+        },
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (110.0, 1))
+    monkeypatch.setattr(
+        runner,
+        "_strategy_signal",
+        lambda cfg, prices, ts_ms=None: {"ok": True, "action": "hold", "reason": "no_cross", "ind": {}},
+    )
+    monkeypatch.setattr(
+        runner,
+        "evaluate_strategy_exit_stack",
+        lambda **kwargs: {"action": "exit", "reason": "take_profit", "stack_rule": "take_profit"},
+    )
+
+    loop_counter = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        loop_counter["count"] += 1
+        if loop_counter["count"] >= 8:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert len(emitted) == 1
+    assert emitted[0]["side"] == "sell"
+    assert emitted[0]["qty"] == 1.0
+    assert emitted[0]["meta"].get("execution_identity_capture_status") == (None if identity_mode == "off" else "failed")
+    assert emitted[0]["meta"]["exit_reason"] == "take_profit"
+    assert emitted[0]["meta"]["exit_stack_rule"] == "take_profit"
+    files = list((tmp_path / "capture").glob("market_context/*.jsonl"))
+    assert len(files) == int(capture_enabled is True)
+    assert not runner.LOCK_FILE.exists()
+    if capture_enabled is True:
+        rows = [json.loads(line) for line in files[0].read_text().splitlines()]
+        assert all(row["kind"] != "admitted_entry" for row in rows)
+
+
+@pytest.mark.slow
+def test_run_forever_startup_guard_uses_selected_venue_after_auto_selection(monkeypatch, tmp_path):
+    runner = _reload_strategy_runner(monkeypatch, tmp_path)
+    guarded: list[tuple[str, str]] = []
+    venue_by_symbol = {
+        "BTC/USD": "binance",
+        "ETH/USD": "gateio",
+    }
+
+    monkeypatch.setattr(
+        runner,
+        "_cfg",
+        lambda: {
+            "enabled": True,
+            "strategy_id": "momentum",
+            "strategy": {
+                "name": "momentum",
+                "trade_enabled": True,
+                "min_change_pct": 0.0,
+                "max_rsi_entry": 101.0,
+                "rsi_exit": 150.0,
+                "sma_period": 3,
+                "rsi_period": 2,
+                "stop_below_sma": True,
+            },
+            "strategy_preset": "momentum_default",
+            "venue": "coinbase",
+            "symbol": "BTC/USD",
+            "symbols": ["BTC/USD", "ETH/USD"],
+            "min_bars": 1,
+            "max_bars": 20,
+            "loop_interval_sec": 0.0,
+            "qty": 0.5,
+            "order_type": "market",
+            "allow_first_signal_trade": False,
+            "use_ccxt_fallback": False,
+            "max_tick_age_sec": 5.0,
+            "position_aware": True,
+            "sell_full_position": True,
+            "signal_source": "synthetic_mid_ohlcv",
+            "auto_select_best_venue": True,
+            "switch_only_when_blocked": True,
+            "venue_candidates": ["coinbase", "binance"],
+        },
+    )
+    monkeypatch.setattr(
+        runner,
+        "require_known_flat_or_override",
+        lambda *, venue, symbol: guarded.append((venue, symbol)),
+    )
+    monkeypatch.setattr(runner, "mq_check", lambda venue, symbol: {"ok": False, "reason": "blocked"})
+    monkeypatch.setattr(
+        runner,
+        "best_venue",
+        lambda candidates, symbol, require_ok=True: {"venue": venue_by_symbol[symbol], "symbol": symbol},
+    )
+    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: None)
+
+    sleep_calls = {"count": 0}
+
+    def fake_sleep(_seconds: float) -> None:
+        sleep_calls["count"] += 1
+        if sleep_calls["count"] >= 1:
+            runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
+            runner.STOP_FILE.write_text("stop\n", encoding="utf-8")
+
+    monkeypatch.setattr(runner.time, "sleep", fake_sleep)
+
+    runner.run_forever()
+
+    assert guarded == [("binance", "BTC/USD"), ("gateio", "ETH/USD")]

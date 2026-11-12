@@ -1,0 +1,913 @@
+--- before/services/execution/paper_engine.py
++++ after/services/execution/paper_engine.py
+@@ -100,6 +100,8 @@
+         "use_ccxt_fallback": _bool_cfg("use_ccxt_fallback", True),
+         "max_order_qty": _float_cfg("max_order_qty", 1e9),
+         "strategy_id": str(p.get("strategy_id") or ""),
++        # Source capability only: actual activation requires separately approved setup.
++        "require_fresh_hourly_candles": p.get("require_fresh_hourly_candles", False),
+     }
+ 
+ class PaperEngine:
+@@ -174,6 +176,10 @@
+         qty: float,
+         limit_price: float | None,
+     ) -> tuple[bool, str | None]:
++        if side == "buy" and self.cfg.get("require_fresh_hourly_candles", False) is not False:
++            verdict = self._hourly_candle_verdict(venue, symbol)
++            if not verdict["ok"]:
++                return False, "candle_data:" + verdict["reason"]
+         fresh, stale_reason = is_snapshot_fresh()
+         if not fresh:
+             return False, f"staleness:{stale_reason}"
+@@ -228,6 +234,13 @@
+                 return False, "insufficient_position"
+ 
+         return True, None
++
++    def _hourly_candle_verdict(self, venue, symbol):
++        from services.market_data.hourly_candle_quality import check_cached_hourly_candles
++        import storage.paper_trading_sqlite as ledger
++        if self.cfg.get("require_fresh_hourly_candles", False) is not True:
++            return {"ok": False, "reason": "invalid_policy", "policy_version": 1}
++        return check_cached_hourly_candles(venue, symbol, clock=self._clock, data_root=ledger.DB_PATH.parent)
+ 
+     def submit_order(
+         self,
+@@ -371,6 +384,8 @@
+         identity_extra = _fill_identity_extra(order, self.cfg)
+         identity_kwargs = ({"execution_identity_evidence": identity_extra}
+                            if identity_extra else {})
++        if self.cfg.get("require_fresh_hourly_candles", False) is not False:
++            identity_kwargs["hourly_candle_guard"] = self.cfg["require_fresh_hourly_candles"]
+         result = self.db.apply_fill(
+             order=order,
+             ts=fill_ts,
+@@ -464,7 +479,7 @@
+                 res = self._apply_fill(o, px, float(o["qty"]))
+                 if res.get("ok"):
+                     n_filled += 1
+-                else:
++                elif not res.get("unresolved"):
+                     n_rejected += 1
+                 details.append({"client_order_id": o["client_order_id"], "result": res})
+                 continue
+@@ -487,7 +502,7 @@
+                 res = self._apply_fill(o, float(fill_px), float(o["qty"]))
+                 if res.get("ok"):
+                     n_filled += 1
+-                else:
++                elif not res.get("unresolved"):
+                     n_rejected += 1
+                 details.append({"client_order_id": o["client_order_id"], "result": res})
+         return {"ok": True, "open_orders_seen": len(orders), "filled": n_filled, "rejected": n_rejected, "details_sample": details[:20]}
+--- before/services/execution/strategy_runner.py
++++ after/services/execution/strategy_runner.py
+@@ -15,6 +15,7 @@
+ from services.logging.app_logger import get_logger
+ from services.market_data.multi_venue_view import best_venue
+ from services.market_data.local_data_reader import write_local_ohlcv_snapshot
++from services.market_data.hourly_candle_quality import assess_hourly_candles
+ from services.market_data.symbol_router import map_symbol, normalize_symbol, normalize_venue
+ from services.market_data.tick_reader import get_best_bid_ask_last, mid_price
+ from services.os.app_paths import ensure_dirs, runtime_dir
+@@ -1303,6 +1304,7 @@
+                         if record is not None:
+                             record["ohlcv"] = ohlcv[-int(cfg["min_bars"]):]
+                             record["reason"] = "no_public_ohlcv" if not ohlcv else "warming"
++                            record["candle_quality"] = assess_hourly_candles(ohlcv, now=_now(), timeframe=timeframe)
+                         if not ohlcv:
+                             _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                             _LOG.warning(
+@@ -1979,7 +1981,7 @@
+                                 "run_forever", "_strategy_signal", "_registry_signal_with_context", "_synth_ohlcv",
+                                 "_position_aware_signal_action", "position_aware_signal_action", "signal_transition",
+                                 "select_exit_decision", "evaluate_strategy_exit_stack", "compute_signal",
+-                                "PaperExitAccounting", "make_event", "scope_for",
++                                "PaperExitAccounting", "make_event", "scope_for", "assess_hourly_candles",
+                             )
+                         })
+                         recording_counts["written" if receipt.get("ok") else "failed"] += 1
+--- before/services/strategies/signal_input_capture.py
++++ after/services/strategies/signal_input_capture.py
+@@ -356,7 +356,7 @@
+     "run_forever", "_strategy_signal", "_registry_signal_with_context", "_synth_ohlcv",
+     "_position_aware_signal_action", "position_aware_signal_action", "signal_transition",
+     "select_exit_decision", "evaluate_strategy_exit_stack", "compute_signal",
+-    "PaperExitAccounting", "make_event", "scope_for",
++    "PaperExitAccounting", "make_event", "scope_for", "assess_hourly_candles",
+ )
+ 
+ 
+@@ -367,7 +367,8 @@
+              "services.strategies.mean_reversion_rsi", "services.strategies.strategy_registry",
+              "services.strategies.market_filters", "services.strategies.indicators",
+              "services.execution.runner_decision", "services.risk.exit_controls",
+-             "services.execution.paper_exit_accounting", "storage.exit_event_journal")
++             "services.execution.paper_exit_accounting", "storage.exit_event_journal",
++             "services.market_data.hourly_candle_quality")
+     modules = {}
+     for name in names:
+         module = importlib.import_module(name)
+@@ -496,6 +497,11 @@
+     for key in ("symbol", "venue", "pipeline_stage"):
+         out[key] = _tag(record.get(key))
+     out["reason"] = _tag(record.get("reason", "not_evaluated"), nullable=True)
++    if isinstance(record.get("candle_quality"), dict):
++        out["candle_quality"] = {key: _public(value) for key, value in record["candle_quality"].items()
++            if key in {"ok", "reason", "policy_version", "timeframe", "checked_epoch",
++                       "last_candle_open_ms", "last_candle_complete", "missing_hours",
++                       "current_hour_present", "window_hours"}}
+     for key in ("observation_error", "error_type"):
+         if key in record:
+             out[key] = record[key] if record[key] in _SAFE_ERRORS else "Error"
+--- before/services/market_data/local_data_reader.py
++++ after/services/market_data/local_data_reader.py
+@@ -69,6 +69,7 @@
+         return None
+     path = _ohlcv_snapshot_path(venue, symbol, timeframe)
+     source_label = str(source or "unknown").strip() or "unknown"
++    identity = {"venue": venue, "symbol": symbol, "timeframe": timeframe}
+     try:
+         if path.exists():
+             existing = json.loads(path.read_text(encoding="utf-8"))
+@@ -76,13 +77,16 @@
+             existing_source = (
+                 "unknown" if isinstance(existing, list) else str(existing.get("source") or "unknown")
+             )
+-            if existing_rows == clean_rows and existing_source == source_label:
++            if (existing_rows == clean_rows and existing_source == source_label
++                    and isinstance(existing, dict) and existing.get("version") == 3
++                    and all(existing.get(key) == value for key, value in identity.items())):
+                 return path
+     except Exception:
+         pass
+     payload = json.dumps(
+         {
+-            "version": 2,
++            "version": 3,
++            **identity,
+             "source": source_label,
+             "written_ts": datetime.now(timezone.utc).isoformat(),
+             "candles": clean_rows,
+--- before/storage/paper_trading_sqlite.py
++++ after/storage/paper_trading_sqlite.py
+@@ -755,12 +755,13 @@
+         fee_currency: str,
+         execution_identity_evidence: Optional[Dict[str, Any]] = None,
+         clock: Callable[[], Any] | None = None,
++        hourly_candle_guard: Any = False,
+     ) -> Dict[str, Any]:
+         con = _connect()
+         try:
+             con.execute("BEGIN IMMEDIATE")
+             order_row = con.execute(
+-                "SELECT order_id, symbol, side, status, reject_reason, client_order_id, meta_json, created_ts "
++                "SELECT order_id, symbol, side, status, reject_reason, client_order_id, meta_json, created_ts, venue "
+                 "FROM paper_orders WHERE order_id=?",
+                 (str(order["order_id"]),),
+             ).fetchone()
+@@ -791,6 +792,20 @@
+                 if lookup_error is not None:
+                     con.execute("COMMIT")
+                     return {"ok": False, "reason": lookup_error}
++                candle_quality = None
++                if hourly_candle_guard is not False:
++                    candle_quality = {"ok": False, "reason": "invalid_policy"}
++                    if hourly_candle_guard is True:
++                        try:
++                            from services.market_data.hourly_candle_quality import check_cached_hourly_candles
++                            candle_quality = check_cached_hourly_candles(
++                                str(order_row[8]), symbol, clock=lambda: _paper_buy_now(clock), data_root=DB_PATH.parent,
++                            )
++                        except Exception:
++                            candle_quality = {"ok": False, "reason": "cache_unreadable"}
++                    if (not isinstance(candle_quality, dict) or type(candle_quality.get("ok")) is not bool
++                            or not isinstance(candle_quality.get("reason"), str) or not candle_quality["reason"]):
++                        candle_quality = {"ok": False, "reason": "invalid_verdict"}
+                 now_ts = _paper_buy_now(clock)
+                 verdict = _paper_buy_age_verdict(order_row[7], order_row[6], now_ts, queue_origins=queue_origins)
+                 if not verdict["ok"]:
+@@ -800,7 +815,30 @@
+                     self._write_paper_buy_terminal_conn(con, client_id, state, reason, verdict["created_ts"])
+                     con.execute("COMMIT")
+                     return {"ok": False, "reason": reason}
+-                if clock is not None:
++                if candle_quality is not None:
++                    try:
++                        diagnostic = json.dumps(candle_quality, sort_keys=True, allow_nan=False)
++                        if _decode_payload(diagnostic) is None:
++                            raise ValueError("invalid_candle_diagnostic")
++                        self._set_state_conn(con, "paper_candle_check:" + order_id, diagnostic)
++                    except Exception:
++                        con.rollback()
++                        return {"ok": False, "reason": "candle_data:evidence_unwritable", "unresolved": True}
++                    now_ts = _paper_buy_now(clock)
++                    verdict = _paper_buy_age_verdict(order_row[7], order_row[6], now_ts, queue_origins=queue_origins)
++                    if not verdict["ok"]:
++                        reason = verdict["reason"]
++                        state = "expired" if reason == "paper_buy_ttl:expired" else "rejected"
++                        self._update_order_status_conn(con, order_id, state, reason)
++                        self._write_paper_buy_terminal_conn(con, client_id, state, reason, verdict["created_ts"])
++                        con.execute("COMMIT")
++                        return {"ok": False, "reason": reason}
++                if candle_quality is not None and candle_quality["ok"] is not True:
++                    reason = "candle_data:" + candle_quality["reason"]
++                    self._update_order_status_conn(con, order_id, "rejected", reason)
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": reason, "candle_quality": candle_quality}
++                if clock is not None or candle_quality is not None:
+                     ts = datetime.fromtimestamp(_parse_created_epoch(now_ts), timezone.utc).isoformat()
+             try:
+                 stored_meta = json.loads(order_row[6] if order_row[6] is not None else "null")
+--- before/tests/test_ohlcv_snapshot_provenance.py
++++ after/tests/test_ohlcv_snapshot_provenance.py
+@@ -40,7 +40,8 @@
+     assert path is not None
+ 
+     raw = json.loads(path.read_text(encoding="utf-8"))
+-    assert raw["version"] == 2
++    assert raw["version"] == 3
++    assert (raw["venue"], raw["symbol"], raw["timeframe"]) == ("coinbase", "BTC/USD", "1d")
+     assert raw["source"] == "sample_ohlcv"
+     assert raw["written_ts"]
+     assert raw["candles"] == ROWS
+--- before/services/market_data/hourly_candle_quality.py
++++ after/services/market_data/hourly_candle_quality.py
+@@ -0,0 +1,92 @@
++"""R4 hourly-simulation diagnostics; no fetching, repairing or order submission."""
++from __future__ import annotations
++
++import math
++import re
++
++from services.execution.intent_ttl import _parse_created_epoch
++from services.market_data.symbol_router import normalize_symbol, normalize_venue
++from storage.exit_event_journal import _decode_payload
++
++HOUR_MS = 3_600_000
++MAX_SNAPSHOT_BYTES = 1_048_576
++
++
++def assess_hourly_candles(rows, *, now, timeframe="1h") -> dict:
++    out = {"ok": False, "reason": "invalid_candles", "policy_version": 1, "timeframe": timeframe,
++           "last_candle_open_ms": None, "last_candle_complete": None, "missing_hours": [],
++           "current_hour_present": False, "window_hours": 60}
++    epoch = _parse_created_epoch(now)
++    if isinstance(now, bool) or epoch is None or not math.isfinite(epoch * 1000) or epoch < 0:
++        return {**out, "reason": "invalid_clock"}
++    if timeframe != "1h":
++        return {**out, "reason": "not_hourly"}
++    current = int(epoch * 1000) // HOUR_MS * HOUR_MS
++    out["checked_epoch"] = epoch
++    if not isinstance(rows, list) or not rows:
++        return {**out, "reason": "no_candles"}
++    indexed = {}
++    previous = None
++    for row in rows:
++        try:
++            if not isinstance(row, (list, tuple)) or len(row) < 6 or isinstance(row[0], bool):
++                raise ValueError("invalid_row")
++            stamp = float(row[0])
++            if not math.isfinite(stamp) or stamp < 0 or stamp % HOUR_MS or stamp > current:
++                raise ValueError("invalid_timestamp")
++            stamp = int(stamp)
++            if previous is not None and stamp <= previous:
++                raise ValueError("unordered_or_duplicate")
++            previous = stamp
++            indexed[stamp] = row
++        except (TypeError, ValueError, OverflowError):
++            return out
++    last = max(indexed)
++    out.update(last_candle_open_ms=last, last_candle_complete=last + HOUR_MS <= epoch * 1000,
++               current_hour_present=current in indexed)
++    current_required = current in indexed or epoch - current / 1000 > 300
++    end = current if current_required else current - HOUR_MS
++    expected = range(end - 59 * HOUR_MS, end + HOUR_MS, HOUR_MS)
++    missing = [stamp for stamp in expected if stamp not in indexed]
++    out["missing_hours"] = missing
++    if current not in indexed and epoch - current / 1000 > 300:
++        return {**out, "reason": "current_hour_stale"}
++    if missing:
++        return {**out, "reason": "missing_hours"}
++    for stamp in expected:
++        row = indexed[stamp]
++        try:
++            if any(isinstance(value, bool) for value in row[1:6]):
++                raise ValueError("invalid_price")
++            opening, high, low, close, volume = map(float, row[1:6])
++            if (not all(math.isfinite(value) for value in (opening, high, low, close, volume))
++                    or min(opening, high, low, close) <= 0 or volume < 0
++                    or high < max(opening, low, close) or low > min(opening, high, close)):
++                raise ValueError("invalid_price")
++        except (TypeError, ValueError, OverflowError):
++            return {**out, "reason": "invalid_ohlcv"}
++    return {**out, "ok": True, "reason": "fresh"}
++
++
++def check_cached_hourly_candles(venue: str, symbol: str, *, clock, data_root=None) -> dict:
++    from services.market_data.local_data_reader import _ohlcv_snapshot_path
++    failure = {"ok": False, "reason": "cache_unreadable", "policy_version": 1}
++    try:
++        if not re.fullmatch(r"[a-z0-9_]+", normalize_venue(venue)) or "\\" in symbol or "\x00" in symbol:
++            return {**failure, "reason": "invalid_market_identity"}
++        path = _ohlcv_snapshot_path(venue, symbol, "1h")
++        if data_root is not None:
++            path = data_root / "snapshots" / path.name
++        with path.open("rb") as stream:
++            raw = stream.read(MAX_SNAPSHOT_BYTES + 1)
++        if len(raw) > MAX_SNAPSHOT_BYTES:
++            return {**failure, "reason": "cache_too_large"}
++        payload = _decode_payload(raw)
++        if (not payload or payload.get("source") != "public_ohlcv"
++                or normalize_venue(str(payload.get("venue", ""))) != normalize_venue(venue)
++                or normalize_symbol(str(payload.get("symbol", ""))) != normalize_symbol(symbol)
++                or payload.get("timeframe") != "1h"):
++            return {**failure, "reason": "cache_identity_or_source_unverified"}
++        return assess_hourly_candles(payload.get("candles"), now=clock())
++    except Exception:
++        return failure
+--- before/tests/test_hourly_candle_quality.py
++++ after/tests/test_hourly_candle_quality.py
+@@ -0,0 +1,241 @@
++import ast
++from datetime import datetime, timedelta, timezone
++import importlib
++import json
++import os
++from pathlib import Path
++from types import SimpleNamespace
++
++import pytest
++
++from services.market_data.hourly_candle_quality import assess_hourly_candles, check_cached_hourly_candles, HOUR_MS
++from tests.test_pending_paper_exit_integration import pending, harness
++
++NOW = datetime(2026, 11, 4, 12, 10, tzinfo=timezone.utc)
++OPEN = int(NOW.replace(minute=0).timestamp() * 1000)
++
++
++def candles(*, current=True):
++    end = OPEN if current else OPEN - HOUR_MS
++    return [[stamp, 100, 102, 99, 101, 10] for stamp in range(end - 59 * HOUR_MS, end + 1, HOUR_MS)]
++
++
++def test_current_forming_hour_and_previous_complete_hour_are_distinguished():
++    present = assess_hourly_candles(candles(), now=NOW)
++    assert present["ok"] and present["last_candle_open_ms"] == OPEN
++    assert present["last_candle_complete"] is False
++    grace = assess_hourly_candles(candles(current=False), now=NOW.replace(minute=5))
++    assert grace["ok"] and grace["last_candle_complete"] is True
++    assert not grace["current_hour_present"]
++
++
++@pytest.mark.parametrize("seconds,allowed", [(0, True), (299, True), (300, True), (300.001, False), (601, False)])
++def test_current_hour_grace_is_at_most_five_minutes(seconds, allowed):
++    now = NOW.replace(minute=0) + timedelta(seconds=seconds)
++    result = assess_hourly_candles(candles(current=False), now=now)
++    assert result["ok"] is allowed
++    if not allowed:
++        assert OPEN in result["missing_hours"]
++
++
++def test_previous_hour_gap_is_not_hidden_by_current_hour_or_grace():
++    rows = candles()
++    missing = rows.pop(20)[0]
++    result = assess_hourly_candles(rows, now=NOW)
++    assert not result["ok"] and result["missing_hours"] == [missing]
++    assert not assess_hourly_candles(candles(current=False)[:-1], now=NOW.replace(minute=1))["ok"]
++
++
++@pytest.mark.parametrize("damage", ["duplicate", "reverse", "future", "unaligned", "boolean_timestamp",
++                                    "zero", "nan", "bad", "negative_volume", "bad_range", "short"])
++def test_invalid_required_candles_are_not_fresh(damage):
++    rows = candles()
++    if damage == "duplicate": rows[-1] = rows[-2]
++    elif damage == "reverse": rows.reverse()
++    elif damage == "future": rows[-1][0] += HOUR_MS
++    elif damage == "unaligned": rows[-1][0] += 1
++    elif damage == "boolean_timestamp": rows[-1][0] = True
++    elif damage == "zero": rows[-1][4] = 0
++    elif damage == "nan": rows[-1][4] = float("nan")
++    elif damage == "bad": rows[-1][4] = "bad"
++    elif damage == "negative_volume": rows[-1][5] = -1
++    elif damage == "bad_range": rows[-1][2] = 1
++    elif damage == "short": rows[-1] = [OPEN]
++    assert not assess_hourly_candles(rows, now=NOW)["ok"]
++
++
++@pytest.mark.parametrize("clock", [None, True, "bad", float("nan"), float("inf"), 1e308])
++def test_bad_clock_fails_closed_without_raising(clock):
++    assert assess_hourly_candles(candles(), now=clock)["reason"] == "invalid_clock"
++
++
++@pytest.fixture
++def market(tmp_path, monkeypatch):
++    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
++    import storage.paper_trading_sqlite as ledger
++    import storage.intent_queue_sqlite as queue
++    import storage.trade_journal_sqlite as journal
++    import services.execution.paper_engine as engine
++    import services.execution.intent_reconciler as reconciler
++    for module in (ledger, queue, journal, engine, reconciler): importlib.reload(module)
++    now = [NOW]
++    clock = lambda: now[0].isoformat()
++    monkeypatch.setattr(engine, "_cfg", lambda: {"starting_cash_quote": 1000, "quote_currency": "USD",
++        "fee_bps": 50, "slippage_bps": 0, "use_ccxt_fallback": False, "enabled": True,
++        "max_order_qty": 1e9, "require_fresh_hourly_candles": True})
++    monkeypatch.setattr(engine, "is_snapshot_fresh", lambda: (True, None))
++    monkeypatch.setattr(engine, "is_master_read_only", lambda: False)
++    monkeypatch.setattr(engine, "check_market_quality", lambda *a: {"ok": True, "price_used": 100})
++    monkeypatch.setattr(engine, "load_gates", lambda: {})
++    monkeypatch.setattr(engine, "ExecutionGuardStoreSQLite", lambda: None)
++    monkeypatch.setattr(engine, "should_allow_order", lambda *a: (True, None))
++    monkeypatch.setattr(engine.PaperEngine, "_price", lambda *a: {"bid": 100, "ask": 100, "last": 100})
++    if os.getenv("CBP_CANDLE_BEFORE_ROOT"):
++        root = Path(os.environ["CBP_CANDLE_BEFORE_ROOT"])
++        for module, cls, name, file in ((engine, engine.PaperEngine, "_pre_submit_gate", "services/execution/paper_engine.py"),
++                                         (ledger, ledger.PaperTradingSQLite, "apply_fill", "storage/paper_trading_sqlite.py")):
++            tree = ast.parse((root / file).read_text())
++            oldcls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == cls.__name__)
++            method = next(node for node in oldcls.body if isinstance(node, ast.FunctionDef) and node.name == name)
++            namespace = {}
++            exec(compile(ast.Module(body=[method], type_ignores=[]), str(root / file), "exec"), module.__dict__, namespace)
++            original = namespace[name]
++            if name == "apply_fill":
++                # Bridge only the new keyword; execute the original fill body unchanged.
++                def original_fill(self, _original=original, **kwargs):
++                    kwargs.pop("hourly_candle_guard", None)
++                    return _original(self, **kwargs)
++                monkeypatch.setattr(cls, name, original_fill)
++            else:
++                monkeypatch.setattr(cls, name, original)
++    qdb, eng = queue.IntentQueueSQLite(), engine.PaperEngine(clock=clock)
++    return SimpleNamespace(root=ledger.DB_PATH.parent, now=now, clock=clock, eng=eng, q=qdb,
++                           journal=journal.TradeJournalSQLite(), reconciler=reconciler)
++
++
++def write(market, rows=None, **changes):
++    from services.market_data.local_data_reader import write_local_ohlcv_snapshot
++    path = write_local_ohlcv_snapshot("coinbase", "ADA/USD", candles() if rows is None else rows,
++                                      timeframe="1h", source="public_ohlcv")
++    if changes:
++        payload = json.loads(path.read_text())
++        payload.update(changes)
++        path.write_text(json.dumps(payload))
++    return path
++
++
++@pytest.mark.parametrize("changes", [{"source": "sample_ohlcv"}, {"symbol": "BTC/USD"},
++                                     {"venue": "kraken"}, {"timeframe": "1d"}, {"symbol": None}])
++def test_other_or_unknown_cache_identity_cannot_authorize_a_buy(market, changes):
++    write(market, **changes)
++    result = check_cached_hourly_candles("coinbase", "ADA/USD", clock=market.clock, data_root=market.root)
++    assert not result["ok"]
++
++
++def test_cache_upgrade_labels_unchanged_rows_without_inventing_source(market):
++    path = write(market)
++    payload = json.loads(path.read_text())
++    payload.pop("symbol")
++    payload["version"] = 2
++    path.write_text(json.dumps(payload))
++    assert not check_cached_hourly_candles("coinbase", "ADA/USD", clock=market.clock, data_root=market.root)["ok"]
++    write(market)
++    assert check_cached_hourly_candles("coinbase", "ADA/USD", clock=market.clock, data_root=market.root)["ok"]
++
++
++@pytest.mark.parametrize("damage", ["missing", "corrupt", "legacy", "oversized", "duplicate_keys"])
++def test_cache_failure_is_not_treated_as_fresh(market, damage):
++    path = write(market)
++    if damage == "missing": path.unlink()
++    elif damage == "corrupt": path.write_text("{bad")
++    elif damage == "legacy": path.write_text(json.dumps(candles()))
++    elif damage == "oversized": path.write_text("x" * 1_048_577)
++    else: path.write_text('{"source":"public_ohlcv","source":"public_ohlcv"}')
++    assert not check_cached_hourly_candles("coinbase", "ADA/USD", clock=market.clock, data_root=market.root)["ok"]
++
++
++def test_unsafe_venue_cannot_select_another_path(market, monkeypatch):
++    monkeypatch.setattr(Path, "open", lambda *a, **kw: pytest.fail("must reject before reading"))
++    result = check_cached_hourly_candles("../other", "ADA/USD", clock=market.clock, data_root=market.root)
++    assert result["reason"] == "invalid_market_identity"
++
++
++@pytest.mark.parametrize("kind", ["stale", "gap", "zero"])
++def test_enabled_profile_refuses_bad_candles_at_submission(market, kind):
++    rows = candles(current=kind != "stale")
++    if kind == "gap": rows.pop(20)
++    if kind == "zero": rows[-1][4] = 0
++    write(market, rows)
++    result = market.eng.submit_order(client_order_id="submit", venue="coinbase", symbol="ADA/USD",
++        side="buy", order_type="market", qty=1)
++    assert not result["ok"] and result["reason"].startswith("candle_data:")
++    assert market.eng.db.list_fills() == [] and market.eng.cash_quote() == 1000
++
++
++def test_fresh_at_submit_but_gapped_at_fill_does_not_fill(market):
++    write(market)
++    result = market.eng.submit_order(client_order_id="resting", venue="coinbase", symbol="ADA/USD",
++                                     side="buy", order_type="market", qty=1)
++    assert result["ok"]
++    rows = candles()
++    rows.pop(20)
++    write(market, rows)
++    assert market.eng.evaluate_open_orders()["filled"] == 0
++    assert market.eng.db.get_order_by_client_id("resting")["status"] == "rejected"
++    assert market.eng.cash_quote() == 1000 and market.eng.db.list_fills() == []
++
++
++def test_stale_candles_do_not_block_sells_or_disabled_profile(market):
++    write(market, candles(current=False))
++    market.eng.db.upsert_position("ADA/USD", 1, 100, 0)
++    sell = market.eng.submit_order(client_order_id="sell", venue="coinbase", symbol="ADA/USD",
++                                   side="sell", order_type="market", qty=1)
++    assert sell["ok"] and market.eng.evaluate_open_orders()["filled"] == 1
++    market.eng.cfg["require_fresh_hourly_candles"] = False
++    buy = market.eng.submit_order(client_order_id="disabled", venue="coinbase", symbol="ADA/USD",
++                                  side="buy", order_type="market", qty=1)
++    assert buy["ok"] and market.eng.evaluate_open_orders()["filled"] == 1
++
++
++def test_protective_pending_sell_does_not_read_candle_cache(pending, monkeypatch):
++    from services.market_data import hourly_candle_quality
++    f = pending
++    f.eng.cfg["require_fresh_hourly_candles"] = True
++    monkeypatch.setattr(hourly_candle_quality, "check_cached_hourly_candles",
++                        lambda *a, **kw: pytest.fail("a protective sell must not depend on candles"))
++    row = f.trigger()
++    f.cycle()
++    assert f.root(row)["status"] == "filled" and len(f.root_fills(row)) == 1
++
++
++def test_canonical_refusal_retains_reason_and_dispatches_existing_alert(market, monkeypatch):
++    import services.admin.config_editor as config
++    import services.alerts.alert_dispatcher as alerts
++    monkeypatch.setattr(config, "load_user_yaml", lambda **kw: {})
++    sent = []
++    monkeypatch.setattr(alerts, "send_alert", lambda **kw: sent.append(kw) or {"ok": True, "skipped": True})
++    monkeypatch.setattr(market.reconciler, "_now", market.clock)
++    market.q.upsert_intent({"intent_id": "intent", "created_ts": market.clock(), "ts": market.clock(),
++        "source": "strategy", "venue": "coinbase", "symbol": "ADA/USD", "side": "buy", "order_type": "market",
++        "qty": 1, "status": "queued"})
++    write(market)
++    result = market.eng.submit_order(client_order_id="paper_intent_intent", venue="coinbase", symbol="ADA/USD",
++                                     side="buy", order_type="market", qty=1)
++    market.q.claim_next_queued()
++    market.q.update_status("intent", "submitted", client_order_id="paper_intent_intent", linked_order_id=result["order"]["order_id"])
++    write(market, candles(current=False))
++    market.eng.evaluate_open_orders()
++    market.reconciler.reconcile_once(qdb=market.q, pdb=market.eng.db, jdb=market.journal)
++    row = market.q.get_intent("intent")
++    assert row["status"] == "rejected" and row["last_error"].startswith("candle_data:")
++    assert sent and market.q.list_paper_buy_events("intent")[-1]["reason"] == "not_delivered"
++
++
++def test_decision_archive_retains_whitelisted_candle_quality():
++    from tests.test_runner_decision_capture import make_record
++    from services.strategies.signal_input_capture import _project_record
++    record = make_record()
++    record["candle_quality"] = {**assess_hourly_candles(candles(), now=NOW), "secret": "must-not-copy"}
++    output = _project_record(record)["candle_quality"]
++    assert output["ok"] and output["last_candle_complete"] is False
++    assert "secret" not in output
+--- before/tests/test_paper_candle_fill_boundary.py
++++ after/tests/test_paper_candle_fill_boundary.py
+@@ -0,0 +1,337 @@
++from concurrent.futures import ThreadPoolExecutor
++from datetime import datetime, timedelta, timezone
++import copy
++import json
++import sqlite3
++import threading
++
++import pytest
++
++from services.execution.paper_buy_policy import PAPER_BUY_CREATED_TS
++from services.market_data import hourly_candle_quality as quality
++from storage import paper_trading_sqlite as store
++
++
++CREATED = datetime(2026, 11, 4, 1, 0, tzinfo=timezone.utc)
++
++
++@pytest.fixture
++def db(monkeypatch, tmp_path):
++    monkeypatch.setattr(store, "DB_PATH", tmp_path / "account-a" / "paper.sqlite")
++    result = store.PaperTradingSQLite()
++    result.initialize_account(1000, "USD")
++    return result
++
++
++def order(db, **changes):
++    row = dict(order_id="order", client_order_id="direct-buy", venue="coinbase", symbol="BTC/USD",
++               side="buy", order_type="market", qty=1, status="new", ts=CREATED.isoformat(),
++               meta={PAPER_BUY_CREATED_TS: CREATED.isoformat()})
++    row.update(changes)
++    db.insert_order(row)
++    return db.get_order_by_client_id(row["client_order_id"])
++
++
++def fill(db, row, **changes):
++    args = dict(order=row, ts=CREATED.isoformat(), price=100, qty=1, fee=0.5, fee_currency="USD",
++                clock=lambda: CREATED + timedelta(seconds=30), hourly_candle_guard=True)
++    args.update(changes)
++    return db.apply_fill(**args)
++
++
++def evidence(db, oid="order"):
++    raw = db.get_state("paper_candle_check:" + oid)
++    return json.loads(raw) if raw is not None else None
++
++
++def no_accounting(db):
++    assert db.list_fills() == [] and db.list_positions() == []
++    assert db.get_state("cash_quote") == "1000.0" and db.get_state("realized_pnl") == "0.0"
++
++
++def mock_quality(monkeypatch, verdict):
++    calls = []
++
++    def check(venue, symbol, *, clock, data_root):
++        calls.append((venue, symbol, data_root, clock()))
++        return copy.deepcopy(verdict)
++
++    monkeypatch.setattr(quality, "check_cached_hourly_candles", check)
++    return calls
++
++
++@pytest.mark.parametrize("status", ["new", "open"])
++@pytest.mark.parametrize("reason,ok", [("fresh", True), ("current_hour_stale", False), ("missing_hours", False)])
++def test_active_buy_checks_and_commits_diagnostics(db, monkeypatch, status, reason, ok):
++    verdict = {"ok": ok, "reason": reason, "missing_hours": [] if ok else [123], "policy_version": 1}
++    calls = mock_quality(monkeypatch, verdict)
++    row = order(db, status=status)
++    result = fill(db, row)
++    assert result["ok"] is ok and len(calls) == 1
++    assert evidence(db) == verdict
++    canonical = db.get_order_by_order_id(row["order_id"])
++    assert canonical["status"] == ("filled" if ok else "rejected")
++    if ok:
++        assert len(db.list_fills()) == 1 and float(db.get_state("cash_quote")) == 899.5
++    else:
++        assert result["reason"] == canonical["reject_reason"] == "candle_data:" + reason
++        assert result["candle_quality"] == verdict
++        no_accounting(db)
++
++
++def test_canonical_market_and_account_namespace_ignore_caller_and_environment(db, monkeypatch):
++    calls = mock_quality(monkeypatch, {"ok": True, "reason": "fresh"})
++    row = order(db)
++    forged = {**row, "venue": "other-venue", "symbol": "ETH/USD", "side": "sell"}
++    monkeypatch.setenv("CBP_STATE_DIR", str(store.DB_PATH.parent / "different-account"))
++    assert fill(db, forged)["ok"]
++    assert calls[0][:3] == ("coinbase", "BTC/USD", store.DB_PATH.parent)
++    assert db.get_position("BTC/USD")["qty"] == 1 and db.get_position("ETH/USD") is None
++
++
++@pytest.mark.parametrize("flag", [False, True, None, 1, "true", {}])
++def test_sell_ignores_policy_and_never_reads_candles(db, monkeypatch, flag):
++    def forbidden(*args, **kwargs):
++        pytest.fail("sell must not read candles")
++
++    monkeypatch.setattr(quality, "check_cached_hourly_candles", forbidden)
++    db.upsert_position("BTC/USD", 1, 100, 0)
++    row = order(db, side="sell", meta=None)
++    assert fill(db, row, hourly_candle_guard=flag)["ok"]
++    assert evidence(db) is None and db.get_position("BTC/USD")["qty"] == 0
++
++
++def test_false_default_does_not_read_or_record_candles(db, monkeypatch):
++    calls = mock_quality(monkeypatch, {"ok": False, "reason": "current_hour_stale"})
++    row = order(db)
++    assert db.apply_fill(order=row, ts=CREATED.isoformat(), price=100, qty=1, fee=0.5,
++                         fee_currency="USD", clock=lambda: CREATED + timedelta(seconds=30))["ok"]
++    assert calls == [] and evidence(db) is None
++
++
++@pytest.mark.parametrize("flag", [None, 0, 1, 0.0, 1.0, "false", "true", [], {}])
++def test_nonboolean_policy_rejects_buy_without_cache_read(db, monkeypatch, flag):
++    calls = mock_quality(monkeypatch, {"ok": True, "reason": "fresh"})
++    row = order(db)
++    result = fill(db, row, hourly_candle_guard=flag)
++    assert not result["ok"] and result["reason"] == "candle_data:invalid_policy"
++    assert db.get_order_by_order_id(row["order_id"])["status"] == "rejected"
++    assert evidence(db) == {"ok": False, "reason": "invalid_policy"} and calls == []
++    no_accounting(db)
++
++
++@pytest.mark.parametrize("status", ["filled", "expired", "rejected", "canceled", "cancelled", "superseded"])
++def test_terminal_precedence_never_reads_or_overwrites_evidence(db, monkeypatch, status):
++    calls = mock_quality(monkeypatch, {"ok": False, "reason": "current_hour_stale"})
++    row = order(db, status=status)
++    db.set_state("paper_candle_check:order", '{"earlier":"unchanged"}')
++    result = fill(db, row, hourly_candle_guard="invalid", clock=lambda: 1 / 0)
++    assert result["ok"] is (status == "filled")
++    assert calls == [] and evidence(db) == {"earlier": "unchanged"}
++    assert db.get_order_by_order_id(row["order_id"]) == row
++    no_accounting(db)
++
++
++def test_missing_order_and_existing_buy_fence_precede_candle_check(db, monkeypatch):
++    calls = mock_quality(monkeypatch, {"ok": True, "reason": "fresh"})
++    assert fill(db, {"order_id": "absent"})["reason"] == "order_not_found"
++    db.expire_buy_order("direct-buy", created_ts=CREATED, fence_missing=True,
++                        clock=lambda: CREATED + timedelta(seconds=120))
++    row = order(db)
++    assert fill(db, row)["reason"] == "paper_buy_ttl:expired"
++    assert calls == [] and evidence(db) is None
++    no_accounting(db)
++
++
++@pytest.mark.parametrize("quality_ok", [True, False])
++def test_ttl_is_sampled_after_helper_and_wins_over_bad_candles(db, monkeypatch, quality_ok):
++    row = order(db)
++    now = [CREATED + timedelta(seconds=119)]
++
++    def check(venue, symbol, *, clock, data_root):
++        assert clock() == now[0]
++        now[0] = CREATED + timedelta(seconds=120)
++        return {"ok": quality_ok, "reason": "fresh" if quality_ok else "current_hour_stale"}
++
++    monkeypatch.setattr(quality, "check_cached_hourly_candles", check)
++    result = fill(db, row, clock=lambda: now[0])
++    assert result["reason"] == "paper_buy_ttl:expired"
++    assert db.get_order_by_order_id(row["order_id"])["status"] == "expired"
++    assert evidence(db) is None
++    no_accounting(db)
++
++
++@pytest.mark.parametrize("initial_age", [119, 120])
++@pytest.mark.parametrize("quality_ok", [True, False])
++def test_expiry_wins_over_selectively_unwritable_candle_evidence(db, monkeypatch, initial_age, quality_ok):
++    row = order(db)
++    now = [CREATED + timedelta(seconds=initial_age)]
++    calls = []
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("CREATE TRIGGER fail_candle_evidence BEFORE INSERT ON paper_state "
++                    "WHEN NEW.k='paper_candle_check:order' "
++                    "BEGIN SELECT RAISE(ABORT, 'candle evidence unavailable'); END")
++
++    def check(venue, symbol, *, clock, data_root):
++        calls.append(clock())
++        now[0] = CREATED + timedelta(seconds=120)
++        return {"ok": quality_ok, "reason": "fresh" if quality_ok else "current_hour_stale"}
++
++    monkeypatch.setattr(quality, "check_cached_hourly_candles", check)
++    result = fill(db, row, clock=lambda: now[0])
++    assert result == {"ok": False, "reason": "paper_buy_ttl:expired"}
++    assert calls == [CREATED + timedelta(seconds=initial_age)]
++    canonical = db.get_order_by_order_id(row["order_id"])
++    assert canonical["status"] == "expired" and canonical["reject_reason"] == result["reason"]
++    terminal = json.loads(db.get_state("paper_buy_terminal:direct-buy"))
++    assert terminal["state"] == "expired" and terminal["reason"] == result["reason"]
++    assert evidence(db) is None
++    no_accounting(db)
++
++
++def test_waiting_fill_reads_cache_update_only_after_write_lock(db, monkeypatch):
++    row = order(db)
++    waiting = threading.Event()
++    called = threading.Event()
++    cached = [{"ok": True, "reason": "fresh"}]
++    original_connect = store._connect
++    writer = original_connect()
++    writer.execute("BEGIN IMMEDIATE")
++
++    def connect():
++        con = original_connect()
++        waiting.set()
++        return con
++
++    def check(venue, symbol, *, clock, data_root):
++        called.set()
++        with sqlite3.connect(store.DB_PATH, timeout=0) as competing:
++            with pytest.raises(sqlite3.OperationalError, match="locked"):
++                competing.execute("BEGIN IMMEDIATE")
++        return cached[0]
++
++    monkeypatch.setattr(store, "_connect", connect)
++    monkeypatch.setattr(quality, "check_cached_hourly_candles", check)
++    try:
++        with ThreadPoolExecutor(max_workers=1) as pool:
++            pending = pool.submit(fill, db, row)
++            assert waiting.wait(3) and not called.is_set()
++            cached[0] = {"ok": False, "reason": "missing_hours"}
++            writer.execute("COMMIT")
++            assert pending.result(timeout=5)["reason"] == "candle_data:missing_hours"
++    finally:
++        writer.close()
++    assert called.is_set() and evidence(db) == cached[0]
++    no_accounting(db)
++
++
++@pytest.mark.parametrize("quality_ok", [True, False])
++def test_evidence_write_failure_rolls_back_and_allows_next_order(db, monkeypatch, quality_ok):
++    mock_quality(monkeypatch, {"ok": quality_ok, "reason": "fresh" if quality_ok else "current_hour_stale"})
++    row = order(db)
++    db.set_state("paper_candle_check:order", '{"earlier":"preserve"}')
++    original = db._set_state_conn
++
++    def fail(con, key, value):
++        original(con, key, value)
++        if key == "paper_candle_check:order":
++            raise sqlite3.OperationalError("synthetic evidence failure")
++
++    monkeypatch.setattr(db, "_set_state_conn", fail)
++    result = fill(db, row)
++    assert result == {"ok": False, "reason": "candle_data:evidence_unwritable", "unresolved": True}
++    assert db.get_order_by_order_id(row["order_id"]) == row
++    assert evidence(db) == {"earlier": "preserve"}
++    assert db.get_state("paper_buy_terminal:direct-buy") is None
++    no_accounting(db)
++    next_order = order(db, order_id="next", client_order_id="next")
++    assert fill(db, next_order, hourly_candle_guard=False)["ok"]
++
++
++@pytest.mark.parametrize("value", [float("nan"), float("inf")])
++def test_nonfinite_diagnostic_is_unwritable_not_a_terminal_refusal(db, monkeypatch, value):
++    mock_quality(monkeypatch, {"ok": True, "reason": "fresh", "checked_epoch": value})
++    row = order(db)
++    assert fill(db, row) == {"ok": False, "reason": "candle_data:evidence_unwritable", "unresolved": True}
++    assert db.get_order_by_order_id(row["order_id"]) == row
++    assert evidence(db) is None
++    no_accounting(db)
++
++
++@pytest.mark.parametrize("malformed", [None, [], {"ok": 1, "reason": "fresh"}, {"ok": True}])
++def test_malformed_helper_verdict_cannot_fill(db, monkeypatch, malformed):
++    mock_quality(monkeypatch, malformed)
++    row = order(db)
++    assert fill(db, row)["reason"] == "candle_data:invalid_verdict"
++    no_accounting(db)
++
++
++def test_helper_exception_is_durable_refusal_not_uncaught(db, monkeypatch):
++    def failing(*args, **kwargs):
++        raise OSError("unreadable")
++
++    monkeypatch.setattr(quality, "check_cached_hourly_candles", failing)
++    row = order(db)
++    assert fill(db, row)["reason"] == "candle_data:cache_unreadable"
++    assert evidence(db) == {"ok": False, "reason": "cache_unreadable"}
++    no_accounting(db)
++
++
++@pytest.mark.parametrize("age_after_write", [119.999, 120, 121])
++@pytest.mark.parametrize("quality_ok", [True, False])
++def test_successful_diagnostic_write_rechecks_ttl_and_refreshes_fill_time(db, monkeypatch, age_after_write, quality_ok):
++    verdict = {"ok": quality_ok, "reason": "fresh" if quality_ok else "current_hour_stale"}
++    mock_quality(monkeypatch, verdict)
++    row = order(db)
++    now = [CREATED + timedelta(seconds=119)]
++    original = db._set_state_conn
++
++    def delayed_write(con, key, value):
++        result = original(con, key, value)
++        if key == "paper_candle_check:order":
++            now[0] = CREATED + timedelta(seconds=age_after_write)
++        return result
++
++    monkeypatch.setattr(db, "_set_state_conn", delayed_write)
++    result = fill(db, row, clock=lambda: now[0])
++    canonical = db.get_order_by_order_id(row["order_id"])
++    assert evidence(db) == verdict
++    if age_after_write >= 120:
++        assert result == {"ok": False, "reason": "paper_buy_ttl:expired"}
++        assert canonical["status"] == "expired" and canonical["reject_reason"] == result["reason"]
++        terminal = json.loads(db.get_state("paper_buy_terminal:direct-buy"))
++        assert terminal["state"] == "expired" and terminal["reason"] == result["reason"]
++        no_accounting(db)
++    elif quality_ok:
++        assert result["ok"] and canonical["status"] == "filled"
++        assert db.list_fills()[0]["ts"] == now[0].isoformat()
++        assert db.get_position("BTC/USD")["updated_ts"] == now[0].isoformat()
++        assert float(db.get_state("cash_quote")) == 899.5
++    else:
++        assert result["reason"] == "candle_data:current_hour_stale" and canonical["status"] == "rejected"
++        assert db.get_state("paper_buy_terminal:direct-buy") is None
++        no_accounting(db)
++
++
++def test_guarded_default_clock_records_post_diagnostic_fill_time(db, monkeypatch):
++    mock_quality(monkeypatch, {"ok": True, "reason": "fresh"})
++    row = order(db)
++    now = [CREATED + timedelta(seconds=119)]
++    original = db._set_state_conn
++
++    class MutableDateTime(datetime):
++        @classmethod
++        def now(cls, tz=None):
++            return now[0]
++
++    def delayed_write(con, key, value):
++        result = original(con, key, value)
++        if key == "paper_candle_check:order":
++            now[0] = CREATED + timedelta(seconds=119.999)
++        return result
++
++    monkeypatch.setattr(store, "datetime", MutableDateTime)
++    monkeypatch.setattr(db, "_set_state_conn", delayed_write)
++    assert fill(db, row, clock=None)["ok"]
++    assert db.list_fills()[0]["ts"] == now[0].isoformat()
++    assert db.get_position("BTC/USD")["updated_ts"] == now[0].isoformat()

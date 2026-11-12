@@ -1,0 +1,12 @@
+{
+  "before": {
+    "services/analytics/paper_sim_monitor.py": "4de35e093f4ae849ed9e2657f036cfad7813b33f3a7584a25cb39b048c9ad9b6",
+    "services/execution/paper_engine.py": "7bbda088af6d2285386d4551b86e6df77a6d19e683867d7d6cb408da116f875a",
+    "tests/test_paper_missing_price_valuation.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "current": {
+    "services/analytics/paper_sim_monitor.py": "35fa3f08f6ba178835e4621d3ba551ff2acc7297b70fc21285b62d36e3020430",
+    "services/execution/paper_engine.py": "a299822dc207e5170766a536273c9bd5ddef81d8d03eed524ce242d5ba4f6ab6",
+    "tests/test_paper_missing_price_valuation.py": "387cce4f94d1824473f4794ef858f9742d7985e91a370459be67aab0e576460d"
+  }
+}

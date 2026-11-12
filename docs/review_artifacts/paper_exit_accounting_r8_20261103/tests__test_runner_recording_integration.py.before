@@ -1,0 +1,605 @@
+"""R6/R9 offline integration of the real runner, signals, archive and SQLite.
+
+Only synthetic public inputs, configuration and the minimal fill driver are
+substituted. This is self-checked diagnostic proof, not independent acceptance,
+service/runtime proof, market research, execution replay or evidence of profit.
+The saved .before runner and strategy implementations execute in-process: no
+subprocess is needed, and production source files are never rewritten.
+"""
+from __future__ import annotations
+
+import ast
+import builtins
+from contextlib import contextmanager
+import copy
+from datetime import datetime, timedelta, timezone
+from importlib.machinery import SourceFileLoader
+import importlib.util
+import io
+import json
+import os
+from pathlib import Path
+import sqlite3
+import sys
+import time
+from types import SimpleNamespace
+import uuid
+
+import pytest
+
+from tests.test_runner_multi_symbol_integration import (
+    PRICES, ROOT, SYMBOLS, VENUE, harness as _base_harness,
+)
+
+
+ARTIFACTS = ROOT / "docs/review_artifacts/paper_simulation_r6r9_20261103"
+SOURCE = ROOT / "services/execution/strategy_runner.py"
+BEFORE = ARTIFACTS / "services__execution__strategy_runner.py.before"
+TRIO = ("breakout_donchian", "ema_cross", "mean_reversion_rsi")
+SOURCES = ("public_ohlcv_1h", "synthetic_mid_ohlcv")
+START = datetime(2026, 11, 3, 1, tzinfo=timezone.utc)
+HOUR_MS = 3_600_000
+
+
+def _restore_signals(h):
+    # The shared harness replaces signals. Restore the exact source functions,
+    # not an imitation, while retaining its bounded loop and I/O isolation.
+    tree = ast.parse(h.source.read_text())
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name in {"_strategy_signal", "_registry_signal_with_context"}]
+    assert len(functions) == 2
+    exec(compile(ast.Module(body=functions, type_ignores=[]), str(h.source), "exec"),
+         h.runner.__dict__)
+    for name in ("_strategy_signal", "_registry_signal_with_context"):
+        assert Path(getattr(h.runner, name).__code__.co_filename) == h.source
+
+
+def _saved_module(mp, filename):
+    path = ARTIFACTS / filename
+    assert path.is_file(), f"required before artifact missing: {path}"
+    name = f"services.strategies._recording_before_{uuid.uuid4().hex}"
+    spec = importlib.util.spec_from_file_location(
+        name, path, loader=SourceFileLoader(name, str(path)))
+    module = importlib.util.module_from_spec(spec)
+    mp.setitem(sys.modules, name, module)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _restore_before_strategy_stack(h):
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+    for strategy, alias in (("ema_cross", "ema_cross"),
+                            ("breakout_donchian", "breakout_donchian"),
+                            ("mean_reversion_rsi", "mean_rev_rsi")):
+        old = _saved_module(h.mp, f"services__strategies__{strategy}.py.before")
+        setattr(registry, alias, old.signal_from_ohlcv)
+        registry.SUPPORTED[strategy] = old.signal_from_ohlcv
+    h.mp.setattr(h.runner, "compute_signal", registry.compute_signal)
+    exits = _saved_module(h.mp, "services__risk__exit_controls.py.before")
+    h.mp.setattr(h.runner, "evaluate_strategy_exit_stack", exits.evaluate_strategy_exit_stack)
+
+
+class _Inputs:
+    def __init__(self, h):
+        self.h = h
+        self.seen = []
+        self.fixed_price = None
+        self.empty = False
+        self.row_count = 64
+        self.stable_history = False
+        self.observed_signals = []
+        h.mp.setattr(h.runner, "_now", lambda: self.now().isoformat())
+        h.mp.setattr(h.runner, "_fetch_public_ohlcv", self.public)
+        h.mp.setattr(h.runner, "_fetch_mid", self.tick)
+        # Observe returns without replacing the decision bindings under test.
+        codes = {getattr(h.runner, name).__code__ for name in
+                 ("_strategy_signal", "_registry_signal_with_context")}
+        self.previous_profile = sys.getprofile()
+
+        def returned(frame, event, result):
+            if event == "return" and frame.f_code in codes and isinstance(result, dict):
+                self.observed_signals.append((h.stop.turn, copy.deepcopy(result)))
+            if self.previous_profile is not None:
+                self.previous_profile(frame, event, result)
+
+        sys.setprofile(returned)
+
+    def now(self):
+        return START + timedelta(seconds=60 * (max(1, self.h.stop.turn) - 1))
+
+    def price(self, symbol):
+        if self.fixed_price is not None:
+            return self.fixed_price * PRICES[symbol] / PRICES[SYMBOLS[0]]
+        moves = ((1.01, 0.99, 1.012, 0.988, 1.0)
+                 if self.h.cfg["signal_source"] == SOURCES[0]
+                 else (1.10, 0.90, 1.12, 0.88, 1.0))
+        return PRICES[symbol] * moves[(self.h.stop.turn - 1) % len(moves)]
+
+    def public(self, cfg, **_kwargs):
+        symbol = cfg["symbol"]
+        self.h.active_symbol = symbol
+        now_ms = int(self.now().timestamp() * 1000)
+        forming_open = now_ms // HOUR_MS * HOUR_MS
+        rows = [] if self.empty else [
+            [forming_open - (self.row_count - 1 - i) * HOUR_MS,
+             PRICES[symbol], PRICES[symbol] * 1.003, PRICES[symbol] * 0.997, PRICES[symbol], 1.0]
+            for i in range(self.row_count)
+        ]
+        if rows:
+            price = self.price(symbol)
+            if (not self.stable_history and self.h.cfg["strategy_id"] == "mean_reversion_rsi"
+                    and len(rows) >= 24):
+                # An oversold path with an actual final uptick, or its inverse,
+                # exercises the public preset's unchanged reversal filter.
+                direction = -1 if price < PRICES[symbol] else 1
+                beginning = PRICES[symbol] * (1.0 - direction * 0.02)
+                end = price + direction * PRICES[symbol] * 0.001
+                for index in range(20):
+                    close = beginning + (end - beginning) * index / 19
+                    rows[-21 + index][1:5] = [close, close * 1.003, close * 0.997, close]
+            rows[-1] = [forming_open, PRICES[symbol], max(price, PRICES[symbol]),
+                        min(price, PRICES[symbol]), price, 1.0 + self.h.stop.turn]
+        self.seen.append((self.h.stop.turn, symbol, copy.deepcopy(rows)))
+        return rows, {"source": "public_ohlcv", "env_sample_mode": False,
+                      "sample_fallback": False, "row_count": len(rows)}
+
+    def tick(self, cfg):
+        symbol = cfg["symbol"]
+        self.h.active_symbol = symbol
+        result = None if self.empty else (self.price(symbol), int(self.now().timestamp() * 1000))
+        self.seen.append((self.h.stop.turn, symbol, result))
+        return result
+
+
+@pytest.fixture
+def recording_case(tmp_path):
+    counter = 0
+    proof_output = os.environ.get("CBP_R6_PROOF_OUTPUT")
+
+    @contextmanager
+    def case(strategy="breakout_donchian", signal_source=SOURCES[0], *, enabled=True,
+             before=False, seed_ticks=True):
+        nonlocal counter
+        counter += 1
+        root = tmp_path / str(counter)
+        root.mkdir()
+        with pytest.MonkeyPatch.context() as mp:
+            source = BEFORE if before else SOURCE
+            # SourceFileLoader is necessary for the literal .py.before artifact.
+            real_spec = importlib.util.spec_from_file_location
+
+            def spec(name, location, **kwargs):
+                if str(location).endswith(".before"):
+                    kwargs["loader"] = SourceFileLoader(name, str(location))
+                return real_spec(name, location, **kwargs)
+
+            mp.setattr(importlib.util, "spec_from_file_location", spec)
+            mp.setenv("CBP_MULTISYMBOL_BEFORE_SOURCE", str(source))
+            h = _base_harness.__wrapped__(mp, root)
+            _restore_signals(h)
+            if before:
+                _restore_before_strategy_stack(h)
+            else:
+                # The base harness wraps this pure evaluator for older tests;
+                # this proof must bind and exercise the actual implementation.
+                from services.risk.exit_controls import evaluate_strategy_exit_stack
+                mp.setattr(h.runner, "evaluate_strategy_exit_stack", evaluate_strategy_exit_stack)
+            h.cfg.update(strategy_id=strategy, strategy={"name": strategy, "trade_enabled": True},
+                         strategy_preset="default", signal_source=signal_source,
+                         min_bars=64, max_bars=80, take_profit_pct=0.06, max_bars_hold=60)
+            h.stop = SimpleNamespace(turn=0)
+            mp.setenv("CBP_CAPTURE_RUNNER_DECISIONS", "1" if enabled else "0")
+            import services.strategies.signal_input_capture as capture
+            import services.strategies.evidence_logger as evidence_logger
+
+            # Commit/version lookup is not the behavior under test. No git child
+            # or private configuration read is allowed even on the capture path.
+            mp.setattr(capture, "_runner_commit_identity", lambda: None)
+            mp.setattr(evidence_logger, "_version_stamp", lambda *_a, **_k: {})
+            for owner in (builtins, io):
+                real_open = owner.open
+
+                def guarded_open(path, *args, _open=real_open, **kwargs):
+                    if isinstance(path, (str, bytes, Path)):
+                        p = Path(path)
+                        assert not (p.name.startswith(".env") or p.name in {
+                            ".browser-access-token", ".browser-compose-override.json"}
+                            or (p.name == "user.yaml" and p.parent.name == "config")), p
+                    return _open(path, *args, **kwargs)
+
+                mp.setattr(owner, "open", guarded_open)
+            inputs = _Inputs(h)
+            inputs.proof_output = proof_output
+            if seed_ticks and signal_source == "synthetic_mid_ohlcv":
+                for symbol in SYMBOLS:
+                    h.state.set(_key(h, "prices", symbol), json.dumps([PRICES[symbol]] * 64))
+            assert h.source == source
+            assert Path(h.runner.run_forever.__code__.co_filename) == source
+            try:
+                yield h, inputs, capture
+            finally:
+                sys.setprofile(inputs.previous_profile)
+
+    case.proof_output = proof_output
+    return case
+
+
+def _key(h, kind, symbol):
+    return f"{kind}:{VENUE}:{symbol}:{h.cfg['strategy_id']}"
+
+
+def _snapshot(h, inputs):
+    import storage.strategy_state_sqlite as state
+
+    with sqlite3.connect(state.DB_PATH) as db:
+        values = db.execute("SELECT k, v FROM strategy_state ORDER BY k").fetchall()
+    intents = sorted((r["symbol"], r["side"], r["qty"], r["order_type"], r["status"],
+                      r["meta"]["reference_price"], r["meta"].get("reason"),
+                      r["meta"].get("exit_stack_rule")) for r in h.intents())
+    positions = sorted((p["symbol"], p["qty"], p["avg_price"]) for p in h.paper.list_positions())
+    return {"signals": inputs.observed_signals, "state": values, "intents": intents,
+            "positions": positions, "cash": h.paper.get_state("cash_quote")}
+
+
+def _records(h, capture, count):
+    paths = list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
+    assert len(paths) == 1, (paths, h.statuses[-1])
+    records = capture.read_runner_records(paths[0])
+    assert len(records) == count, h.statuses[-1]
+    expected_code = capture._runner_code_identity()
+    for envelope in records:
+        recorded_code = json.loads((Path(envelope["object_directory"]) / f"{envelope['payload']['code_sha256']}.json").read_bytes())
+        assert recorded_code == expected_code, [
+            (module, key) for module, bindings in expected_code["modules"].items()
+            for key in bindings if recorded_code["modules"][module].get(key) != bindings[key]]
+    assert [r["payload"]["loop"] for r in records] == list(range(1, count + 1))
+    assert h.statuses[-1]["runner_decision_capture"] == {
+        "enabled": True, "written": count, "failed": 0}
+    return records
+
+
+def _rows(envelope):
+    payload = envelope["payload"]
+    directory = Path(envelope["object_directory"])
+    prefix = json.loads((directory / f"{payload['completed_prefix_sha256']}.json").read_bytes())
+    bars = [json.loads((directory / f"{ref}.json").read_bytes())["row"]
+            for ref in prefix["bar_refs"]]
+    return [bars[slot["index"]] if slot["complete"] else slot["row"]
+            for slot in payload["ohlcv"]]
+
+
+def _export_summary(inputs, capture, records, *, recording_seconds, off_seconds=None):
+    if not inputs.proof_output:
+        return
+    output = Path(inputs.proof_output).resolve()
+    assert output.is_relative_to(ARTIFACTS.resolve()), "proof output must stay in approved artifact directory"
+    output.mkdir(parents=True, exist_ok=True)
+    journals = list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
+    cas = list((capture.data_dir() / "signal_inputs").glob("*.json"))
+    by_kind = {}
+    by_object = {}
+    for record in records:
+        kind = record["payload"]["kind"]
+        by_kind[kind] = by_kind.get(kind, 0) + 1
+    for path in cas:
+        kind = json.loads(path.read_bytes())["type"]
+        item = by_object.setdefault(kind, {"objects": 0, "bytes": 0})
+        item["objects"] += 1
+        item["bytes"] += path.stat().st_size
+    replays = [capture.replay_runner_decision(record) for record in records]
+    summary = {
+        "scope": "synthetic_clockhour_diagnostic_only_not_runtime_benchmark",
+        "strategy": inputs.h.cfg["strategy_id"], "signal_source": inputs.h.cfg["signal_source"],
+        "record_count": len(records), "by_kind": by_kind,
+        "replay_matches": sum(r["decision_match"] is True for r in replays),
+        "diagnostic_verified": sum(r["status"] == "diagnostic_verified" for r in replays),
+        "stream_bytes": sum(p.stat().st_size for p in journals),
+        "cas_bytes": sum(p.stat().st_size for p in cas), "cas_by_type": by_object,
+        "synthetic_seconds": 3600, "poll_step_seconds": 60, "symbols": list(SYMBOLS),
+        "recording_on_process_elapsed_seconds": recording_seconds,
+        "recording_off_process_elapsed_seconds": off_seconds,
+        "limits": ["Three symbols round robin, not nine single-symbol services",
+                   "Includes cold-start code/settings/history; linear 26-week extrapolation is not a storage forecast",
+                   "Tick bars are model timestamps, not observed market candles",
+                   "Held duration is distinct-bar count, not elapsed hours",
+                   "No runtime configuration, real fills, infrastructure cost or operational performance inspected"],
+    }
+    (output / f"synthetic_hour_{summary['strategy']}_{summary['signal_source']}.json").write_text(
+        json.dumps(summary, sort_keys=True, indent=2) + "\n")
+
+
+@pytest.mark.parametrize("strategy", TRIO)
+@pytest.mark.parametrize("signal_source", SOURCES)
+def test_recording_toggle_and_saved_before_have_identical_real_behavior(
+        recording_case, strategy, signal_source):
+    snapshots = []
+    for enabled, before in ((False, True), (False, False), (True, False)):
+        with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+            h.run(18)
+            snapshots.append(_snapshot(h, inputs))
+            assert len(inputs.observed_signals) == 18
+            assert {signal["action"] for _, signal in inputs.observed_signals} >= {"buy", "sell"}
+            assert h.intents("buy") and h.intents("sell"), "parity must exercise actions, not only idle state"
+            if enabled:
+                records = _records(h, capture, 18)
+                assert [r["payload"]["signal"] for r in records] == [s for _, s in inputs.observed_signals]
+                assert all(capture.replay_runner_decision(r)["decision_match"] for r in records)
+            else:
+                assert not list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
+    assert snapshots[0] == snapshots[1] == snapshots[2]
+
+
+@pytest.mark.parametrize("strategy", TRIO)
+@pytest.mark.parametrize("signal_source", SOURCES)
+def test_full_synthetic_clockhour_replays_every_turn_without_future_inputs(
+        recording_case, strategy, signal_source):
+    off_seconds = None
+    off_snapshot = None
+    if recording_case.proof_output:
+        with recording_case(strategy, signal_source, enabled=False) as (h, inputs, _capture):
+            inputs.stable_history = True
+            started = time.perf_counter()
+            h.run(61)
+            off_seconds = time.perf_counter() - started
+            off_snapshot = _snapshot(h, inputs)
+    with recording_case(strategy, signal_source) as (h, inputs, capture):
+        inputs.stable_history = True
+        started = time.perf_counter()
+        h.run(61)
+        recording_seconds = time.perf_counter() - started
+        records = _records(h, capture, 61)
+        observed = [datetime.fromisoformat(r["payload"]["observed_at"]) for r in records]
+        assert observed[0] == START and observed[-1] - observed[0] == timedelta(hours=1)
+        assert {r["payload"]["symbol"] for r in records} == set(SYMBOLS)
+        assert len({r["payload"]["session_id"] for r in records}) == 1
+        actual_signals = dict(inputs.observed_signals)
+        for envelope, (turn, symbol, supplied) in zip(records, inputs.seen, strict=True):
+            payload = envelope["payload"]
+            assert payload["kind"] == "decision" and payload["signal_computed"] is True
+            assert payload["symbol"] == symbol and payload["loop"] == turn
+            assert payload["signal"] == actual_signals[turn]
+            rows = _rows(envelope)
+            observed_ms = int(datetime.fromisoformat(payload["observed_at"]).timestamp() * 1000)
+            assert all(row[0] <= observed_ms for row in rows)
+            if signal_source == "public_ohlcv_1h":
+                assert payload["timeframe"] == "1h"
+                assert rows == supplied[-h.cfg["min_bars"]:]
+                assert all(slot["complete"] == (row[0] + HOUR_MS <= observed_ms)
+                           for slot, row in zip(payload["ohlcv"], rows, strict=True))
+                assert payload["ohlcv"][-1]["complete"] is False
+            else:
+                assert payload["timeframe"] == "synthetic_ticks_1s"
+                assert rows[-1][0] == supplied[1] and rows[-1][4] == supplied[0]
+                assert all(slot["complete"] is False for slot in payload["ohlcv"])
+            replay = capture.replay_runner_decision(envelope)
+            assert replay["status"] == "decision_match", replay
+            assert replay["recomputed"] is True and replay["signal_recomputed"] is True
+        if signal_source == "public_ohlcv_1h":
+            first, second = records[0], records[3]  # same symbol, changing forming bar
+            assert first["payload"]["completed_prefix_sha256"] == second["payload"]["completed_prefix_sha256"]
+            assert _rows(first)[-1] != _rows(second)[-1]
+            assert _rows(first)[-1][4] == inputs.seen[0][2][-1][4]
+        if off_snapshot is not None:
+            assert _snapshot(h, inputs) == off_snapshot
+        _export_summary(inputs, capture, records, recording_seconds=recording_seconds,
+                        off_seconds=off_seconds)
+
+
+@pytest.mark.parametrize("filtered", [False, True])
+def test_simultaneous_stop_trailing_raw_sell_keeps_old_priority(recording_case, filtered):
+    snapshots = []
+    for enabled, before in ((False, True), (False, False), (True, False)):
+        with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+            inputs.fixed_price = 90.0
+            if filtered:
+                h.cfg["strategy"]["min_volume_ratio"] = 1000.0
+            h.seed_holdings()
+            for symbol in SYMBOLS:
+                h.state.set(_key(h, "trailing_peak", symbol), str(PRICES[symbol] * 1.2))
+            h.run(3)
+            snapshots.append(_snapshot(h, inputs))
+            assert len(h.intents("sell")) == 3
+            if enabled:
+                for record in _records(h, capture, 3):
+                    payload = record["payload"]
+                    assert payload["raw_signal"]["raw_action"] == "sell"
+                    assert payload["signal"]["action"] == ("hold" if filtered else "sell")
+                    if filtered:
+                        assert payload["signal"]["reason"] == "low_volume_filter"
+                    chosen = payload["decision"]["exit"]
+                    assert chosen["conditions"]["stop"] is True
+                    assert chosen["conditions"]["trailing"] is True
+                    assert chosen["conditions"]["pre_filter_sell"] is True
+                    assert chosen["conditions"]["strategy_sell"] is not filtered
+                    assert chosen["exit_out"]["stack_rule"] == "stop_loss"
+                    assert chosen["action"] == payload["actual"]["intended_action"] == "sell"
+                    assert payload["actual"]["outcome"] == "written"
+                    assert capture.replay_runner_decision(record)["decision_match"] is True
+    assert snapshots[0] == snapshots[1] == snapshots[2]
+
+
+@pytest.mark.parametrize("case", ["warming", "no_price", "pending", "cooldown", "fetch_error"])
+@pytest.mark.parametrize("signal_source", SOURCES)
+def test_skip_error_and_warming_receipts_truthfully_distinguish_signal_computation(
+        recording_case, case, signal_source):
+    with recording_case(signal_source=signal_source, seed_ticks=False) as (h, inputs, capture):
+        if case == "warming":
+            inputs.row_count = 2
+        elif case == "no_price":
+            inputs.empty = True
+        elif case == "pending":
+            h.consume = lambda: None
+            h.seed_holdings()
+            for symbol in SYMBOLS:
+                identity = "pending-" + symbol.replace("/", "-")
+                h.queue.upsert_intent({"intent_id": identity, "venue": VENUE,
+                    "symbol": symbol, "side": "sell", "order_type": "market", "qty": 0.5,
+                    "strategy_id": h.cfg["strategy_id"], "source": "strategy", "status": "queued",
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "meta": {"paper_exit_policy": "retry_until_filled_v1", "paper_exit_id": identity,
+                             "reference_price": PRICES[symbol]}})
+        elif case == "cooldown":
+            inputs.fixed_price = 110.0
+            if signal_source == "synthetic_mid_ohlcv":
+                for symbol in SYMBOLS:
+                    h.state.set(_key(h, "prices", symbol), json.dumps([PRICES[symbol]] * 64))
+            for symbol in SYMBOLS:
+                h.state.set(_key(h, "kill_remaining", symbol), "10")
+        else:
+            def fail(*_a, **_kw):
+                raise RuntimeError("synthetic input failure")
+            h.mp.setattr(h.runner, "_fetch_mid" if signal_source == "synthetic_mid_ohlcv"
+                         else "_fetch_public_ohlcv", fail)
+        h.run(3)
+        records = _records(h, capture, 3)
+        for envelope in records:
+            payload = envelope["payload"]
+            replay = capture.replay_runner_decision(envelope)
+            if case == "warming":
+                # The accepted multi-symbol runner still manages held exits on
+                # a fresh warmup quote, using its explicit default no_signal.
+                assert payload["kind"] == "decision" and payload["signal_computed"] is False
+                assert payload["signal"]["reason"] == "no_signal"
+                assert replay["decision_match"] is True
+                assert replay["recomputed"] is True and replay["signal_recomputed"] is False
+            elif case == "cooldown":
+                assert payload["kind"] == "decision"
+                assert payload["actual"]["outcome"] == "kill_cooldown"
+                assert payload["actual"]["gates"]["kill"]["ok"] is False
+                assert replay["decision_match"] is True
+            else:
+                assert payload["kind"] == ("error" if case == "fetch_error" else "skipped")
+                assert payload["signal_computed"] is False
+                assert replay["status"] == "diagnostic_verified"
+                assert replay["recomputed"] is False and replay["decision_match"] is None
+                if case == "pending":
+                    assert payload["pipeline_stage"] == "pending_exit"
+                elif case == "no_price":
+                    assert payload["reason"] == ("no_public_ohlcv" if signal_source == SOURCES[0]
+                                                   else h.runner._no_fresh_tick_note())
+        assert not h.intents("buy")
+
+
+@pytest.mark.parametrize("after_commit", [False, True])
+def test_queue_write_failure_receipt_preserves_uncertainty_and_other_symbols(
+        recording_case, after_commit):
+    with recording_case() as (h, inputs, capture):
+        inputs.fixed_price = 110.0
+        h.consume = lambda: None
+        real_upsert = h.runner.IntentQueueSQLite.upsert_intent
+
+        def failing(db, row):
+            if row["symbol"] == SYMBOLS[0]:
+                if after_commit:
+                    real_upsert(db, row)
+                raise OSError("synthetic acknowledgement loss")
+            return real_upsert(db, row)
+
+        h.mp.setattr(h.runner.IntentQueueSQLite, "upsert_intent", failing)
+        h.run(3)
+        records = _records(h, capture, 3)
+        failed = records[0]["payload"]
+        assert failed["kind"] == "error" and failed["signal_computed"] is True
+        assert failed["actual"]["outcome"] == "write_failed_or_unknown"
+        assert failed["actual"]["intended_action"] == "buy"
+        assert (failed["actual"]["intent_id"] in {r["intent_id"] for r in h.intents()}) is after_commit
+        assert all(r["payload"]["actual"]["outcome"] == "written" for r in records[1:])
+        assert capture.replay_runner_decision(records[0])["recomputed"] is False
+        assert {r["symbol"] for r in h.intents()} >= set(SYMBOLS[1:])
+
+
+@pytest.mark.parametrize("state_kind", ["last_action", "warmed", "trailing_peak"])
+@pytest.mark.parametrize("after_commit", [False, True])
+def test_failed_state_write_has_receipt_without_changing_old_failure_behavior(
+        recording_case, state_kind, after_commit):
+    snapshots = []
+    for enabled, before in ((False, True), (False, False), (True, False)):
+        with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+            inputs.fixed_price = 90.0
+            if state_kind == "trailing_peak":
+                h.seed_holdings()
+            real_set = h.runner.StrategyStateSQLite.set
+            failed_once = []
+
+            def failing(db, key, value):
+                if key == _key(h, state_kind, SYMBOLS[0]) and not failed_once:
+                    failed_once.append(key)
+                    if after_commit:
+                        real_set(db, key, value)
+                    raise OSError("synthetic state acknowledgement loss")
+                return real_set(db, key, value)
+
+            h.mp.setattr(h.runner.StrategyStateSQLite, "set", failing)
+            h.run(3)
+            assert failed_once
+            snapshots.append(_snapshot(h, inputs))
+            if enabled:
+                records = _records(h, capture, 3)
+                payload = records[0]["payload"]
+                assert payload["kind"] == "error" and payload["signal_computed"] is True
+                assert payload["signal"] == dict(inputs.observed_signals)[1]
+                assert payload["actual"]["outcome"] != "written"
+                assert capture.replay_runner_decision(records[0])["recomputed"] is False
+                assert all(r["payload"]["kind"] == "decision" for r in records[1:])
+    assert snapshots[0] == snapshots[1] == snapshots[2]
+
+
+@pytest.mark.parametrize("failure", ["receipt", "exception"])
+def test_capture_failure_is_diagnostic_not_trading_authority(recording_case, failure):
+    snapshots = []
+    for enabled in (False, True):
+        with recording_case(enabled=enabled) as (h, inputs, capture):
+            calls = []
+
+            def fail(record, **_kwargs):
+                calls.append(copy.deepcopy(record))
+                if failure == "exception":
+                    raise OSError("synthetic archive write failure")
+                return {"ok": False, "status": "failed", "error_type": "OSError"}
+
+            h.mp.setattr(capture, "capture_runner_decision", fail)
+            h.run(9)
+            snapshots.append(_snapshot(h, inputs))
+            assert len(calls) == (9 if enabled else 0)
+            assert h.statuses[-1]["runner_decision_capture"] == {
+                "enabled": enabled, "written": 0, "failed": 9 if enabled else 0}
+            assert not list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
+    assert snapshots[0] == snapshots[1]
+
+
+def test_zero_tick_timestamp_captures_exact_actual_synthetic_rows(recording_case):
+    with recording_case(signal_source="synthetic_mid_ohlcv") as (h, inputs, capture):
+        supplied_rows = []
+        real_compute = h.runner.compute_signal
+        clock_reads = []
+
+        def moving_clock():
+            stamp = inputs.now().timestamp() - 10 + len(clock_reads) * 0.001
+            clock_reads.append(stamp)
+            return stamp
+
+        previous_profile = sys.getprofile()
+
+        def observe_inputs(frame, event, result):
+            if event == "call" and frame.f_code is real_compute.__code__:
+                supplied_rows.append(copy.deepcopy(frame.f_locals["ohlcv"]))
+            if previous_profile is not None:
+                previous_profile(frame, event, result)
+
+        def tick(cfg):
+            h.active_symbol = cfg["symbol"]
+            return inputs.price(cfg["symbol"]), 0
+
+        h.mp.setattr(h.runner.time, "time", moving_clock)
+        sys.setprofile(observe_inputs)
+        h.mp.setattr(h.runner, "_fetch_mid", tick)
+        try:
+            h.run(6)
+        finally:
+            sys.setprofile(previous_profile)
+        assert len(supplied_rows) == 6 and len(clock_reads) >= 6
+        records = _records(h, capture, 6)
+        for envelope, rows in zip(records, supplied_rows, strict=True):
+            assert _rows(envelope) == rows
+            assert envelope["payload"]["timeframe"] == "synthetic_ticks_1s"
+            assert capture.replay_runner_decision(envelope)["decision_match"] is True

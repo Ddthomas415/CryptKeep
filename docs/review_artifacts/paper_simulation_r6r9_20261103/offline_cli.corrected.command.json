@@ -1,0 +1,22 @@
+{
+  "scope": "synthetic_three_record_CLI_demo_corrected_source_not_market_hour",
+  "generator": "make_record(strategy); three frozen default strategies; loops 1,2,3",
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "/Users/baitus/Downloads/crypto-bot-pro/scripts/replay_runner_decisions.py",
+    "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r6r9_20261103/offline_cli_demo_corrected/runner_decisions/2222222222222222222222222222222222222222222222222222222222222222/11111111111111111111111111111111.jsonl",
+    "--expected-sha256",
+    "520c852f95c126938b1f46e946947a5a71b77cc254acd231e14aa85f5db1883b"
+  ],
+  "exit_code": 0,
+  "journal_sha256": "520c852f95c126938b1f46e946947a5a71b77cc254acd231e14aa85f5db1883b",
+  "summary": {
+    "summary": {
+      "decision_match": 3,
+      "decision_mismatch": 0,
+      "diagnostic_verified": 0,
+      "errors": 0
+    }
+  }
+}

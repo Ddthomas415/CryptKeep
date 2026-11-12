@@ -1,0 +1,450 @@
+from concurrent.futures import ThreadPoolExecutor
+import copy
+import json
+import threading
+
+import pytest
+
+from storage import paper_trading_sqlite as store
+
+
+@pytest.fixture
+def db(monkeypatch, tmp_path):
+    monkeypatch.setattr(store, "DB_PATH", tmp_path / "paper.sqlite")
+    result = store.PaperTradingSQLite()
+    result.set_state("cash_quote", "1000")
+    result.set_state("realized_pnl", "0")
+    result.upsert_position("BTC/USD", 2.0, 100.0, 0.0)
+    return result
+
+
+def request(**changes):
+    row = dict(client_order_id="paper_intent_exit-1", exit_id="exit-1", venue="coinbase",
+               symbol="BTC/USD", order_type="market", qty=2.0, limit_price=None,
+               strategy_id="breakout", meta={"paper_exit_policy": "retry_until_filled_v1",
+                                            "paper_exit_id": "exit-1"})
+    row.update(changes)
+    return row
+
+
+def insert(db, *, status="new", **changes):
+    row = request(**changes)
+    row.pop("exit_id")
+    row.update(order_id="order-1", ts="2026-11-03T00:00:00Z", side="sell", status=status,
+               reject_reason="old_rejection" if status == "rejected" else None)
+    db.insert_order(row)
+    return db.get_order_by_client_id(row["client_order_id"])
+
+
+def fill(db, order, **changes):
+    args = dict(order=order, ts="2026-11-03T00:00:01Z", price=110.0, qty=2.0,
+                fee=2.0, fee_currency="USD")
+    args.update(changes)
+    return db.apply_fill(**args)
+
+
+def terminal(db):
+    raw = db.get_state("paper_exit_terminal:exit-1")
+    return json.loads(raw) if raw else None
+
+
+def test_initial_ready_does_not_insert_order(db):
+    result = db.prepare_paper_exit(**request(qty=3.0))
+    assert result["state"] == "ready"
+    assert result["qty"] == 2.0
+    assert result.get("order") is None
+    assert db.list_orders() == []
+    assert terminal(db) is None
+
+
+def test_rejected_rearms_only_on_activation_and_never_increases(db):
+    original = insert(db, status="rejected")
+    db.upsert_position("BTC/USD", 0.75, 100.0, 0.0)
+    probe = db.prepare_paper_exit(**request())
+    assert probe["state"] == "ready" and probe["qty"] == 0.75
+    assert db.get_order_by_order_id(original["order_id"]) == original
+    assert fill(db, original)["reason"] == "rejected"
+    activated = db.prepare_paper_exit(**request(), activate=True)
+    assert activated["state"] == "ready"
+    assert activated["order"]["status"] == "new"
+    assert activated["order"]["reject_reason"] is None
+    assert activated["order"]["order_id"] == original["order_id"]
+    db.upsert_position("BTC/USD", 4.0, 100.0, 0.0)
+    second = db.prepare_paper_exit(**request(qty=3.0), activate=True)
+    assert second["qty"] == 0.75
+    assert second["order"]["qty"] == 0.75
+
+
+def test_new_order_shrinks_only_on_activation(db):
+    original = insert(db)
+    db.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    assert db.prepare_paper_exit(**request())["qty"] == 1.0
+    assert db.get_order_by_order_id(original["order_id"])["qty"] == 2.0
+    assert db.prepare_paper_exit(**request(), activate=True)["order"]["qty"] == 1.0
+
+
+@pytest.mark.parametrize("status", ["canceled", "cancelled", "unknown", "partially_filled", "NEW"])
+def test_unsupported_status_never_rearms(db, status):
+    original = insert(db, status=status)
+    assert db.prepare_paper_exit(**request(), activate=True)["state"] == "blocked"
+    assert not fill(db, original)["ok"]
+    assert db.get_order_by_order_id(original["order_id"])["status"] == status
+    assert db.list_fills() == []
+
+
+@pytest.mark.parametrize("changes", [
+    {"venue": "other"}, {"symbol": "ETH/USD"}, {"strategy_id": "other"},
+    {"order_type": "limit", "limit_price": 105.0}, {"limit_price": 105.0},
+    {"meta": {"paper_exit_policy": "retry_until_filled_v1", "paper_exit_id": "other"}},
+    {"client_order_id": "another"},
+])
+def test_same_client_immutable_fields_block_prepare(db, changes):
+    original = insert(db)
+    assert db.prepare_paper_exit(**request(**changes), activate=True)["state"] == "blocked"
+    assert db.get_order_by_order_id(original["order_id"]) == original
+
+
+@pytest.mark.parametrize("qty", [0.0, -1.0, float("nan"), float("inf"), True, "2"])
+def test_invalid_prepare_quantity_is_blocked_without_writes(db, qty):
+    assert db.prepare_paper_exit(**request(qty=qty))["state"] == "blocked"
+    assert db.list_orders() == []
+    assert terminal(db) is None
+
+
+@pytest.mark.parametrize("with_order", [False, True])
+def test_zero_holding_tombstone_fences_reopened_position_and_late_insert(db, with_order):
+    if with_order:
+        insert(db, status="rejected")
+    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
+    assert db.prepare_paper_exit(**request())["state"] == "superseded"
+    assert terminal(db)["state"] == "superseded"
+    db.upsert_position("BTC/USD", 5.0, 100.0, 0.0)
+    if not with_order:
+        # Models an engine insert after activation raced with zero-holding fencing.
+        order = insert(db)
+        assert fill(db, order)["reason"] == "superseded"
+    assert db.prepare_paper_exit(**request(), activate=True)["state"] == "superseded"
+    order = db.get_order_by_client_id("paper_intent_exit-1")
+    assert order["status"] == "superseded"
+    assert fill(db, order)["reason"] == "superseded"
+    assert db.get_position("BTC/USD")["qty"] == 5.0
+    assert db.list_fills() == []
+
+
+def test_zero_holding_at_fill_supersedes_without_fill(db):
+    order = insert(db)
+    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
+    assert fill(db, order)["reason"] == "superseded"
+    assert db.get_order_by_order_id(order["order_id"])["status"] == "superseded"
+    assert terminal(db)["state"] == "superseded"
+    assert db.list_fills() == []
+    assert float(db.get_state("cash_quote")) == 1000.0
+
+
+def test_partial_external_reduction_clamps_quantity_fee_and_accounting(db):
+    order = insert(db)
+    db.upsert_position("BTC/USD", 0.5, 100.0, 0.0)
+    result = fill(db, order)
+    assert result["ok"] and not result["idempotent"]
+    assert result["qty"] == 0.5 and result["fee"] == 0.5
+    assert result["realized_pnl_usd"] == pytest.approx(4.5)
+    assert float(db.get_state("cash_quote")) == pytest.approx(1054.5)
+    assert db.get_position("BTC/USD")["qty"] == 0.0
+    stored = db.list_fills()[0]
+    assert stored["qty"] == result["qty"] and stored["fee"] == result["fee"]
+    retry = fill(db, order, price=999.0, fee=999.0)
+    assert retry["idempotent"] and retry["qty"] == 0.5 and retry["fee"] == 0.5
+    assert terminal(db)["state"] == "filled"
+    assert db.get_order_by_order_id(order["order_id"])["qty"] == 0.5
+
+
+def test_fill_cannot_exceed_original_or_already_shrunk_order(db):
+    order = insert(db, qty=1.0)
+    assert db.prepare_paper_exit(**request(qty=0.75), activate=True)["qty"] == 0.75
+    result = fill(db, order, qty=4.0, fee=4.0)
+    assert result["qty"] == 0.75 and result["fee"] == 0.75
+    assert db.get_position("BTC/USD")["qty"] == 1.25
+
+
+def test_concurrent_same_id_fills_once_and_repeated_call_returns_stored_receipt(db):
+    order = insert(db)
+    barrier = threading.Barrier(4)
+
+    def run(index):
+        barrier.wait(timeout=5)
+        return fill(db, order, price=110.0 + index, fee=2.0 + index)
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(run, range(4)))
+    assert all(result["ok"] for result in results)
+    assert sum(not result["idempotent"] for result in results) == 1
+    assert len(db.list_fills()) == 1
+    stored = db.list_fills()[0]
+    for result in results + [fill(db, order, price=999.0, fee=999.0)]:
+        assert result["fill_id"] == stored["fill_id"]
+        assert result["qty"] == stored["qty"] and result["fee"] == stored["fee"]
+    assert float(db.get_state("cash_quote")) == 1000.0 + stored["price"] * 2 - stored["fee"]
+
+
+def test_fill_commit_before_queue_receipt_crash_recovers_filled_before_zero(db):
+    order = insert(db)
+    with pytest.raises(RuntimeError, match="receipt crash"):
+        receipt = fill(db, order)
+        assert receipt["ok"]
+        raise RuntimeError("receipt crash")
+    restarted = store.PaperTradingSQLite()
+    assert restarted.get_position("BTC/USD")["qty"] == 0.0
+    recovered = restarted.prepare_paper_exit(**request())
+    assert recovered["state"] == "filled" and recovered["qty"] == 2.0
+    assert terminal(restarted)["state"] == "filled"
+    assert fill(restarted, order)["idempotent"]
+    restarted.upsert_position("BTC/USD", 3.0, 100.0, 0.0)
+    assert restarted.prepare_paper_exit(**request(), activate=True)["state"] == "filled"
+    assert fill(restarted, order)["idempotent"]
+    assert restarted.get_position("BTC/USD")["qty"] == 3.0
+    assert len(restarted.list_fills()) == 1
+
+
+def test_filled_status_without_actual_fill_is_blocked_even_at_zero(db):
+    order = insert(db, status="filled")
+    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
+    assert db.prepare_paper_exit(**request())["state"] == "blocked"
+    assert not fill(db, order)["ok"]
+    assert terminal(db) is None
+
+
+def test_rejected_with_any_fill_cannot_rearm(db):
+    order = insert(db, status="rejected")
+    db.insert_fill(dict(fill_id="orphan", order_id=order["order_id"], ts=order["ts"],
+                        price=110.0, qty=0.5, fee=0.5, fee_currency="USD"))
+    assert db.prepare_paper_exit(**request(), activate=True)["state"] == "blocked"
+    assert not fill(db, order)["ok"]
+    assert db.get_order_by_order_id(order["order_id"])["status"] == "rejected"
+
+
+@pytest.mark.parametrize("changes", [
+    {"venue": "other"}, {"symbol": "ETH/USD"}, {"side": "buy"},
+    {"order_type": "limit", "limit_price": 105.0}, {"limit_price": 105.0},
+    {"client_order_id": "another"}, {"strategy_id": "other"},
+    {"meta": None}, {"meta": {"paper_exit_policy": "retry_until_filled_v1", "paper_exit_id": "other"}},
+])
+def test_apply_fill_uses_database_identity_not_mutated_caller(db, changes):
+    order = insert(db)
+    altered = copy.deepcopy(order)
+    altered.update(changes)
+    assert not fill(db, altered)["ok"]
+    assert db.list_fills() == []
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+
+
+@pytest.mark.parametrize("field,value", [
+    ("price", 0.0), ("price", float("nan")), ("price", float("inf")),
+    ("qty", 0.0), ("qty", -1.0), ("qty", float("nan")), ("qty", float("inf")),
+    ("fee", -1.0), ("fee", float("nan")), ("fee", float("inf")),
+])
+def test_nonfinite_or_invalid_fill_values_do_not_touch_accounting(db, field, value):
+    order = insert(db)
+    assert not fill(db, order, **{field: value})["ok"]
+    assert db.list_fills() == []
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert terminal(db) is None
+
+
+def test_limit_price_and_type_are_immutable_and_fill_cannot_cross_wrong_side(db):
+    order = insert(db, order_type="limit", limit_price=115.0)
+    assert db.prepare_paper_exit(**request(order_type="limit", limit_price=114.0))["state"] == "blocked"
+    assert db.prepare_paper_exit(**request())["state"] == "blocked"
+    assert fill(db, order, price=114.0)["reason"] == "exit_fill_below_limit"
+    assert fill(db, order, price=115.0)["ok"]
+
+
+def test_other_order_with_same_root_fill_blocks_canonical_fill(db):
+    order = insert(db)
+    legacy = {**order, "order_id": "legacy", "client_order_id": "legacy", "status": "filled"}
+    db.insert_order(legacy)
+    db.insert_fill(dict(fill_id="legacy-fill", order_id="legacy", ts=order["ts"],
+                        price=110.0, qty=1.0, fee=1.0, fee_currency="USD"))
+    assert db.prepare_paper_exit(**request(), activate=True)["state"] == "blocked"
+    assert not fill(db, order)["ok"]
+    assert len(db.list_fills()) == 1
+
+
+def test_terminal_write_failure_rolls_back_fill_and_accounting(db, monkeypatch):
+    order = insert(db)
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("terminal write failed")
+
+    monkeypatch.setattr(db, "_write_exit_terminal_conn", fail)
+    with pytest.raises(RuntimeError, match="terminal write failed"):
+        fill(db, order)
+    assert db.list_fills() == []
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert db.get_order_by_order_id(order["order_id"])["status"] == "new"
+
+
+def test_malformed_terminal_fails_closed(db):
+    order = insert(db)
+    db.set_state("paper_exit_terminal:exit-1", "not json")
+    assert db.prepare_paper_exit(**request())["state"] == "blocked"
+    assert not fill(db, order)["ok"]
+    assert db.list_fills() == []
+
+
+@pytest.mark.parametrize("changes", [
+    {"order_type": []}, {"meta": []}, {"venue": ""}, {"symbol": " BTC/USD "},
+    {"order_type": "limit", "limit_price": None}, {"limit_price": float("inf")},
+    {"strategy_id": 123}, {"qty": 10 ** 400}, {"activate": "yes"},
+])
+def test_malformed_prepare_fields_fail_closed(db, changes):
+    assert db.prepare_paper_exit(**request(**changes))["state"] == "blocked"
+    assert db.list_orders() == []
+    assert terminal(db) is None
+
+
+def test_superseded_row_without_tombstone_cannot_fill_or_revive(db):
+    order = insert(db, status="superseded")
+    assert fill(db, order)["reason"] == "superseded"
+    assert terminal(db)["state"] == "superseded"
+    assert db.prepare_paper_exit(**request(), activate=True)["state"] == "superseded"
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert db.list_fills() == []
+
+
+def test_finite_inputs_overflowing_accounting_roll_back(db):
+    order = insert(db)
+    assert fill(db, order, price=1.7e308)["reason"] == "invalid_exit_accounting"
+    assert db.list_fills() == []
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+
+
+def test_untagged_order_keeps_old_rejection_and_idempotency_semantics(db):
+    order = insert(db, meta=None, client_order_id="ordinary")
+    db.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+    assert fill(db, order)["reason"] == "insufficient_position"
+    assert db.get_order_by_order_id(order["order_id"])["status"] == "rejected"
+    assert terminal(db) is None
+
+
+MALFORMED_EXIT_MARKERS = [
+    pytest.param({"paper_exit_policy": "unknown", "paper_exit_id": "exit-1"}, id="unknown-policy"),
+    pytest.param({"paper_exit_policy": None, "paper_exit_id": "exit-1"}, id="null-policy"),
+    pytest.param({"paper_exit_policy": "", "paper_exit_id": "exit-1"}, id="empty-policy"),
+    pytest.param({"paper_exit_policy": {}, "paper_exit_id": "exit-1"}, id="dict-policy"),
+    pytest.param({"paper_exit_policy": [], "paper_exit_id": "exit-1"}, id="list-policy"),
+    pytest.param({"paper_exit_policy": False, "paper_exit_id": "exit-1"}, id="bool-policy"),
+    pytest.param({"paper_exit_policy": 1, "paper_exit_id": "exit-1"}, id="number-policy"),
+    pytest.param({"paper_exit_policy": None}, id="policy-only"),
+    pytest.param({"paper_exit_id": "exit-1"}, id="id-only"),
+    pytest.param({"paper_exit_id": None}, id="null-id-only"),
+    pytest.param({"paper_exit_id": ""}, id="empty-id-only"),
+    pytest.param({"paper_exit_id": {}}, id="dict-id-only"),
+]
+
+
+@pytest.mark.parametrize("malformed_meta", MALFORMED_EXIT_MARKERS)
+@pytest.mark.parametrize("marker_location", ["database", "caller", "both"])
+def test_malformed_exit_marker_never_uses_ordinary_fill(db, malformed_meta, marker_location):
+    stored_meta = malformed_meta if marker_location in {"database", "both"} else None
+    incoming_meta = malformed_meta if marker_location in {"caller", "both"} else None
+    order = insert(db, meta=stored_meta)
+    incoming = {**order, "meta": copy.deepcopy(incoming_meta)}
+    result = fill(db, incoming)
+    assert result == {"ok": False, "reason": "exit_identity_mismatch"}
+    assert db.get_order_by_order_id(order["order_id"]) == order
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert float(db.get_state("realized_pnl")) == 0.0
+    assert terminal(db) is None
+    assert db.list_fills() == []
+
+
+@pytest.mark.parametrize("malformed_meta", MALFORMED_EXIT_MARKERS)
+def test_malformed_exit_marker_cannot_sell_replacement_after_supersession(db, malformed_meta):
+    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
+    assert db.prepare_paper_exit(**request())["state"] == "superseded"
+    fenced = terminal(db)
+    db.upsert_position("BTC/USD", 5.0, 100.0, 0.0)
+    order = insert(db, meta=malformed_meta)
+    assert fill(db, order) == {"ok": False, "reason": "exit_identity_mismatch"}
+    assert db.get_position("BTC/USD")["qty"] == 5.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert float(db.get_state("realized_pnl")) == 0.0
+    assert db.get_order_by_order_id(order["order_id"])["status"] == "new"
+    assert terminal(db) == fenced
+    assert db.list_fills() == []
+
+
+@pytest.mark.parametrize("malformed_meta", [
+    *MALFORMED_EXIT_MARKERS,
+    pytest.param(None, id="null-meta"), pytest.param({}, id="empty-meta"),
+    pytest.param([], id="list-meta"), pytest.param("bad-meta", id="string-meta"),
+    pytest.param(False, id="bool-meta"),
+])
+def test_malformed_incoming_meta_blocked_when_database_still_tagged(db, malformed_meta):
+    order = insert(db)
+    incoming = {**order, "meta": copy.deepcopy(malformed_meta)}
+    assert fill(db, incoming) == {"ok": False, "reason": "exit_identity_mismatch"}
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert db.get_order_by_order_id(order["order_id"]) == order
+    assert terminal(db) is None
+    assert db.list_fills() == []
+
+
+@pytest.mark.parametrize("meta", [None, {}, {"note": "ordinary"}, {"other": {"paper_exit_id": "nested"}}])
+@pytest.mark.parametrize("client_order_id", ["ordinary", "paper_intent_exit-1"])
+def test_unmarked_orders_keep_ordinary_fill_and_retry_semantics(db, meta, client_order_id):
+    order = insert(db, meta=meta, client_order_id=client_order_id)
+    result = fill(db, order, qty=1.0, fee=1.0)
+    assert result["ok"] and not result["idempotent"]
+    assert "qty" not in result
+    assert db.get_position("BTC/USD")["qty"] == 1.0
+    assert float(db.get_state("cash_quote")) == 1109.0
+    retry = fill(db, order, price=999.0, qty=1.0, fee=999.0)
+    assert retry["ok"] and retry["idempotent"] and retry["fee"] == 999.0
+    assert "qty" not in retry
+    assert len(db.list_fills()) == 1
+    assert db.get_position("BTC/USD")["qty"] == 1.0
+    assert float(db.get_state("cash_quote")) == 1109.0
+    assert terminal(db) is None
+
+
+@pytest.mark.parametrize("raw_meta", [None, "null", "[]", '"plain"', "false", "0", "{}", "not-json", ""])
+def test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata(db, raw_meta):
+    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
+    assert db.prepare_paper_exit(**request())["state"] == "superseded"
+    fenced = terminal(db)
+    db.upsert_position("BTC/USD", 5.0, 100.0, 0.0)
+    order = insert(db, meta=None)
+    con = store._connect()
+    try:
+        con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?", (raw_meta, order["order_id"]))
+    finally:
+        con.close()
+    result = fill(db, order)
+    assert not result["ok"]
+    assert result["reason"] in {"exit_identity_mismatch", "invalid_stored_order_meta"}
+    assert db.get_position("BTC/USD")["qty"] == 5.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert float(db.get_state("realized_pnl")) == 0.0
+    assert terminal(db) == fenced
+    assert db.list_fills() == []
+
+
+@pytest.mark.parametrize("raw_meta", ["not-json", "", "{"])
+def test_stored_metadata_decode_failure_cannot_authorize_ordinary_accounting(db, raw_meta):
+    order = insert(db, meta=None, client_order_id="ordinary")
+    con = store._connect()
+    try:
+        con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?", (raw_meta, order["order_id"]))
+    finally:
+        con.close()
+    assert fill(db, order) == {"ok": False, "reason": "invalid_stored_order_meta"}
+    assert db.get_position("BTC/USD")["qty"] == 2.0
+    assert float(db.get_state("cash_quote")) == 1000.0
+    assert db.list_fills() == []
+    assert terminal(db) is None

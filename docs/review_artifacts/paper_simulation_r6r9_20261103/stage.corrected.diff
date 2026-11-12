@@ -1,0 +1,2673 @@
+--- /dev/null
++++ services/execution/runner_decision.py
+@@ -0,0 +1,93 @@
++"""Pure runner decisions shared with offline diagnostic replay (not fills)."""
++from services.risk.exit_controls import evaluate_strategy_exit_stack
++
++
++def position_aware_signal_action(signal, *, strategy_id, position_qty):
++    action = str(signal.get("action") or "hold").lower().strip()
++    if action not in ("buy", "sell", "hold"):
++        return "hold"
++    if (strategy_id == "sma_200_trend" and position_qty > 0.0
++            and signal.get("ok") is True and action == "hold"
++            and signal.get("signal") == "flat"
++            and signal.get("reason") != "insufficient_history"):
++        return "sell"
++    return action
++
++
++def signal_transition(*, strategy_id, decision, pos_qty, warmed, last_action,
++                      allow_first_signal_trade):
++    changed = decision != last_action if warmed else (
++        (strategy_id == "sma_200_trend" and decision == "sell" and pos_qty > 0.0)
++        or (decision in ("buy", "sell") and bool(allow_first_signal_trade)))
++    return {"decision": decision, "changed": bool(changed), "warmed": True,
++            "last_action": decision if changed or not warmed else last_action,
++            "write_last_action": bool(changed or not warmed),
++            "write_warm": not warmed, "note": None if warmed else "warmed_no_trade"}
++
++
++def select_exit_decision(*, cfg, signal, decision, changed, pos_qty, entry_price,
++                         trailing_peak_price, bars_held, current_price,
++                         observe=False, raw_signal=None, exit_evaluator=None):
++    evaluate = exit_evaluator or evaluate_strategy_exit_stack
++    held = pos_qty > 0.0 and entry_price > 0.0
++    predicates = {}
++    exit_action = exit_reason = None
++    exit_out = {}
++    ind = signal.get("ind") or {}
++    if held and str(cfg.get("strategy_id")) == "ema_cross":
++        values = [float(ind.get(key) or 0.0) for key in
++                  ("avg_range_pct", "trend_efficiency", "cross_gap_pct")]
++        thresholds = [float(cfg.get(key, 0.0) or 0.0) for key in
++                      ("min_volatility_pct", "min_trend_efficiency", "min_cross_gap_pct")]
++        for index, (key, enabled, reason) in enumerate((
++            ("ema_low_vol", "ema_invalidate_on_low_vol", "low_volatility"),
++            ("ema_chop", "ema_invalidate_on_chop", "chop"),
++            ("ema_cross_gap", "ema_invalidate_on_cross_gap_loss", "cross_gap"),
++        )):
++            truth = bool(cfg.get(enabled, True)) and values[index] < thresholds[index]
++            if observe:
++                predicates[key] = truth
++            if truth and exit_action is None:
++                exit_action = "sell"
++                exit_reason = f"strategy_exit:ema_cross:{reason}_invalidation"
++            if exit_action and not observe:
++                break
++    if held and not exit_action:
++        exit_out = evaluate(**_stack_args(
++            cfg, entry_price, current_price, pos_qty, trailing_peak_price, bars_held))
++        if str(exit_out.get("action") or "") == "exit":
++            exit_action = "sell"
++            exit_reason = str(exit_out.get("reason") or exit_out.get("stack_rule") or "strategy_exit")
++    action = None
++    if exit_action:
++        action, changed = "sell", False
++    elif changed or (cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
++                     and signal.get("action") == "hold" and pos_qty > 0.0):
++        if decision == "buy" and (not cfg["position_aware"] or pos_qty <= 0.0):
++            action = "buy"
++        elif decision == "sell" and (not cfg["position_aware"] or pos_qty > 0.0):
++            action = "sell"
++    if observe:
++        # Observe every predicate independently; do not confuse an unselected rule with false.
++        stack_args = _stack_args(cfg, entry_price, current_price, pos_qty, trailing_peak_price, bars_held) if held else {}
++        for name, keep in (("stop", "stop_loss_pct"), ("trailing", "trailing_stop_pct"),
++                           ("take_profit", "take_profit_pct"), ("time", "max_bars_hold")):
++            args = dict(stack_args)
++            for key in ("stop_loss_pct", "trailing_stop_pct", "take_profit_pct", "max_bars_hold"):
++                if key != keep:
++                    args[key] = None if key == "max_bars_hold" else 0.0
++            predicates[name] = bool(held and evaluate(**args).get("action") == "exit")
++        predicates["strategy_sell"] = signal.get("action") == "sell"
++        predicates["pre_filter_sell"] = None if not raw_signal else raw_signal.get("raw_action") == "sell"
++    return {"action": action, "changed": bool(changed), "exit_action": exit_action,
++            "exit_reason": exit_reason, "exit_out": exit_out, "conditions": predicates}
++
++
++def _stack_args(cfg, entry_price, current_price, pos_qty, trailing_peak_price, bars_held):
++    return dict(entry_price=entry_price, current_price=float(current_price),
++                qty=float(pos_qty), side="long", strategy=str(cfg["strategy_id"]),
++                stop_loss_pct=float(cfg.get("stop_loss_pct", 0.0) or 0.0),
++                take_profit_pct=float(cfg.get("take_profit_pct", 0.0) or 0.0),
++                trailing_peak_price=float(trailing_peak_price or 0.0) if trailing_peak_price > 0.0 else None,
++                trailing_stop_pct=float(cfg.get("trailing_stop_pct", 0.0) or 0.0),
++                bars_held=int(bars_held), max_bars_hold=int(cfg.get("max_bars_hold", 0) or 0) or None)
+--- services/execution/strategy_runner.py.before
++++ services/execution/strategy_runner.py
+@@ -25,6 +25,9 @@
+ from services.strategies.presets import get_preset
+ from services.strategies.strategy_registry import compute_signal
+ from services.strategies.signal_input_capture import capture_es_inputs
++from services.execution.runner_decision import (
++    position_aware_signal_action, signal_transition, select_exit_decision,
++)
+ from services.strategies.market_context_capture import capture_call, start_capture
+ from services.strategies.strategy_selector import select_strategy
+ from services.risk.exposure_controls import build_risk_limits, summarize_exposure, evaluate_entry
+@@ -292,16 +295,7 @@
+ 
+ 
+ def _position_aware_signal_action(signal: dict, *, strategy_id: str, position_qty: float) -> str:
+-    action = str(signal.get("action") or "hold").lower().strip()
+-    if action not in ("buy", "sell", "hold"):
+-        return "hold"
+-    # The daily adapter expresses FLAT as HOLD; only an existing long may exit.
+-    if (strategy_id == "sma_200_trend" and position_qty > 0
+-            and signal.get("ok") is True and action == "hold"
+-            and signal.get("signal") == "flat"
+-            and signal.get("reason") != "insufficient_history"):
+-        return "sell"
+-    return action
++    return position_aware_signal_action(signal, strategy_id=strategy_id, position_qty=position_qty)
+ 
+ 
+ def _kill_remaining_loops(sdb, k_kill_remaining: str, k_kill_until: str, *, max_cooldown_loops: int) -> int:
+@@ -676,11 +670,19 @@
+     return rows
+ 
+ 
+-def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None) -> dict:
++def _strategy_signal(cfg: dict, prices: List[float], *, ts_ms: int | None = None, observer=None,
++                     input_observer=None) -> dict:
++    rows = _synth_ohlcv(prices, ts_ms=ts_ms)
++    if input_observer is not None:
++        try:
++            input_observer(rows)
++        except Exception:
++            pass
+     return compute_signal(
++        **({"observer": observer} if observer is not None else {}),
+         cfg={"strategy": dict(cfg.get("strategy") or {})},
+         symbol=str(cfg.get("symbol") or ""),
+-        ohlcv=_synth_ohlcv(prices, ts_ms=ts_ms),
++        ohlcv=rows,
+     )
+ 
+ 
+@@ -703,6 +705,7 @@
+     symbol: str,
+     venue: str,
+     ohlcv: list[list[float]],
++    observer=None,
+ ) -> dict:
+     strategy_name = str(strategy_block.get("name") or "").strip()
+     context = None
+@@ -734,6 +737,8 @@
+     }
+     if context is not None:
+         kwargs["context"] = context
++    if observer is not None:
++        kwargs["observer"] = observer
+     signal = compute_signal(**kwargs)
+     if isinstance(signal, dict) and capture_extra:
+         signal.update(capture_extra)
+@@ -1144,6 +1149,9 @@
+     startup_precheck_complete = False
+     public_clients = _PublicOHLCVClients()
+     context_capture = start_capture(cfg)
++    recording_enabled = os.environ.get("CBP_CAPTURE_RUNNER_DECISIONS") == "1"
++    recording_session = uuid.uuid4().hex if recording_enabled else None
++    recording_counts = {"written": 0, "failed": 0}
+     try:
+         while True:
+             loops += 1
+@@ -1191,10 +1199,23 @@
+             turn_state_ready = False
+             prices_loaded = False
+             pending_exit_serviced = False
++            record = None
+             try:
+                 for symbol in symbols[symbol_turn:symbol_turn + 1]:
++                    if recording_enabled:
++                        record = {
++                            "version": 2, "session_id": recording_session, "loop": loops,
++                            "symbol": symbol, "venue": str(cfg["venue"]), "observed_at": _now(),
++                            "kind": "skipped", "pipeline_stage": "venue_selection",
++                            "settings": {"runner": dict(cfg), "strategy": dict(cfg.get("strategy") or {})},
++                            "ohlcv": [], "signal_computed": False, "raw_signal": {},
++                            "actual": {"outcome": "not_evaluated"},
++                        }
+                     fresh_market = None
+                     selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
++                    if record is not None:
++                        record["venue"] = selected_venue
++                        record["pipeline_stage"] = "load_state"
+                     startup_pair = (selected_venue, symbol)
+                     if startup_pair not in checked_startup_pairs:
+                         require_known_flat_or_override(venue=selected_venue, symbol=symbol)
+@@ -1248,6 +1269,8 @@
+                     evidence_extra: dict[str, object] = {}
+ 
+                     if service_pending_paper_exits(qdb, pdb, symbol=symbol):
++                        if record is not None:
++                            record.update(pipeline_stage="pending_exit", reason="pending_paper_exit")
+                         pending_exit_serviced = True
+                         _write_status({"ok": True, "status": "running", "ts": _now(),
+                                        "note": "pending_paper_exit", "symbol": symbol,
+@@ -1256,6 +1279,9 @@
+                         continue
+ 
+                     timeframe = _public_ohlcv_timeframe(sym_cfg)
++                    if record is not None:
++                        record["pipeline_stage"] = "market_input"
++                        record["timeframe"] = timeframe or "synthetic_ticks_1s"
+                     _LOG.debug(
+                         "signal_branch strategy=%s signal_source=%s using=%s",
+                         sym_cfg.get("name"), sym_cfg.get("signal_source"),
+@@ -1264,6 +1290,9 @@
+                     if timeframe:
+                         ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients)
+                         ohlcv = ohlcv or []
++                        if record is not None:
++                            record["ohlcv"] = ohlcv[-int(cfg["min_bars"]):]
++                            record["reason"] = "no_public_ohlcv" if not ohlcv else "warming"
+                         if not ohlcv:
+                             _write_status({"ok": True, "status": "running", "pid": os.getpid(), "ts": _now(), "note": "no_public_ohlcv", "loops": loops, "enqueued": enqueued})
+                             _LOG.warning(
+@@ -1316,6 +1345,8 @@
+                         try:
+                             raw_cfg = load_user_yaml(strict=True)
+                         except ConfigLoadError as exc:
++                            if record is not None:
++                                record.update(pipeline_stage="configuration", reason="config_load_failed")
+                             _write_config_load_failed_status(
+                                 exc,
+                                 status="running",
+@@ -1332,9 +1363,14 @@
+                         raw_strategy, _ = _strategy_block_from_runner_cfg(raw_runner)
+ 
+                         selected_block = _signal_strategy_block_from_selected_name(selected_strategy, raw_strategy)
++                        if record is not None:
++                            record["settings"]["strategy"] = dict(selected_block)
++                            record["pipeline_stage"] = "signal"
+                         identity_strategy = selected_block
+                         evidence_extra = _public_ohlcv_evidence_extra(sym_cfg, timeframe, ohlcv_source)
+                         if bool(evidence_extra.get("ohlcv_source_mismatch")):
++                            if record is not None:
++                                record.update(pipeline_stage="provenance", reason="sample_mode_provenance_mismatch")
+                             mismatch_note = (
+                                 f"env_sample_mode={evidence_extra.get('ohlcv_sample_mode_env')} "
+                                 f"actual_source={evidence_extra.get('market_data_source')}"
+@@ -1357,17 +1393,25 @@
+                             continue
+                         evidence_extra.update(_market_quality_evidence_extra(selected_venue, symbol))
+                         selected_block["evidence_extra"] = evidence_extra
++                        if record is not None:
++                            record["pipeline_stage"] = "signal"
+                         signal = _registry_signal_with_context(
++                            **({"observer": record["raw_signal"].update} if record is not None else {}),
+                             cfg=cfg,
+                             strategy_block=selected_block,
+                             symbol=symbol,
+                             venue=selected_venue,
+                             ohlcv=ohlcv[-int(cfg["min_bars"]):],
+                         )
++                        if record is not None:
++                            record["signal_computed"] = True
++                            record["signal"] = dict(signal)
+                         bars = len(ohlcv)
+                     else:
+                         tick = _fetch_mid(sym_cfg)
+                         if not tick:
++                            if record is not None:
++                                record["reason"] = _no_fresh_tick_note()
+                             _write_status(
+                                 {
+                                     "ok": True,
+@@ -1386,6 +1430,9 @@
+                         if len(prices) > int(cfg["max_bars"]):
+                             prices = prices[-int(cfg["max_bars"]):]
+                         fresh_market = (float(m), ts_ms, len(prices))
++                        if record is not None:
++                            record["ohlcv"] = _synth_ohlcv(prices, ts_ms=ts_ms)
++                            record["reason"] = "warming"
+                         if persist_prices and (len(symbols) == 1 or prices_loaded):
+                             sdb.set(k_prices, json.dumps(prices))
+                         if len(prices) < int(cfg["min_bars"]):
+@@ -1405,7 +1452,15 @@
+                             )
+                             time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                             continue
+-                        signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
++                        if record is not None:
++                            record["pipeline_stage"] = "signal"
++                        signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms,
++                                                  **({"observer": record["raw_signal"].update,
++                                                      "input_observer": lambda rows: record.update(ohlcv=rows)}
++                                                     if record is not None else {}))
++                        if record is not None:
++                            record["signal_computed"] = True
++                            record["signal"] = dict(signal)
+                         bars = len(prices)
+                 if pending_exit_serviced:
+                     continue
+@@ -1423,23 +1478,22 @@
+                 )
+                 changed = False
+                 note = None
+-                if not warmed:
+-                    daily_position_exit = (
+-                        cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
+-                        and float(pos.get("qty") or 0.0) > 0.0
+-                    )
+-                    if daily_position_exit or (decision in ("buy", "sell") and bool(cfg["allow_first_signal_trade"])):
+-                        changed = True
++                transition_inputs = dict(strategy_id=cfg["strategy_id"], decision=decision,
++                                         pos_qty=float(pos.get("qty") or 0.0), warmed=warmed,
++                                         last_action=last_action, allow_first_signal_trade=cfg["allow_first_signal_trade"])
++                transition = signal_transition(**transition_inputs)
++                changed, note = transition["changed"], transition["note"]
++                if warmed and transition["write_last_action"]:
++                    # Preserve the existing checkpoint value if the following write fails.
++                    last_action = decision
++                if transition["write_last_action"]:
+                     sdb.set(k_last_action, decision)
++                if transition["write_warm"]:
+                     sdb.set(k_warm, "1")
+-                    warmed = True
+-                    last_action = decision
+-                    note = "warmed_no_trade"
+-                else:
+-                    changed = decision != last_action
+-                    if changed:
+-                        last_action = decision
+-                        sdb.set(k_last_action, decision)
++                warmed, last_action = transition["warmed"], transition["last_action"]
++                if record is not None:
++                    record.update(signal=dict(signal), transition_inputs=transition_inputs,
++                                  decision={"transition": transition}, pipeline_stage="exit_state")
+                 action = None
+                 scale_count = int(str(sdb.get(k_scale_count) or "0").strip() or 0)
+ 
+@@ -1511,69 +1565,27 @@
+                         trailing_peak_price = max(float(trailing_peak_price or 0.0), cur_px)
+                         sdb.set(k_trailing_peak, str(trailing_peak_price))
+ 
+-                # Strategy-aware exit stack takes priority over signal-change actioning.
+-                exit_action = None
+-                exit_reason = None
+-                exit_out = {}
+-
+-                # ema_cross_v2: invalidate open long if the original setup degrades into
+-                # low-vol / chop / collapsed cross-gap after entry.
+-                sig_ind = signal.get("ind") or {}
+-                if (
+-                    pos_qty > 0.0
+-                    and entry_price > 0.0
+-                    and str(cfg.get("strategy_id")) == "ema_cross"
+-                ):
+-                    avg_range_pct = float(sig_ind.get("avg_range_pct") or 0.0)
+-                    trend_eff = float(sig_ind.get("trend_efficiency") or 0.0)
+-                    cross_gap_pct = float(sig_ind.get("cross_gap_pct") or 0.0)
+-
+-                    min_vol = float(cfg.get("min_volatility_pct", 0.0) or 0.0)
+-                    min_trend = float(cfg.get("min_trend_efficiency", 0.0) or 0.0)
+-                    min_gap = float(cfg.get("min_cross_gap_pct", 0.0) or 0.0)
+-
+-                    if bool(cfg.get("ema_invalidate_on_low_vol", True)) and avg_range_pct < min_vol:
+-                        exit_action = "sell"
+-                        exit_reason = "strategy_exit:ema_cross:low_volatility_invalidation"
+-                    elif bool(cfg.get("ema_invalidate_on_chop", True)) and trend_eff < min_trend:
+-                        exit_action = "sell"
+-                        exit_reason = "strategy_exit:ema_cross:chop_invalidation"
+-                    elif bool(cfg.get("ema_invalidate_on_cross_gap_loss", True)) and cross_gap_pct < min_gap:
+-                        exit_action = "sell"
+-                        exit_reason = "strategy_exit:ema_cross:cross_gap_invalidation"
+-
+-                if pos_qty > 0.0 and entry_price > 0.0 and not exit_action:
+-                    exit_out = evaluate_strategy_exit_stack(
+-                        entry_price=entry_price,
+-                        current_price=float(m),
+-                        qty=float(pos_qty),
+-                        side="long",
+-                        strategy=str(cfg["strategy_id"]),
+-                        stop_loss_pct=float(cfg.get("stop_loss_pct", 0.0) or 0.0),
+-                        take_profit_pct=float(cfg.get("take_profit_pct", 0.0) or 0.0),
+-                        trailing_peak_price=float(trailing_peak_price or 0.0) if trailing_peak_price > 0.0 else None,
+-                        trailing_stop_pct=float(cfg.get("trailing_stop_pct", 0.0) or 0.0),
+-                        bars_held=int(bars_held),
+-                        max_bars_hold=int(cfg.get("max_bars_hold", 0) or 0) or None,
+-                    )
+-                    if str(exit_out.get("action") or "") == "exit":
+-                        exit_action = "sell"
+-                        exit_reason = str(exit_out.get("reason") or exit_out.get("stack_rule") or "strategy_exit")
+-
++                exit_inputs = dict(cfg=cfg, signal=signal, decision=decision, changed=changed,
++                                   pos_qty=pos_qty, entry_price=entry_price,
++                                   trailing_peak_price=trailing_peak_price, bars_held=bars_held,
++                                   current_price=float(m))
++                exit_selection = select_exit_decision(**exit_inputs, exit_evaluator=evaluate_strategy_exit_stack)
++                action, changed = exit_selection["action"], exit_selection["changed"]
++                exit_action, exit_reason = exit_selection["exit_action"], exit_selection["exit_reason"]
++                exit_out = exit_selection["exit_out"]
+                 if exit_action:
+-                    action = "sell"
+                     note = exit_reason
+-                    changed = False
+-                elif changed or (
+-                    cfg["strategy_id"] == "sma_200_trend" and decision == "sell"
+-                    and signal.get("action") == "hold" and pos_qty > 0.0
+-                ):
+-                    if decision == "buy":
+-                        if (not cfg["position_aware"]) or (pos_qty <= 0.0):
+-                            action = "buy"
+-                    elif decision == "sell":
+-                        if (not cfg["position_aware"]) or (pos_qty > 0.0):
+-                            action = "sell"
++                if record is not None:
++                    record.update(kind="decision", pipeline_stage="gates", reason=None,
++                                  exit_inputs=exit_inputs)
++                    try:
++                        record["decision"]["exit"] = select_exit_decision(
++                            **exit_inputs, observe=True, raw_signal=record["raw_signal"],
++                            exit_evaluator=evaluate_strategy_exit_stack)
++                    except Exception as capture_exc:
++                        record["decision"]["exit"] = exit_selection
++                        record["observation_error"] = type(capture_exc).__name__
++                    record["actual"] = {"intended_action": action, "outcome": "no_intent", "gates": {}}
+                 kill_remaining = _kill_remaining_loops(
+                     sdb, k_kill_remaining, k_kill_until,
+                     max_cooldown_loops=max(
+@@ -1582,6 +1594,8 @@
+                     ),
+                 )
+                 kill_gate = should_block_symbol(loops=0, kill_until_loop=kill_remaining)
++                if record is not None:
++                    record["actual"]["gates"]["kill"] = dict(kill_gate)
+                 cooldown_exit_qty = None
+                 if not bool(kill_gate.get("ok")):
+                     sdb.set(k_kill_remaining, str(kill_remaining - 1))
+@@ -1592,7 +1606,11 @@
+                         and action != last_emitted_action
+                         and _open_strategy_intent_state(qdb, symbol) == "none"
+                     )
++                    if record is not None:
++                        record["actual"]["gates"]["cooldown_protective_exit"] = protective_exit
+                     if not protective_exit:
++                        if record is not None:
++                            record["actual"]["outcome"] = "kill_cooldown"
+                         _write_status(
+                             {
+                                 "ok": True,
+@@ -1611,6 +1629,8 @@
+                         continue
+ 
+                 if action and action == last_emitted_action:
++                    if record is not None:
++                        record["actual"]["outcome"] = "emission_latch"
+                     action = None
+                 if action:
+                     intent_id = str(uuid.uuid4())
+@@ -1626,7 +1646,12 @@
+                             adds_used=scale_count,
+                             limits=scaling_limits,
+                         )
++                        if record is not None:
++                            record["actual"]["gates"]["scaling"] = dict(scale_check)
+                         if bool(scale_check.get("is_scale")) and not bool(scale_check.get("ok")):
++                            if record is not None:
++                                record["actual"].update(outcome="scale_blocked_entry")
++                                record["actual"]["gates"]["scaling"] = dict(scale_check)
+                             _write_status(
+                                 {
+                                     "ok": True,
+@@ -1654,7 +1679,12 @@
+                             exposure=exposure,
+                             open_intents_for_symbol=0,
+                         )
++                        if record is not None:
++                            record["actual"]["gates"]["risk"] = dict(risk_check)
+                         if not bool(risk_check.get("ok")):
++                            if record is not None:
++                                record["actual"].update(outcome="risk_blocked_entry")
++                                record["actual"]["gates"]["risk"] = dict(risk_check)
+                             risk_block_count = int(str(sdb.get(k_risk_block_count) or "0").strip() or 0) + 1
+                             sdb.set(k_risk_block_count, str(risk_block_count))
+ 
+@@ -1783,9 +1813,16 @@
+                                 open_strategy_intent_exists = True
+                                 break
+                     except Exception:
++                        if record is not None:
++                            record["actual"]["gates"]["open_intent_lookup"] = "unknown_existing_fail_open"
+                         open_strategy_intent_exists = False
+ 
++                    if record is not None and "open_intent_lookup" not in record["actual"]["gates"]:
++                        record["actual"]["gates"]["open_intent_lookup"] = "open" if open_strategy_intent_exists else "none"
++
+                     if open_strategy_intent_exists:
++                        if record is not None:
++                            record["actual"]["outcome"] = "open_strategy_intent_exists"
+                         _write_status({
+                             "ok": True,
+                             "status": "running",
+@@ -1808,6 +1845,9 @@
+                             "note": "open_strategy_intent_exists",
+                         })
+                     else:
++                        if record is not None:
++                            record["actual"].update(outcome="write_attempted", intent_id=intent_id,
++                                                    side=action, qty=float(qty))
+                         qdb.upsert_intent({
+                             "intent_id": intent_id,
+                             "created_ts": _now(),
+@@ -1858,6 +1898,8 @@
+                                 ),
+                             },
+                         })
++                        if record is not None:
++                            record["actual"]["outcome"] = "written"
+                         enqueued += 1
+                         if context_capture is not None:
+                             capture_call(context_capture, "entry",
+@@ -1917,9 +1959,15 @@
+                 })
+                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+             except StartupGuardError:
++                if record is not None:
++                    record.update(kind="error", reason="startup_guard")
+                 # Newly selected venues retain the same fail-closed startup gate.
+                 raise
+             except Exception as exc:
++                if record is not None:
++                    record.update(kind="error", error_type=type(exc).__name__)
++                    if record["actual"].get("outcome") == "write_attempted":
++                        record["actual"]["outcome"] = "write_failed_or_unknown"
+                 if len(symbols) == 1:
+                     raise
+                 # A symbol-local failure must not strand other symbols' exits.
+@@ -1932,6 +1980,22 @@
+                 })
+                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+             finally:
++                if record is not None:
++                    try:
++                        from services.strategies.signal_input_capture import capture_runner_decision
++                        receipt = capture_runner_decision(record, runner_bindings={
++                            name: globals()[name] for name in (
++                                "run_forever", "_strategy_signal", "_registry_signal_with_context", "_synth_ohlcv",
++                                "_position_aware_signal_action", "position_aware_signal_action", "signal_transition",
++                                "select_exit_decision", "evaluate_strategy_exit_stack", "compute_signal",
++                            )
++                        })
++                        recording_counts["written" if receipt.get("ok") else "failed"] += 1
++                        if not receipt.get("ok"):
++                            _LOG.warning("runner_decision_capture_failed error_type=%s", receipt.get("error_type", "unknown"))
++                    except Exception as capture_exc:
++                        recording_counts["failed"] += 1
++                        _LOG.warning("runner_decision_capture_failed error_type=%s", type(capture_exc).__name__)
+                 if len(symbols) > 1 and turn_state_ready:
+                     # These keys and values all belong to this loaded turn.
+                     # Checkpoint even early-continue/error turns, never stale locals.
+@@ -1960,6 +2024,7 @@
+         _write_status({
+             "ok": True,
+             "status": "stopped",
++            "runner_decision_capture": {"enabled": recording_enabled, **recording_counts},
+             "pid": os.getpid(),
+             "ts": _now(),
+             "loops": loops,
+--- services/strategies/signal_input_capture.py.before
++++ services/strategies/signal_input_capture.py
+@@ -8,7 +8,11 @@
+ import marshal
+ import os
+ import platform
++import re
++import subprocess
+ import tempfile
++import types
++from functools import lru_cache
+ from datetime import datetime, timezone
+ from pathlib import Path
+ 
+@@ -40,10 +44,10 @@
+     return {"python": platform.python_version(), "functions": functions, "constants": constants}
+ 
+ 
+-def _store(payload: dict) -> str:
++def _store(payload: dict, *, directory: Path | None = None) -> str:
+     raw = _encode(payload)
+     digest = hashlib.sha256(raw).hexdigest()
+-    directory = data_dir() / "signal_inputs"
++    directory = data_dir() / "signal_inputs" if directory is None else Path(directory)
+     directory.mkdir(parents=True, exist_ok=True)
+     target = directory / f"{digest}.json"
+     # Hard-link publication exposes only complete files and never replaces one.
+@@ -121,3 +125,617 @@
+     if strategy.get("name") != "sma_200_trend":
+         raise ValueError("unsupported_signal_input_strategy")
+     return compute_signal(cfg={"strategy": strategy}, symbol=payload["symbol"], ohlcv=payload["ohlcv"])
++
++
++# Runner v2 is deliberately separate from the frozen ES v1 format above.
++_DEFAULT_TRIO = {"ema_cross", "breakout_donchian", "mean_reversion_rsi"}
++_STRATEGY_KEYS = frozenset("""
++name trade_enabled ema_fast ema_slow filter_window min_volatility_pct
++min_volume_ratio min_trend_efficiency min_cross_gap_pct rsi_len rsi_buy rsi_sell
++sma_len max_volatility_pct max_trend_efficiency max_sma_distance_pct
++require_reversal_confirmation donchian_len min_channel_width_pct breakout_buffer_pct
++require_directional_confirmation sma_period atr_period
++""".split())
++_RUNNER_KEYS = frozenset("""
++enabled strategy_id strategy_preset venue symbol symbols fast_n slow_n min_bars
++max_bars loop_interval_sec qty order_type allow_first_signal_trade position_aware
++sell_full_position signal_source stop_loss_pct take_profit_pct trailing_stop_pct
++max_bars_hold min_volatility_pct min_trend_efficiency min_cross_gap_pct
++ema_invalidate_on_low_vol ema_invalidate_on_chop ema_invalidate_on_cross_gap_loss
++timeframe ohlcv_timeframe window use_ccxt_fallback max_tick_age_sec
++auto_select_best_venue switch_only_when_blocked venue_candidates
++max_concurrent_positions max_symbol_exposure_pct max_total_exposure_pct
++max_strategy_exposure_pct max_open_intents_per_symbol max_adds_per_symbol
++min_profit_to_add_pct scale_in_size_multiplier kill_cooldown_loops
++max_consecutive_risk_blocks_per_symbol
++""".split())
++_IND_KEYS = frozenset("""
++ema_fast ema_slow avg_range_pct volume_ratio trend_efficiency cross_gap_pct
++upper_prev lower_prev close rsi sma sma_distance_pct channel_width_pct price
++current_price last_price
++""".split())
++_SIGNAL_KEYS = frozenset("ok action reason strategy symbol price ind raw_action raw_reason".split())
++_PUBLIC_KEYS = frozenset("""
++action changed exit_action exit_reason exit_out conditions decision warmed last_action
++strategy_id allow_first_signal_trade symbol write_warm
++write_warmed write_last_action note reason ok eligible enabled triggered evaluated
++applicable active met value threshold observed selected stack_rule entry_price
++current_price price qty side strategy pnl_pct pnl_abs bars_held max_bars_hold
++stop_loss_pct take_profit_pct trailing_stop_pct trailing_peak_price stop_price
++take_profit_price trailing_stop_price raw_action raw_reason signal_action
++signal_reason filtered_action filtered_reason intended_action outcome gates
++intent_id intentid error_type position_qty pos_qty matched threshold_price
++move_pct peak_price cooldown risk performance market_quality preflight startup
++intent_pending duplicate kill scale_in queue_write emission pending_exit
++ema_low_vol ema_chop ema_cross_gap stop trailing take_profit time strategy_sell pre_filter_sell
++observation_error observation_errors
++scaling cooldown_protective_exit open_intent_lookup remaining_loops
++kill_until_loop loops exposure total_exposure symbol_exposure max_exposure
++max_symbol_exposure open_positions max_open_positions notional proposed_notional
++current_notional projected_notional max_position_notional max_total_notional
++scale_count max_scales max_scale_ins current_qty proposed_qty total_notional
++is_scale size_multiplier cooldown_loops
++""".split())
++_SAFE_ERRORS = {"ValueError", "TypeError", "OSError", "RuntimeError", "KeyError",
++                "OverflowError", "TimeoutError", "PermissionError", "FileNotFoundError"}
++_NUMERIC_SETTINGS = (_STRATEGY_KEYS | _RUNNER_KEYS) - frozenset("""
++name strategy_id strategy_preset venue symbol symbols order_type signal_source
++timeframe ohlcv_timeframe venue_candidates enabled trade_enabled
++allow_first_signal_trade position_aware sell_full_position use_ccxt_fallback
++auto_select_best_venue switch_only_when_blocked require_reversal_confirmation
++require_directional_confirmation ema_invalidate_on_low_vol ema_invalidate_on_chop
++ema_invalidate_on_cross_gap_loss
++""".split())
++_BOOL_SETTINGS = frozenset("""
++enabled trade_enabled allow_first_signal_trade position_aware sell_full_position
++use_ccxt_fallback auto_select_best_venue switch_only_when_blocked
++require_reversal_confirmation require_directional_confirmation
++ema_invalidate_on_low_vol ema_invalidate_on_chop ema_invalidate_on_cross_gap_loss
++""".split())
++
++
++def runner_capture_enabled() -> bool:
++    return os.environ.get("CBP_CAPTURE_RUNNER_DECISIONS") == "1"
++
++
++def _number(value):
++    import math
++
++    if type(value) not in (int, float) or not math.isfinite(value):
++        raise ValueError("invalid_number")
++    return value
++
++
++def _tag(value, *, nullable=False):
++    if value is None and nullable:
++        return None
++    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.:/+\-]{1,160}", value):
++        raise ValueError("invalid_public_tag")
++    return value
++
++
++def _settings(value, keys):
++    if not isinstance(value, dict):
++        raise ValueError("invalid_settings")
++    result = {}
++    for key in sorted(keys & value.keys()):
++        item = value[key]
++        if item is None:
++            result[key] = None
++        elif key in _BOOL_SETTINGS:
++            if type(item) is not bool:
++                raise ValueError("invalid_setting_boolean")
++            result[key] = item
++        elif key in _NUMERIC_SETTINGS:
++            result[key] = _number(item)
++        elif key in {"symbols", "venue_candidates"}:
++            if not isinstance(item, list):
++                raise ValueError("invalid_setting_list")
++            result[key] = [_tag(v) for v in item]
++        else:
++            result[key] = _tag(item)
++    if "strategy" in value and keys == _RUNNER_KEYS:
++        result["strategy"] = _settings(value["strategy"], _STRATEGY_KEYS)
++    if "risk" in value and keys == _RUNNER_KEYS:
++        result["risk"] = _settings(value["risk"], frozenset({
++            "stop_loss_pct", "take_profit_pct", "trailing_stop_pct", "max_bars_hold",
++            "max_concurrent_positions", "max_symbol_exposure_pct", "max_total_exposure_pct",
++            "max_strategy_exposure_pct", "max_open_intents_per_symbol", "max_adds_per_symbol",
++            "min_profit_to_add_pct", "scale_in_size_multiplier", "kill_cooldown_loops",
++            "max_consecutive_risk_blocks_per_symbol"}))
++    return result
++
++
++def _public(value, *, depth=0):
++    if depth > 12:
++        raise ValueError("public_value_too_deep")
++    if value is None or type(value) is bool:
++        return value
++    if type(value) in (int, float):
++        return _number(value)
++    if isinstance(value, str):
++        return _tag(value)
++    if isinstance(value, list):
++        return [_public(v, depth=depth + 1) for v in value]
++    if isinstance(value, dict):
++        result = {}
++        for key, item in value.items():
++            if key not in _PUBLIC_KEYS:
++                continue
++            if key == "error_type":
++                result[key] = item if item in _SAFE_ERRORS else "Error"
++            else:
++                result[key] = _public(item, depth=depth + 1)
++        return result
++    raise ValueError("invalid_public_value")
++
++
++def _signal(value):
++    if not isinstance(value, dict):
++        raise ValueError("invalid_signal")
++    for key in ("action", "raw_action"):
++        if key in value and value[key] not in {"buy", "sell", "hold"}:
++            raise ValueError("invalid_signal_action")
++    if "ok" in value and type(value["ok"]) is not bool:
++        raise ValueError("invalid_signal_boolean")
++    if "price" in value:
++        _number(value["price"])
++    for key in ("reason", "raw_reason", "strategy", "symbol"):
++        if key in value:
++            _tag(value[key])
++    out = _public({k: v for k, v in value.items() if k in _SIGNAL_KEYS and k != "ind"})
++    if "ind" in value:
++        if not isinstance(value["ind"], dict):
++            raise ValueError("invalid_indicators")
++        out["ind"] = {k: _number(v) for k, v in value["ind"].items() if k in _IND_KEYS}
++    return out
++
++
++@lru_cache(maxsize=1)
++def _runner_commit_identity():
++    try:
++        proc = subprocess.run(
++            ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[2],
++            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=2, check=True,
++            env={"PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull},
++        )
++        commit = proc.stdout.decode("ascii").strip()
++        return commit if re.fullmatch(r"[0-9a-f]{40,64}", commit) else None
++    except Exception:
++        return None
++
++
++def _fingerprint_value(value, seen=None):
++    """Hash loaded objects including aliases/defaults, without serializing their text."""
++    seen = set() if seen is None else seen
++    if value is None or value is Ellipsis or type(value) in (str, int, float, bool, bytes, complex):
++        # marshal records interning/object sharing, not just equal code content.
++        scalar = (value.hex() if type(value) in (float, bytes) else
++                  [value.real.hex(), value.imag.hex()] if type(value) is complex else
++                  str(value) if type(value) is int else
++                  "ellipsis" if value is Ellipsis else value)
++        return hashlib.sha256(_encode({"type": type(value).__name__, "value": scalar})).hexdigest()
++    if id(value) in seen:
++        return {"cycle": getattr(value, "__qualname__", type(value).__qualname__)}
++    seen = seen | {id(value)}
++    if isinstance(value, types.CodeType):
++        fields = {name: getattr(value, name) for name in (
++            "co_argcount", "co_posonlyargcount", "co_kwonlyargcount", "co_nlocals", "co_stacksize",
++            "co_flags", "co_filename", "co_name", "co_qualname", "co_firstlineno")}
++        fields.update(bytecode=value.co_code.hex(), line_table=value.co_linetable.hex(),
++                      exception_table=value.co_exceptiontable.hex(),
++                      constants=_fingerprint_value(value.co_consts, seen),
++                      names=list(value.co_names), varnames=list(value.co_varnames),
++                      freevars=list(value.co_freevars), cellvars=list(value.co_cellvars))
++        return hashlib.sha256(_encode(fields)).hexdigest()
++    if inspect.isfunction(value):
++        return {
++            "code": _fingerprint_value(value.__code__, seen),
++            "defaults": _fingerprint_value(value.__defaults__, seen),
++            "kwdefaults": _fingerprint_value(value.__kwdefaults__, seen),
++            "closure": [_fingerprint_value(c.cell_contents, seen) for c in (value.__closure__ or ())],
++        }
++    if isinstance(value, (staticmethod, classmethod)):
++        return _fingerprint_value(value.__func__, seen)
++    if isinstance(value, property):
++        return [_fingerprint_value(v, seen) for v in (value.fget, value.fset, value.fdel)]
++    if isinstance(value, dict):
++        return {str(k): _fingerprint_value(v, seen) for k, v in sorted(value.items(), key=lambda kv: str(kv[0]))}
++    if isinstance(value, (tuple, list)):
++        return {"type": type(value).__name__, "values": [_fingerprint_value(v, seen) for v in value]}
++    if isinstance(value, (set, frozenset)):
++        return sorted((_fingerprint_value(v, seen) for v in value), key=lambda v: _encode(v))
++    if inspect.isclass(value) and value.__module__.startswith("services."):
++        return {k: _fingerprint_value(v, seen) for k, v in sorted(vars(value).items())
++                if k not in {"__dict__", "__weakref__", "__doc__", "__module__"}}
++    return {"type": type(value).__qualname__, "module": getattr(value, "__module__", None),
++            "name": getattr(value, "__qualname__", None)}
++
++
++_RUNNER_BINDING_NAMES = (
++    "run_forever", "_strategy_signal", "_registry_signal_with_context", "_synth_ohlcv",
++    "_position_aware_signal_action", "position_aware_signal_action", "signal_transition",
++    "select_exit_decision", "evaluate_strategy_exit_stack", "compute_signal",
++)
++
++
++def _runner_code_identity(*, runner_bindings=None):
++    import importlib
++
++    names = ("services.strategies.ema_cross", "services.strategies.breakout_donchian",
++             "services.strategies.mean_reversion_rsi", "services.strategies.strategy_registry",
++             "services.strategies.market_filters", "services.strategies.indicators",
++             "services.execution.runner_decision", "services.risk.exit_controls")
++    modules = {}
++    for name in names:
++        module = importlib.import_module(name)
++        modules[name] = {k: _fingerprint_value(v) for k, v in sorted(vars(module).items())
++                         if not k.startswith("__") and not isinstance(v, types.ModuleType)}
++    runner = importlib.import_module("services.execution.strategy_runner")
++    if runner_bindings is None:
++        runner_bindings = {name: getattr(runner, name) for name in _RUNNER_BINDING_NAMES}
++    if not isinstance(runner_bindings, dict) or set(runner_bindings) != set(_RUNNER_BINDING_NAMES):
++        raise ValueError("invalid_runner_bindings")
++    modules[runner.__name__] = {name: _fingerprint_value(runner_bindings[name])
++                              for name in _RUNNER_BINDING_NAMES}
++    return {"version": 2, "type": "runner_code", "python": platform.python_version(),
++            "implementation": platform.python_implementation(), "modules": modules}
++
++
++def _runner_store(payload):
++    raw = _encode(payload)
++    digest = hashlib.sha256(raw).hexdigest()
++    directory = _runner_object_directory()
++    target = directory / f"{digest}.json"
++    if target.exists() or target.is_symlink():
++        if target.is_symlink() or target.read_bytes() != raw:
++            raise ValueError("existing_capture_corrupt")
++        return digest
++    return _store(payload, directory=directory)
++
++
++def _runner_object_directory():
++    configured = os.environ.get("CBP_RUNNER_DECISION_OBJECT_DIR")
++    if not configured:
++        return data_dir() / "signal_inputs"
++    directory = Path(configured)
++    if not directory.is_absolute():
++        raise ValueError("shared_object_directory_not_absolute")
++    return directory
++
++
++def _checked_json(raw):
++    def pairs(items):
++        out = {}
++        for key, value in items:
++            if key in out:
++                raise ValueError("duplicate_json_key")
++            out[key] = value
++        return out
++
++    def invalid(_value):
++        raise ValueError("nonfinite_json")
++
++    return json.loads(raw, object_pairs_hook=pairs, parse_constant=invalid)
++
++
++def _digest(value):
++    if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
++        raise ValueError("invalid_digest")
++    return value
++
++
++def _verify_envelope(envelope):
++    if not isinstance(envelope, dict) or not isinstance(envelope.get("payload"), dict):
++        raise ValueError("invalid_envelope")
++    if hashlib.sha256(_encode(envelope["payload"])).hexdigest() != _digest(envelope.get("sha256")):
++        raise ValueError("runner_record_hash_mismatch")
++    if envelope["payload"].get("version") != 2:
++        raise ValueError("unsupported_runner_schema")
++    return envelope["payload"]
++
++
++def _observed(value):
++    if not isinstance(value, str):
++        raise ValueError("invalid_observed_at")
++    stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
++    if stamp.utcoffset() is None or stamp.utcoffset().total_seconds() != 0:
++        raise ValueError("observed_at_not_utc")
++    return stamp
++
++
++def _bar_layout(rows, observed, runner):
++    if not isinstance(rows, list):
++        raise ValueError("invalid_ohlcv")
++    timeframe = runner.get("ohlcv_timeframe", runner.get("timeframe"))
++    match = re.fullmatch(r"([1-9][0-9]*)([smhdw])", timeframe or "")
++    duration = int(match[1]) * {"s": 1000, "m": 60000, "h": 3600000,
++                               "d": 86400000, "w": 604800000}[match[2]] if match else None
++    layout, completed = [], []
++    for row in rows:
++        if not isinstance(row, list) or len(row) < 6:
++            raise ValueError("invalid_ohlcv_row")
++        for number in row:
++            _number(number)
++        complete = duration is not None and row[0] + duration <= observed.timestamp() * 1000
++        if complete:
++            completed.append({"version": 2, "type": "completed_bar", "row": row})
++            layout.append({"complete": True, "timestamp": row[0], "index": len(completed) - 1})
++        else:
++            layout.append({"complete": False, "timestamp": row[0], "row": row})
++    return layout, completed
++
++
++def _project_record(record):
++    if not isinstance(record, dict) or type(record.get("version")) is not int or record["version"] != 2:
++        raise ValueError("unsupported_runner_schema")
++    session = record.get("session_id")
++    account = record.get("account_id")
++    if account is None:
++        account = hashlib.sha256(str(data_dir().resolve()).encode()).hexdigest()
++    if not isinstance(session, str) or not re.fullmatch(r"[0-9a-f]{32}", session):
++        raise ValueError("invalid_session_id")
++    if not isinstance(account, str) or not re.fullmatch(r"[0-9a-f]{32,64}", account):
++        raise ValueError("invalid_account_id")
++    if type(record.get("loop")) is not int or record["loop"] < 0:
++        raise ValueError("invalid_loop")
++    if record.get("kind") not in {"decision", "skipped", "error"}:
++        raise ValueError("invalid_kind")
++    if type(record.get("signal_computed")) is not bool:
++        raise ValueError("invalid_signal_computed")
++    _observed(record.get("observed_at"))
++    settings = record.get("settings")
++    if not isinstance(settings, dict) or not {"runner", "strategy"} <= settings.keys():
++        raise ValueError("missing_settings")
++    out = {key: record[key] for key in ("version", "session_id", "account_id", "loop", "kind",
++                                      "observed_at", "signal_computed") if key != "account_id"}
++    out["account_id"] = account
++    out["timeframe"] = _tag(record.get("timeframe"), nullable=True)
++    for key in ("symbol", "venue", "pipeline_stage"):
++        out[key] = _tag(record.get(key))
++    out["reason"] = _tag(record.get("reason", "not_evaluated"), nullable=True)
++    for key in ("observation_error", "error_type"):
++        if key in record:
++            out[key] = record[key] if record[key] in _SAFE_ERRORS else "Error"
++    out["settings"] = {"runner": _settings(settings["runner"], _RUNNER_KEYS),
++                       "strategy": _settings(settings["strategy"], _STRATEGY_KEYS)}
++    out["raw_signal"] = _signal(record.get("raw_signal", {}))
++    out["signal"] = _signal(record.get("signal", {}))
++    transition = record.get("transition_inputs", {})
++    exits = record.get("exit_inputs", {})
++    if not isinstance(transition, dict) or not isinstance(exits, dict):
++        raise ValueError("invalid_decision_inputs")
++    for group in (transition, exits):
++        for key in ("pos_qty", "entry_price", "trailing_peak_price", "bars_held", "current_price"):
++            if key in group:
++                _number(group[key])
++        for key in ("changed", "warmed", "allow_first_signal_trade"):
++            if key in group and type(group[key]) is not bool:
++                raise ValueError("invalid_input_boolean")
++    if record["kind"] == "decision":
++        if not {"strategy_id", "decision", "pos_qty", "warmed", "last_action", "allow_first_signal_trade"} <= transition.keys():
++            raise ValueError("incomplete_transition_inputs")
++        if not {"cfg", "signal", "decision", "changed", "pos_qty", "entry_price", "trailing_peak_price", "bars_held", "current_price"} <= exits.keys():
++            raise ValueError("incomplete_exit_inputs")
++        if not {"transition", "exit"} <= record.get("decision", {}).keys():
++            raise ValueError("incomplete_decision")
++    out["transition_inputs"] = _public({k: v for k, v in transition.items() if k in {
++        "strategy_id", "decision", "pos_qty", "warmed", "last_action", "allow_first_signal_trade"}})
++    # The input schema is fixed; no config extras can enter through exit inputs.
++    for key in ("strategy_id", "allow_first_signal_trade"):
++        if key in transition:
++            out["transition_inputs"][key] = (_tag(transition[key]) if key == "strategy_id"
++                                              else transition[key])
++    out["exit_inputs"] = {}
++    for key in ("decision", "changed", "pos_qty", "entry_price", "trailing_peak_price", "bars_held", "current_price"):
++        if key in exits:
++            out["exit_inputs"][key] = _public(exits[key])
++    if "cfg" in exits:
++        out["exit_inputs"]["cfg"] = _settings(exits["cfg"], _RUNNER_KEYS)
++    if "signal" in exits:
++        out["exit_inputs"]["signal"] = _signal(exits["signal"])
++    decision = record.get("decision", {})
++    if not isinstance(decision, dict):
++        raise ValueError("invalid_decision")
++    out["decision"] = {k: _public(decision[k]) for k in ("transition", "exit") if k in decision}
++    if not isinstance(record.get("actual", {}), dict):
++        raise ValueError("invalid_actual")
++    out["actual"] = _public(record.get("actual", {}))
++    return out
++
++
++def _append_runner(path, envelope):
++    import fcntl
++
++    path.parent.mkdir(parents=True, exist_ok=True)
++    fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
++    try:
++        fcntl.flock(fd, fcntl.LOCK_EX)
++        size = os.fstat(fd).st_size
++        if size:
++            if os.pread(fd, 1, size - 1) != b"\n":
++                raise ValueError("partial_journal_tail")
++        line = _encode(envelope) + b"\n"
++        if os.write(fd, line) != len(line):
++            raise OSError("incomplete_journal_append")
++        os.fsync(fd)
++        directory_fd = os.open(path.parent, os.O_RDONLY)
++        try:
++            os.fsync(directory_fd)
++        finally:
++            os.close(directory_fd)
++    finally:
++        os.close(fd)
++
++
++def capture_runner_decision(record, *, runner_bindings=None) -> dict:
++    """Append one sanitized receipt. Capture failure is never trading authority."""
++    if not runner_capture_enabled():
++        return {"ok": True, "status": "disabled"}
++    try:
++        payload = _project_record(record)
++        bar_settings = dict(payload["settings"]["runner"])
++        if payload["timeframe"] is not None:
++            bar_settings["ohlcv_timeframe"] = payload["timeframe"]
++        layout, completed = _bar_layout(record.get("ohlcv"), _observed(payload["observed_at"]), bar_settings)
++        settings = payload.pop("settings")
++        payload["settings_sha256"] = _runner_store({"version": 2, "type": "runner_settings", **settings})
++        payload["code_sha256"] = _runner_store(_runner_code_identity(runner_bindings=runner_bindings))
++        payload["commit"] = _runner_commit_identity()
++        shared = bool(os.environ.get("CBP_RUNNER_DECISION_OBJECT_DIR"))
++        payload["object_scope"] = "shared" if shared else "local"
++        refs = [_runner_store(bar) for bar in completed]
++        payload["completed_prefix_sha256"] = _runner_store({
++            "version": 2, "type": "completed_prefix", "bar_refs": refs})
++        payload["ohlcv"] = layout
++        envelope = {"sha256": hashlib.sha256(_encode(payload)).hexdigest(), "payload": payload}
++        relative = Path("runner_decisions") / payload["account_id"] / f"{payload['session_id']}.jsonl"
++        _append_runner(data_dir() / relative, envelope)
++        return {"ok": True, "status": "captured", "sha256": envelope["sha256"],
++                "relativepath": str(relative), "object_directory": None if shared else "signal_inputs",
++                "shared_objects": shared}
++    except Exception as exc:
++        return {"ok": False, "status": "failed", "error_type": type(exc).__name__ if type(exc).__name__ in _SAFE_ERRORS else "Error"}
++
++
++def iter_runner_records(path, *, expected_sha256=None, object_directory=None):
++    """Stream verified envelopes; a trailing partial write is never repaired."""
++    path = Path(path)
++    import fcntl
++
++    objects = Path(object_directory) if object_directory is not None else path.parent.parent.parent / "signal_inputs"
++    count = 0
++    with path.open("rb") as source:
++        fcntl.flock(source.fileno(), fcntl.LOCK_SH)
++        if expected_sha256 is not None:
++            _digest(expected_sha256)
++            digest = hashlib.sha256()
++            for chunk in iter(lambda: source.read(1024 * 1024), b""):
++                digest.update(chunk)
++            if digest.hexdigest() != expected_sha256:
++                raise ValueError("runner_journal_hash_mismatch")
++            source.seek(0)
++        for line in source:
++            if not line.endswith(b"\n"):
++                raise ValueError("partial_journal_tail")
++            envelope = _checked_json(line)
++            _verify_envelope(envelope)
++            if object_directory is not None or envelope["payload"].get("object_scope") == "local":
++                envelope["object_directory"] = str(objects)
++            count += 1
++            yield envelope
++    if not count:
++        raise ValueError("empty_runner_journal")
++
++
++def read_runner_records(path, *, expected_sha256=None) -> list:
++    return list(iter_runner_records(path, expected_sha256=expected_sha256))
++
++
++def _load_runner_object(directory, digest, kind):
++    path = directory / f"{_digest(digest)}.json"
++    if path.is_symlink():
++        raise ValueError("symlink_runner_object")
++    raw = path.read_bytes()
++    if hashlib.sha256(raw).hexdigest() != digest:
++        raise ValueError("runner_object_hash_mismatch")
++    value = _checked_json(raw)
++    if not isinstance(value, dict) or value.get("version") != 2 or value.get("type") != kind:
++        raise ValueError("invalid_runner_object")
++    return value
++
++
++def replay_runner_decision(envelope, *, object_directory=None) -> dict:
++    """Offline decision proof, never an order/fill replay or a profit claim."""
++    from services.execution.runner_decision import (
++        position_aware_signal_action, select_exit_decision, signal_transition,
++    )
++    from services.strategies.strategy_registry import compute_signal
++
++    payload = _verify_envelope(envelope)
++    if payload.get("observation_error"):
++        raise ValueError("runner_observation_incomplete")
++    directory = object_directory if object_directory is not None else envelope.get("object_directory")
++    if directory is None:
++        raise ValueError("missing_object_directory")
++    directory = Path(directory)
++    code = _load_runner_object(directory, payload.get("code_sha256"), "runner_code")
++    if code != _runner_code_identity():
++        raise ValueError("runner_code_mismatch")
++    settings = _load_runner_object(directory, payload.get("settings_sha256"), "runner_settings")
++    prefix = _load_runner_object(directory, payload.get("completed_prefix_sha256"), "completed_prefix")
++    bars = [_load_runner_object(directory, ref, "completed_bar")["row"] for ref in prefix["bar_refs"]]
++    rows = []
++    for slot in payload.get("ohlcv", []):
++        if type(slot.get("complete")) is not bool:
++            raise ValueError("invalid_bar_completion")
++        if slot["complete"]:
++            if type(slot.get("index")) is not int or not 0 <= slot["index"] < len(bars):
++                raise ValueError("invalid_bar_index")
++            row = bars[slot["index"]]
++        else:
++            row = slot["row"]
++        if row[0] != slot["timestamp"]:
++            raise ValueError("bar_timestamp_mismatch")
++        rows.append(row)
++    record = dict(payload, settings={k: settings[k] for k in ("runner", "strategy")}, ohlcv=rows)
++    projected = _project_record(record)
++    for key, value in projected.items():
++        if key != "settings" and payload.get(key) != value:
++            raise ValueError("noncanonical_runner_record")
++    bar_settings = dict(settings["runner"])
++    if payload.get("timeframe") is not None:
++        bar_settings["ohlcv_timeframe"] = payload["timeframe"]
++    layout, _ = _bar_layout(rows, _observed(payload["observed_at"]), bar_settings)
++    if layout != payload["ohlcv"]:
++        raise ValueError("bar_layout_mismatch")
++    if settings["runner"] != _settings(settings["runner"], _RUNNER_KEYS) or settings["strategy"] != _settings(settings["strategy"], _STRATEGY_KEYS):
++        raise ValueError("noncanonical_settings")
++    if payload["kind"] != "decision":
++        return {"status": "diagnostic_verified", "sha256": envelope["sha256"],
++                "kind": payload["kind"], "recomputed": False, "decision_match": None,
++                "signal_recomputed": False,
++                "reason": "signal_not_computed" if not payload["signal_computed"] else "nondecision_record"}
++    if payload["signal_computed"] and settings["strategy"].get("name", "ema_cross") not in _DEFAULT_TRIO:
++        raise ValueError("unsupported_runner_replay_strategy")
++    observed_raw = {}
++
++    def observe(*args, **fields):
++        if args:
++            if len(args) != 1 or not isinstance(args[0], dict):
++                raise ValueError("invalid_observer_payload")
++            observed_raw.update(args[0])
++        observed_raw.update(fields)
++
++    if payload["signal_computed"]:
++        signal = compute_signal(cfg={"strategy": settings["strategy"]}, symbol=payload["symbol"],
++                                ohlcv=rows, observer=observe)
++    else:
++        signal = {"ok": True, "action": "hold", "reason": "no_signal"}
++    signal = _signal(signal)
++    raw = _signal(observed_raw)
++    transition_inputs = payload["transition_inputs"]
++    expected_decision = position_aware_signal_action(
++        signal, strategy_id=transition_inputs["strategy_id"], position_qty=transition_inputs["pos_qty"])
++    transition = signal_transition(**dict(transition_inputs, decision=expected_decision))
++    exit_inputs = dict(payload["exit_inputs"], signal=signal, decision=expected_decision,
++                       changed=transition["changed"])
++    exits = select_exit_decision(**exit_inputs, observe=True, raw_signal=raw)
++    if exits.get("observation_error") or exits.get("observation_errors"):
++        raise ValueError("runner_observation_error")
++    matches = {
++        "signal": signal == payload["signal"], "raw_signal": raw == payload["raw_signal"],
++        "transition_inputs": transition_inputs.get("decision") == expected_decision,
++        "exit_inputs": payload["exit_inputs"].get("signal") == signal
++            and payload["exit_inputs"].get("decision") == expected_decision
++            and payload["exit_inputs"].get("changed") == transition["changed"]
++            and payload["exit_inputs"].get("cfg") == settings["runner"],
++        "transition": _public(transition) == payload["decision"].get("transition"),
++        "exit": _public(exits) == payload["decision"].get("exit"),
++        "intended_action": payload["actual"].get("intended_action") == exits["action"],
++    }
++    return {"status": "decision_match" if all(matches.values()) else "decision_mismatch",
++            "sha256": envelope["sha256"], "kind": payload["kind"], "recomputed": True,
++            "signal_recomputed": payload["signal_computed"],
++            "reason": "signal_computed" if payload["signal_computed"] else "default_no_signal_replayed",
++            "decision_match": all(matches.values()), "matches": matches}
+--- services/strategies/strategy_registry.py.before
++++ services/strategies/strategy_registry.py
+@@ -55,7 +55,7 @@
+         return None
+ 
+ 
+-def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None = None) -> dict:
++def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None = None, observer=None) -> dict:
+     st = cfg.get("strategy") if isinstance(cfg.get("strategy"), dict) else {}
+     raw_name = st.get("name") if "name" in st else "ema_cross"
+     name = str(raw_name or "").strip()
+@@ -99,6 +99,7 @@
+     if name == "ema_cross":
+         return {
+             **fn(
++                **({"observer": observer} if observer is not None else {}),
+                 ohlcv=ohlcv,
+                 ema_fast=int(st.get("ema_fast", 12)),
+                 ema_slow=int(st.get("ema_slow", 26)),
+@@ -115,6 +116,7 @@
+     if name == "mean_reversion_rsi":
+         return {
+             **fn(
++                **({"observer": observer} if observer is not None else {}),
+                 ohlcv=ohlcv,
+                 rsi_len=int(st.get("rsi_len", 14)),
+                 rsi_buy=float(st.get("rsi_buy", 30.0)),
+@@ -134,6 +136,7 @@
+     if name == "breakout_donchian":
+         return {
+             **fn(
++                **({"observer": observer} if observer is not None else {}),
+                 ohlcv=ohlcv,
+                 donchian_len=int(st.get("donchian_len", 20)),
+                 filter_window=int(st["filter_window"]) if "filter_window" in st else None,
+--- services/strategies/ema_cross.py.before
++++ services/strategies/ema_cross.py
+@@ -91,6 +91,11 @@
+         action = "sell"
+         reason = "ema_cross_down"
+ 
++    if kwargs.get("observer") is not None:
++        try:
++            kwargs["observer"]({"raw_action": action, "raw_reason": reason})
++        except Exception:
++            pass
+     filter_window = kwargs.get("filter_window")
+     ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(ema_slow, ema_fast, 8)))
+     cross_gap_pct = pct_gap(ef_cur, es_cur, base=ctx["close"] or closes[-1])
+--- services/strategies/breakout_donchian.py.before
++++ services/strategies/breakout_donchian.py
+@@ -14,6 +14,7 @@
+     min_channel_width_pct: float | None = None,
+     breakout_buffer_pct: float | None = None,
+     require_directional_confirmation: bool = False,
++    observer=None,
+ ) -> dict:
+     if not ohlcv or len(ohlcv) < 5:
+         return {"ok": False, "action": "hold", "reason": "insufficient_ohlcv"}
+@@ -41,6 +42,11 @@
+         action = "sell"
+         reason = "donchian_break_down"
+ 
++    if observer is not None:
++        try:
++            observer({"raw_action": action, "raw_reason": reason})
++        except Exception:
++            pass
+     ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(donchian_len, 8)))
+     channel_width_pct = pct_gap(upper_prev, lower_prev, base=c)
+     ind = {
+--- services/strategies/mean_reversion_rsi.py.before
++++ services/strategies/mean_reversion_rsi.py
+@@ -16,6 +16,7 @@
+     max_trend_efficiency: float | None = None,
+     max_sma_distance_pct: float | None = None,
+     require_reversal_confirmation: bool = False,
++    observer=None,
+ ) -> dict:
+     if not ohlcv or len(ohlcv) < 5:
+         return {"ok": False, "action": "hold", "reason": "insufficient_ohlcv"}
+@@ -39,6 +40,11 @@
+         action = "sell"
+         reason = "rsi_overbought_above_sma"
+ 
++    if observer is not None:
++        try:
++            observer({"raw_action": action, "raw_reason": reason})
++        except Exception:
++            pass
+     ctx = market_context(ohlcv=ohlcv, window=int(filter_window or max(sma_len, rsi_len, 8)))
+     sma_distance_pct = pct_gap(c, m, base=c)
+     ind = {
+--- /dev/null
++++ scripts/replay_runner_decisions.py
+@@ -0,0 +1,57 @@
++"""Read runner v2 archives offline. This command never loads runtime config."""
++from __future__ import annotations
++
++import argparse
++import json
++import logging
++from pathlib import Path
++import sys
++
++if __package__ in (None, ""):
++    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
++
++from services.strategies.signal_input_capture import iter_runner_records, replay_runner_decision
++
++
++def main(argv=None):
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("path", type=Path, help="one JSONL journal or an archive folder")
++    parser.add_argument("--object-directory", type=Path, help="CAS folder (default: inferred from each journal)")
++    parser.add_argument("--expected-sha256", help="expected whole-file hash; valid for one journal only")
++    args = parser.parse_args(argv)
++    # Loading the runner for its loaded-code fingerprint must not create its
++    # normal runtime log from this read-only, isolated CLI process.
++    for name in ("execution.strategy_runner", "strategy.evidence_logger", "strategy.es_daily_trend",
++                 "managed_component", "runtime_identity"):
++        logger = logging.getLogger(name)
++        if not logger.handlers:
++            logger.addHandler(logging.NullHandler())
++    counts = {"decision_match": 0, "decision_mismatch": 0, "diagnostic_verified": 0, "errors": 0}
++    try:
++        if args.path.is_dir():
++            if args.expected_sha256:
++                raise ValueError("folder_hash_not_supported")
++            journals = sorted(args.path.rglob("*.jsonl"))
++        else:
++            journals = [args.path]
++        if not journals:
++            raise ValueError("no_runner_journals")
++        for journal in journals:
++            try:
++                for envelope in iter_runner_records(journal, expected_sha256=args.expected_sha256,
++                                                    object_directory=args.object_directory):
++                    result = replay_runner_decision(envelope, object_directory=args.object_directory)
++                    counts[result["status"]] += 1
++                    print(json.dumps(result, sort_keys=True))
++            except Exception:
++                counts["errors"] += 1
++                print(json.dumps({"status": "error", "reason": "invalid_or_incomplete_archive"}))
++    except Exception:
++        counts["errors"] += 1
++        print(json.dumps({"status": "error", "reason": "invalid_or_incomplete_archive"}))
++    print(json.dumps({"summary": counts}, sort_keys=True))
++    return int(bool(counts["errors"] or counts["decision_mismatch"]))
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+--- /dev/null
++++ tests/test_runner_decision_kernel.py
+@@ -0,0 +1,108 @@
++"""Compare the extraction with the saved pre-refactor runner, not a second model."""
++import ast
++import copy
++import hashlib
++import itertools
++import json
++from pathlib import Path
++
++import pytest
++
++from services.execution.runner_decision import select_exit_decision, signal_transition
++from services.risk.exit_controls import evaluate_strategy_exit_stack
++
++
++@pytest.fixture(scope="module")
++def original_exit_selection():
++    root = Path(__file__).resolve().parents[1]
++    evidence = root / "docs/review_artifacts/paper_simulation_r6r9_20261103"
++    raw = (evidence / "services__execution__strategy_runner.py.before").read_bytes()
++    hashes = json.loads((evidence / "baseline_hashes.json").read_text())
++    assert hashlib.sha256(raw).hexdigest() == hashes["services/execution/strategy_runner.py"]
++    tree = ast.parse(raw)
++    body = None
++    for parent in ast.walk(tree):
++        statements = getattr(parent, "body", None)
++        if not isinstance(statements, list):
++            continue
++        for i, node in enumerate(statements):
++            if (isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)
++                    and node.targets[0].id == "exit_action" and isinstance(node.value, ast.Constant)
++                    and node.value.value is None):
++                end = next(j for j in range(i + 1, len(statements))
++                           if isinstance(statements[j], ast.Assign)
++                           and isinstance(statements[j].targets[0], ast.Name)
++                           and statements[j].targets[0].id == "kill_remaining")
++                body = copy.deepcopy(statements[i:end])
++                break
++    assert body is not None
++    wrapper = ast.parse("def original(cfg, signal, decision, changed, pos_qty, entry_price, trailing_peak_price, bars_held, m):\n action = None\n note = None\n").body[0]
++    wrapper.body += body + ast.parse("return dict(action=action, changed=bool(changed), exit_action=exit_action, exit_reason=exit_reason, exit_out=exit_out)").body
++    namespace = {"evaluate_strategy_exit_stack": evaluate_strategy_exit_stack}
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[wrapper], type_ignores=[])), "<frozen-runner-exit-block>", "exec"), namespace)
++    return namespace["original"]
++
++
++def test_exit_extraction_matches_frozen_runner(original_exit_selection):
++    for strategy, qty, entry, price, peak, bars, decision, changed in itertools.product(
++        ("ema_cross", "breakout_donchian", "mean_reversion_rsi", "sma_200_trend"),
++        (0.0, 1.0), (0.0, 100.0), (90.0, 100.0, 110.0), (100.0, 120.0),
++        (0, 60), ("buy", "sell", "hold"), (False, True),
++    ):
++        cfg = dict(strategy_id=strategy, position_aware=True, stop_loss_pct=.03,
++                   trailing_stop_pct=.02, take_profit_pct=.06, max_bars_hold=60,
++                   min_volatility_pct=.01, min_trend_efficiency=.1, min_cross_gap_pct=.1)
++        signal = {"action": decision, "ind": {"avg_range_pct": 0, "trend_efficiency": 0, "cross_gap_pct": 0}}
++        args = dict(cfg=cfg, signal=signal, decision=decision, changed=changed,
++                    pos_qty=qty, entry_price=entry, trailing_peak_price=peak, bars_held=bars)
++        expected = original_exit_selection(**args, m=price)
++        actual = select_exit_decision(**args, current_price=price)
++        assert {key: actual[key] for key in expected} == expected
++
++
++@pytest.mark.parametrize("warmed,last_action,decision,allow", list(itertools.product(
++    (False, True), ("buy", "sell", "hold"), ("buy", "sell", "hold"), (False, True))))
++def test_transition_matches_original_contract(warmed, last_action, decision, allow):
++    result = signal_transition(strategy_id="breakout_donchian", decision=decision,
++                               pos_qty=1, warmed=warmed, last_action=last_action,
++                               allow_first_signal_trade=allow)
++    expected_changed = decision != last_action if warmed else decision in ("buy", "sell") and allow
++    assert result["changed"] == expected_changed
++    assert result["last_action"] == (decision if not warmed or expected_changed else last_action)
++    assert result["write_warm"] is (not warmed)
++
++
++def test_all_competing_exit_predicates_not_just_chosen_one():
++    result = select_exit_decision(
++        cfg=dict(strategy_id="breakout_donchian", position_aware=True, stop_loss_pct=.03,
++                 trailing_stop_pct=.02, take_profit_pct=.06, max_bars_hold=60),
++        signal={"action": "sell"}, raw_signal={"raw_action": "sell"},
++        decision="sell", changed=True, pos_qty=1, entry_price=100,
++        current_price=90, trailing_peak_price=120, bars_held=60, observe=True)
++    assert result["exit_out"]["stack_rule"] == "stop_loss"
++    assert result["conditions"] == dict(stop=True, trailing=True, take_profit=False,
++                                         time=True, strategy_sell=True, pre_filter_sell=True)
++
++
++def test_ema_invalidation_keeps_existing_priority():
++    result = select_exit_decision(
++        cfg=dict(strategy_id="ema_cross", position_aware=True, stop_loss_pct=.03,
++                 min_volatility_pct=1, min_trend_efficiency=1, min_cross_gap_pct=1),
++        signal={"action": "sell", "ind": {}}, decision="sell", changed=True,
++        pos_qty=1, entry_price=100, current_price=90, trailing_peak_price=120,
++        bars_held=60, observe=True)
++    assert result["exit_reason"] == "strategy_exit:ema_cross:low_volatility_invalidation"
++    assert result["conditions"]["stop"]
++    assert all(result["conditions"][key] for key in ("ema_low_vol", "ema_chop", "ema_cross_gap"))
++
++
++def test_observation_failure_does_not_change_core_short_circuit(original_exit_selection):
++    cfg = dict(strategy_id="ema_cross", position_aware=True, min_volatility_pct=1,
++               stop_loss_pct="not-numeric")
++    args = dict(cfg=cfg, signal={"action": "sell", "ind": {}}, decision="sell",
++                changed=True, pos_qty=1, entry_price=100, trailing_peak_price=100, bars_held=0)
++    expected = original_exit_selection(**args, m=90)
++    actual = select_exit_decision(**args, current_price=90)
++    assert actual["exit_reason"] == expected["exit_reason"]
++    with pytest.raises(ValueError):
++        select_exit_decision(**args, current_price=90, observe=True)
+--- /dev/null
++++ tests/test_runner_decision_capture.py
+@@ -0,0 +1,582 @@
++"""Synthetic archive/replay checks. No account or runtime configuration is read."""
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import sys
++from concurrent.futures import ThreadPoolExecutor
++
++import pytest
++
++from services.strategies import signal_input_capture as capture
++
++
++@pytest.fixture
++def archive(monkeypatch, tmp_path):
++    monkeypatch.setenv("CBP_CAPTURE_RUNNER_DECISIONS", "1")
++    monkeypatch.delenv("CBP_RUNNER_DECISION_OBJECT_DIR", raising=False)
++    monkeypatch.setattr(capture, "data_dir", lambda: tmp_path)
++    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path / "synthetic_state"))
++    monkeypatch.setattr(capture, "_runner_commit_identity", lambda: "a" * 40)
++    return tmp_path
++
++
++def make_record(strategy="breakout_donchian", *, computed=True, position=1.0, forming_delta=0):
++    from services.execution.runner_decision import (
++        position_aware_signal_action, select_exit_decision, signal_transition,
++    )
++    from services.strategies.strategy_registry import compute_signal
++
++    rows = [[1793664000000 + i * 3600000, 100 + i, 102 + i, 99 + i, 101 + i, 10]
++            for i in range(65)]
++    rows[-1][4] += forming_delta
++    selected = {"name": strategy, "trade_enabled": True}
++    cfg = {"strategy_id": strategy, "position_aware": True, "stop_loss_pct": .03,
++           "take_profit_pct": .06, "trailing_stop_pct": .02, "max_bars_hold": 60,
++           "timeframe": "1h", "signal_source": "public_ohlcv"}
++    raw = {}
++    signal = compute_signal(cfg={"strategy": selected}, symbol="BTC/USDT", ohlcv=rows,
++                            observer=raw.update) if computed else {
++                                "ok": True, "action": "hold", "reason": "no_signal"}
++    decision = position_aware_signal_action(signal, strategy_id=strategy, position_qty=position)
++    inputs = dict(strategy_id=strategy, decision=decision, pos_qty=position, warmed=True,
++                  last_action="hold", allow_first_signal_trade=False)
++    transition = signal_transition(**inputs)
++    exits = dict(cfg=cfg, signal=signal, decision=decision, changed=transition["changed"],
++                 pos_qty=position, entry_price=100.0, trailing_peak_price=170.0,
++                 bars_held=65, current_price=float(rows[-1][4]))
++    exit_result = select_exit_decision(**exits, observe=True, raw_signal=raw)
++    return {"version": 2, "session_id": "1" * 32, "account_id": "2" * 64, "loop": 1,
++            "symbol": "BTC/USDT", "venue": "coinbase", "observed_at": "2026-11-05T16:30:00+00:00",
++            "kind": "decision", "pipeline_stage": "gates", "timeframe": "1h",
++            "settings": {"runner": cfg, "strategy": selected}, "ohlcv": rows,
++            "signal_computed": computed, "raw_signal": raw, "signal": signal,
++            "transition_inputs": inputs, "exit_inputs": exits,
++            "decision": {"transition": transition, "exit": exit_result},
++            "actual": {"intended_action": exit_result["action"], "outcome": "no_intent", "gates": {}},
++            "reason": None}
++
++
++def save(root, record):
++    receipt = capture.capture_runner_decision(record)
++    assert receipt["ok"], receipt
++    assert receipt["status"] == "captured"
++    path = root / receipt["relativepath"]
++    records = capture.read_runner_records(path)
++    return receipt, path, records[-1]
++
++
++@pytest.mark.parametrize("strategy", ["ema_cross", "mean_reversion_rsi", "breakout_donchian"])
++def test_real_trio_replays_exact_signal_raw_transition_and_all_conditions(archive, strategy):
++    record = make_record(strategy)
++    receipt, path, envelope = save(archive, record)
++    assert envelope["sha256"] == receipt["sha256"]
++    assert envelope["payload"]["signal"] == record["signal"]
++    assert envelope["payload"]["raw_signal"] == record["raw_signal"]
++    assert envelope["payload"]["decision"] == record["decision"]
++    assert capture.replay_runner_decision(envelope)["decision_match"] is True
++    result = capture.replay_runner_decision(envelope, object_directory=archive / receipt["object_directory"])
++    assert result["status"] == "decision_match" and result["signal_recomputed"] is True
++    expected = hashlib.sha256(path.read_bytes()).hexdigest()
++    assert len(capture.read_runner_records(path, expected_sha256=expected)) == 1
++
++
++def test_cas_dedup_prefix_sharing_and_forming_version_inline(archive):
++    record = make_record()
++    _, _, first = save(archive, record)
++    objects = set((archive / "signal_inputs").iterdir())
++    _, _, second = save(archive, record)
++    assert second["sha256"] == first["sha256"]
++    assert set((archive / "signal_inputs").iterdir()) == objects
++    assert any(not slot["complete"] for slot in first["payload"]["ohlcv"])
++    assert any(slot["complete"] for slot in first["payload"]["ohlcv"])
++    record["loop"] += 1
++    record["ohlcv"][-1][4] += .01
++    _, _, third = save(archive, record)
++    assert third["sha256"] != first["sha256"]
++    assert set((archive / "signal_inputs").iterdir()) == objects
++    assert third["payload"]["completed_prefix_sha256"] == first["payload"]["completed_prefix_sha256"]
++    record["observed_at"] = "2026-11-05T17:30:00+00:00"
++    save(archive, record)
++    assert len(set((archive / "signal_inputs").iterdir()) - objects) == 2
++    assert all(path.suffix == ".json" for path in objects)
++
++
++def test_duplicate_timestamps_and_exact_input_order(archive):
++    record = make_record()
++    record.update(kind="skipped", signal_computed=False)
++    record["ohlcv"] = [record["ohlcv"][3], record["ohlcv"][0], record["ohlcv"][3], record["ohlcv"][-1]]
++    _, _, envelope = save(archive, record)
++    assert capture.replay_runner_decision(envelope)["status"] == "diagnostic_verified"
++    assert [slot["timestamp"] for slot in envelope["payload"]["ohlcv"]] == [row[0] for row in record["ohlcv"]]
++
++
++@pytest.mark.parametrize("kind", ["skipped", "error"])
++def test_diagnostic_receipts_never_claim_decision_recomputation(archive, kind, monkeypatch):
++    record = make_record()
++    record.update(kind=kind, signal_computed=False)
++    _, _, envelope = save(archive, record)
++    from services.strategies import strategy_registry
++
++    # Swapping the binding changes its loaded fingerprint, so tripwire at the
++    # call site without changing loaded functions/defaults/constants.
++    def trace(frame, event, arg):
++        if event == "call" and frame.f_code is strategy_registry.compute_signal.__code__:
++            raise AssertionError("diagnostic_called_registry")
++        return trace
++
++    sys.setprofile(trace)
++    try:
++        result = capture.replay_runner_decision(envelope)
++    finally:
++        sys.setprofile(None)
++    assert result["status"] == "diagnostic_verified"
++    assert result["recomputed"] is False and result["decision_match"] is None
++
++
++def test_default_no_signal_decision_replays_exit_without_registry(archive):
++    _, _, envelope = save(archive, make_record(computed=False))
++    result = capture.replay_runner_decision(envelope)
++    assert result["status"] == "decision_match"
++    assert result["signal_recomputed"] is False
++    assert result["reason"] == "default_no_signal_replayed"
++
++
++def test_disabled_is_exact_opt_in_and_performs_no_reads(monkeypatch):
++    def forbidden():
++        raise AssertionError("disabled_capture_touched_disk")
++
++    monkeypatch.setattr(capture, "data_dir", forbidden)
++    for setting in (None, "0", "true", "yes", " 1"):
++        if setting is None:
++            monkeypatch.delenv("CBP_CAPTURE_RUNNER_DECISIONS", raising=False)
++        else:
++            monkeypatch.setenv("CBP_CAPTURE_RUNNER_DECISIONS", setting)
++        assert capture.runner_capture_enabled() is False
++        assert capture.capture_runner_decision(None) == {"ok": True, "status": "disabled"}
++
++
++@pytest.mark.parametrize("mutate", [
++    lambda r: r["ohlcv"][-1].__setitem__(4, float("nan")),
++    lambda r: r["ohlcv"][-1].__setitem__(0, True),
++    lambda r: r["ohlcv"].__setitem__(0, "bad-row"),
++    lambda r: r["exit_inputs"].__setitem__("current_price", float("inf")),
++    lambda r: r["transition_inputs"].__setitem__("pos_qty", "1"),
++    lambda r: r["transition_inputs"].__setitem__("warmed", 1),
++    lambda r: r["settings"]["strategy"].__setitem__("ema_fast", {"token": "SECRET"}),
++    lambda r: r.__setitem__("loop", True),
++    lambda r: r.__setitem__("observed_at", "2026-11-06T16:30:00"),
++    lambda r: r.__setitem__("session_id", "../outside"),
++    lambda r: r.__setitem__("account_id", "../../outside"),
++    lambda r: r["signal"].__setitem__("action", {"bad": "type"}),
++    lambda r: r["exit_inputs"].pop("current_price"),
++])
++def test_bad_types_nonfinite_or_incomplete_are_nonfatal_and_never_journaled(archive, mutate):
++    record = make_record()
++    mutate(record)
++    result = capture.capture_runner_decision(record)
++    assert result["ok"] is False and result["status"] == "failed"
++    assert not list(archive.rglob("*.jsonl"))
++    assert set(result) == {"ok", "status", "error_type"}
++
++
++def test_whitelist_recurses_and_never_persists_raw_exception_or_config_extras(archive, monkeypatch):
++    record = make_record()
++    for mapping in (record, record["settings"], record["settings"]["runner"],
++                    record["settings"]["strategy"], record["signal"], record["signal"]["ind"],
++                    record["decision"]["exit"]["conditions"], record["actual"]):
++        mapping["api_secret"] = {"token": "DO_NOT_STORE_SENTINEL"}
++        mapping["exception"] = "DO_NOT_STORE_SENTINEL raw error"
++    record["actual"]["gates"] = {"kill": {"ok": False, "token": "DO_NOT_STORE_SENTINEL"}}
++    _, path, envelope = save(archive, record)
++    for artifact in archive.rglob("*"):
++        if artifact.is_file():
++            assert b"DO_NOT_STORE_SENTINEL" not in artifact.read_bytes()
++    assert envelope["payload"]["actual"]["gates"] == {"kill": {"ok": False}}
++
++    def broken(_payload):
++        raise OSError("DO_NOT_STORE_SENTINEL")
++
++    monkeypatch.setattr(capture, "_runner_store", broken)
++    result = capture.capture_runner_decision(record)
++    assert result == {"ok": False, "status": "failed", "error_type": "OSError"}
++    assert "DO_NOT_STORE_SENTINEL" not in str(result)
++    assert path.exists()
++
++
++@pytest.mark.parametrize("field", ["code_sha256", "settings_sha256", "completed_prefix_sha256"])
++def test_tampered_objects_refuse_replay_and_are_never_replaced(archive, field):
++    record = make_record()
++    _, _, envelope = save(archive, record)
++    path = archive / "signal_inputs" / f"{envelope['payload'][field]}.json"
++    path.write_bytes(b"corrupt")
++    with pytest.raises(ValueError, match="object_hash_mismatch"):
++        capture.replay_runner_decision(envelope)
++    assert capture.capture_runner_decision(record)["ok"] is False
++    assert path.read_bytes() == b"corrupt"
++
++
++def test_tampered_individual_completed_bar_refuses(archive):
++    _, _, envelope = save(archive, make_record())
++    objects = archive / "signal_inputs"
++    prefix = json.loads((objects / f"{envelope['payload']['completed_prefix_sha256']}.json").read_bytes())
++    (objects / f"{prefix['bar_refs'][0]}.json").write_bytes(b"{}")
++    with pytest.raises(ValueError, match="object_hash_mismatch"):
++        capture.replay_runner_decision(envelope)
++
++
++def test_record_and_whole_journal_hashes_checked(archive):
++    _, path, envelope = save(archive, make_record())
++    with pytest.raises(ValueError, match="journal_hash_mismatch"):
++        capture.read_runner_records(path, expected_sha256="f" * 64)
++    envelope["payload"]["signal"]["action"] = "buy"
++    with pytest.raises(ValueError, match="record_hash_mismatch"):
++        capture.replay_runner_decision(envelope)
++    path.write_text(json.dumps(envelope) + "\n")
++    with pytest.raises(ValueError, match="record_hash_mismatch"):
++        capture.read_runner_records(path)
++
++
++@pytest.mark.parametrize("change", ["default", "alias", "constant", "runner"])
++def test_loaded_identity_is_fresh_on_capture_and_replay(archive, monkeypatch, change):
++    from services.strategies import ema_cross, indicators, strategy_registry
++    from services.execution import strategy_runner
++
++    record = make_record()
++    _, _, envelope = save(archive, record)
++    original = envelope["payload"]["code_sha256"]
++    if change == "default":
++        monkeypatch.setattr(ema_cross.signal_from_ohlcv, "__defaults__", (99, 101))
++    elif change == "alias":
++        monkeypatch.setattr(ema_cross, "canonical_compute_signal", lambda state: 0)
++    elif change == "constant":
++        monkeypatch.setattr(strategy_registry, "SUPPORTED", {**strategy_registry.SUPPORTED, "ema_cross": indicators.ema})
++    else:
++        monkeypatch.setattr(strategy_runner, "_synth_ohlcv", lambda prices, **kw: [])
++    with pytest.raises(ValueError, match="runner_code_mismatch"):
++        capture.replay_runner_decision(envelope)
++    _, _, new = save(archive, record)
++    assert new["payload"]["code_sha256"] != original
++
++
++@pytest.mark.parametrize("binding", ["_position_aware_signal_action", "position_aware_signal_action",
++                                   "signal_transition", "select_exit_decision",
++                                   "evaluate_strategy_exit_stack", "compute_signal"])
++def test_active_runner_alias_change_cannot_claim_matching_code(archive, monkeypatch, binding):
++    from services.execution import strategy_runner
++
++    record = make_record()
++    _, _, envelope = save(archive, record)
++    before = capture._runner_code_identity()
++    monkeypatch.setattr(strategy_runner, binding, lambda *_args, **_kwargs: "changed")
++    assert capture._runner_code_identity() != before
++    with pytest.raises(ValueError, match="runner_code_mismatch"):
++        capture.replay_runner_decision(envelope)
++
++
++def test_capture_fingerprints_explicit_active_caller_not_canonical_import(archive):
++    from services.execution import strategy_runner
++
++    record = make_record()
++    bindings = {name: getattr(strategy_runner, name) for name in capture._RUNNER_BINDING_NAMES}
++    bindings["signal_transition"] = lambda **_kwargs: {"changed": False}
++    receipt = capture.capture_runner_decision(record, runner_bindings=bindings)
++    assert receipt["ok"]
++    envelope = capture.read_runner_records(archive / receipt["relativepath"])[0]
++    with pytest.raises(ValueError, match="runner_code_mismatch"):
++        capture.replay_runner_decision(envelope)
++
++
++def test_equal_code_fingerprint_is_independent_of_constant_object_sharing():
++    import ast
++    import __future__
++    from services.execution import strategy_runner
++
++    path = Path(strategy_runner.__file__).resolve()
++    node = next(node for node in ast.parse(path.read_text()).body
++                if isinstance(node, ast.FunctionDef) and node.name == "_strategy_signal")
++    namespace = dict(strategy_runner.__dict__)
++    exec(compile(ast.Module(body=[node], type_ignores=[]), str(path), "exec",
++                 flags=__future__.annotations.compiler_flag), namespace)
++    original = strategy_runner._strategy_signal
++    recompiled = namespace["_strategy_signal"]
++    assert original.__code__ == recompiled.__code__
++    assert capture._fingerprint_value(original) == capture._fingerprint_value(recompiled)
++    assert capture._fingerprint_value((1,)) != capture._fingerprint_value([1])
++
++
++def test_concurrent_append_keeps_all_complete_envelopes(archive):
++    record = make_record()
++    # Warm the lazy imports before competing archive writers.
++    capture._runner_code_identity()
++    with ThreadPoolExecutor(max_workers=6) as pool:
++        receipts = list(pool.map(capture.capture_runner_decision,
++                                [dict(record, loop=i) for i in range(24)]))
++    assert all(item["ok"] for item in receipts)
++    path = archive / receipts[0]["relativepath"]
++    envelopes = capture.read_runner_records(path)
++    assert len(envelopes) == 24
++    assert {item["payload"]["loop"] for item in envelopes} == set(range(24))
++    assert not list(archive.rglob(".capture-*"))
++
++
++def test_partial_tail_is_refused_without_truncate_repair_or_append(archive):
++    record = make_record()
++    _, path, _ = save(archive, record)
++    with path.open("ab") as out:
++        out.write(b'{"sha256":')
++    before = path.read_bytes()
++    assert capture.capture_runner_decision(record)["ok"] is False
++    assert path.read_bytes() == before
++    with pytest.raises(ValueError, match="partial_journal_tail"):
++        capture.read_runner_records(path)
++
++
++def test_short_append_is_nonfatal_and_leaves_tail_for_explicit_failure(archive, monkeypatch):
++    original = capture.os.write
++
++    def partial(fd, raw):
++        return original(fd, raw[:10])
++
++    monkeypatch.setattr(capture.os, "write", partial)
++    record = make_record()
++    assert capture.capture_runner_decision(record)["ok"] is False
++    path = next(archive.rglob("*.jsonl"))
++    before = path.read_bytes()
++    assert before and not before.endswith(b"\n")
++    assert capture.capture_runner_decision(record)["ok"] is False
++    assert path.read_bytes() == before
++
++
++def test_missing_account_uses_stable_nonplaintext_data_root_hash(archive):
++    record = make_record()
++    record.pop("account_id")
++    receipt, _, envelope = save(archive, record)
++    expected = hashlib.sha256(str(archive.resolve()).encode()).hexdigest()
++    assert envelope["payload"]["account_id"] == expected
++    assert expected in receipt["relativepath"]
++    assert str(archive) not in json.dumps(envelope["payload"])
++
++
++def test_observation_errors_are_never_exact_replay(archive):
++    record = make_record()
++    record["observation_error"] = "ValueError"
++    _, _, envelope = save(archive, record)
++    with pytest.raises(ValueError, match="observation_incomplete"):
++        capture.replay_runner_decision(envelope)
++
++
++def test_replay_does_not_call_trading_network_or_runtime_configuration(archive, monkeypatch):
++    import socket
++    from services.execution import strategy_runner
++
++    _, _, envelope = save(archive, make_record())
++    # Profile tripwires do not alter loaded code identity.
++    forbidden = {strategy_runner.run_forever.__code__, strategy_runner.load_user_yaml.__code__,
++                 strategy_runner._fetch_mid.__code__, strategy_runner.make_exchange.__code__}
++
++    def profile(frame, event, arg):
++        if event == "call" and frame.f_code in forbidden:
++            raise AssertionError("replay_entered_runtime_or_trading")
++
++    def network(*args, **kwargs):
++        raise AssertionError("network_not_allowed")
++
++    monkeypatch.setattr(socket, "create_connection", network)
++    monkeypatch.setattr(socket, "socket", network)
++    sys.setprofile(profile)
++    try:
++        assert capture.replay_runner_decision(envelope)["status"] == "decision_match"
++    finally:
++        sys.setprofile(None)
++
++
++def test_cli_fresh_process_folder_journal_and_corruption(archive):
++    _, journal, _ = save(archive, make_record())
++    command = [sys.executable, str(Path(__file__).resolve().parents[1] / "scripts/replay_runner_decisions.py")]
++    for path in (journal, archive / "runner_decisions"):
++        result = subprocess.run([*command, str(path)], capture_output=True, text=True)
++        assert result.returncode == 0, result.stdout + result.stderr
++        summary = json.loads(result.stdout.splitlines()[-1])["summary"]
++        assert summary == {"decision_match": 1, "decision_mismatch": 0, "diagnostic_verified": 0, "errors": 0}
++    with journal.open("ab") as out:
++        out.write(b"partial")
++    result = subprocess.run([*command, str(journal)], capture_output=True, text=True)
++    assert result.returncode == 1
++    assert json.loads(result.stdout.splitlines()[-1])["summary"]["errors"] == 1
++    result = subprocess.run([*command, str(archive / "missing")], capture_output=True, text=True)
++    assert result.returncode == 1
++
++
++def test_cli_distinguishes_diagnostics_and_decision_mismatches(archive):
++    record = make_record()
++    record.update(kind="skipped", signal_computed=False)
++    _, journal, _ = save(archive, record)
++    record = make_record()
++    record["decision"]["exit"]["action"] = "buy"
++    save(archive, record)
++    command = [sys.executable, str(Path(__file__).resolve().parents[1] / "scripts/replay_runner_decisions.py"), str(journal)]
++    result = subprocess.run(command, capture_output=True, text=True)
++    assert result.returncode == 1
++    summary = json.loads(result.stdout.splitlines()[-1])["summary"]
++    assert summary["diagnostic_verified"] == 1 and summary["decision_mismatch"] == 1
++
++
++def test_synthetic_hour_all_records_exact_and_no_per_turn_cas_files(archive):
++    for minute in range(61):
++        record = make_record(forming_delta=minute / 1000)
++        record["loop"] = minute
++        record["observed_at"] = f"2026-11-05T{16 + minute // 60:02d}:{minute % 60:02d}:30+00:00"
++        receipt = capture.capture_runner_decision(record)
++        assert receipt["ok"], receipt
++    journal = archive / receipt["relativepath"]
++    records = capture.read_runner_records(journal)
++    results = [capture.replay_runner_decision(record) for record in records]
++    assert len(results) == 61 and all(result["decision_match"] for result in results)
++    objects = list((archive / "signal_inputs").iterdir())
++    assert len(objects) == 69  # 65 bars, two prefixes, one settings, one code.
++    assert len({record["payload"]["code_sha256"] for record in records}) == 1
++    assert len({record["payload"]["settings_sha256"] for record in records}) == 1
++
++
++def test_synthetic_ticks_are_never_certified_as_completed_market_candles(archive):
++    record = make_record()
++    record["timeframe"] = "synthetic_ticks_1s"
++    _, _, envelope = save(archive, record)
++    assert all(slot["complete"] is False for slot in envelope["payload"]["ohlcv"])
++    assert capture.replay_runner_decision(envelope)["status"] == "decision_match"
++
++
++def test_gate_public_fields_preserved_exactly(archive):
++    record = make_record()
++    gates = {"scaling": {"ok": True, "reason": "scale:pass", "is_scale": True, "size_multiplier": .5},
++             "cooldown_protective_exit": True, "open_intent_lookup": "unknown_existing_fail_open",
++             "kill": {"ok": False, "reason": "kill:cooldown_active", "remaining_loops": 5}}
++    record["actual"]["gates"] = gates
++    _, _, envelope = save(archive, record)
++    assert envelope["payload"]["actual"]["gates"] == gates
++
++
++def test_multiprocess_append_is_complete_and_immutable(archive):
++    record = make_record()
++    program = (
++        "import json,sys; from pathlib import Path; "
++        "from services.strategies import signal_input_capture as c; "
++        "c.data_dir=lambda:Path(sys.argv[1]); c._runner_commit_identity=lambda:'a'*40; "
++        "print(json.dumps(c.capture_runner_decision(json.load(sys.stdin))))"
++    )
++    processes = [subprocess.Popen([sys.executable, "-c", program, str(archive)],
++                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
++                                 stderr=subprocess.PIPE, text=True) for _ in range(4)]
++    receipts = []
++    for index, process in enumerate(processes):
++        out, err = process.communicate(json.dumps(dict(record, loop=index)), timeout=10)
++        assert process.returncode == 0, err
++        receipts.append(json.loads(out))
++    assert all(receipt["ok"] for receipt in receipts)
++    records = capture.read_runner_records(archive / receipts[0]["relativepath"])
++    assert len(records) == 4
++    assert all(capture.replay_runner_decision(record)["decision_match"] for record in records)
++
++
++def test_missing_object_observation_error_and_empty_folder_cli_fail(archive):
++    record = make_record()
++    record["observation_error"] = "TypeError"
++    _, journal, _ = save(archive, record)
++    command = [sys.executable, str(Path(__file__).resolve().parents[1] / "scripts/replay_runner_decisions.py")]
++    result = subprocess.run([*command, str(journal)], capture_output=True, text=True)
++    assert result.returncode == 1
++    record.pop("observation_error")
++    _, journal, envelope = save(archive, record)
++    (archive / "signal_inputs" / f"{envelope['payload']['settings_sha256']}.json").unlink()
++    result = subprocess.run([*command, str(journal)], capture_output=True, text=True)
++    assert result.returncode == 1
++    empty = archive / "empty"
++    empty.mkdir()
++    result = subprocess.run([*command, str(empty)], capture_output=True, text=True)
++    assert result.returncode == 1
++
++
++def test_intended_action_and_settings_disagreement_cannot_claim_matching_replay(archive):
++    record = make_record()
++    record["actual"]["intended_action"] = "buy"
++    _, _, envelope = save(archive, record)
++    result = capture.replay_runner_decision(envelope)
++    assert result["status"] == "decision_mismatch"
++    assert result["matches"]["intended_action"] is False
++    record = make_record()
++    record["settings"]["runner"] = dict(record["settings"]["runner"], qty=5)
++    _, _, envelope = save(archive, record)
++    result = capture.replay_runner_decision(envelope)
++    assert result["status"] == "decision_mismatch"
++    assert result["matches"]["exit_inputs"] is False
++
++
++def test_cli_is_read_only_with_no_network_config_or_subprocess_access(archive):
++    _, journal, _ = save(archive, make_record())
++    program = r'''
++import os, sys
++sys.dont_write_bytecode = True
++def audit(event, args):
++    if event in {"socket.connect", "subprocess.Popen"}:
++        raise AssertionError("offline_boundary_crossed")
++    if event == "open":
++        path, mode, flags = args
++        if isinstance(path, (str, bytes)):
++            path = os.fsdecode(path)
++            if os.path.basename(path).startswith(".env") or "/runtime/config/" in path:
++                raise AssertionError("configuration_read_forbidden")
++        if flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND):
++            raise AssertionError("offline_write_forbidden")
++sys.addaudithook(audit)
++from scripts.replay_runner_decisions import main
++raise SystemExit(main([sys.argv[1]]))
++'''
++    result = subprocess.run([sys.executable, "-c", program, str(journal)], capture_output=True, text=True)
++    assert result.returncode == 0, result.stdout + result.stderr
++    assert json.loads(result.stdout.splitlines()[-1])["summary"]["decision_match"] == 1
++
++
++def test_explicit_v2_shared_cas_deduplicates_across_distinct_account_roots(archive, monkeypatch):
++    shared = archive / "shared_objects"
++    monkeypatch.setenv("CBP_RUNNER_DECISION_OBJECT_DIR", str(shared))
++    account_one, account_two = archive / "account_one", archive / "account_two"
++    record = make_record()
++    record.pop("account_id")
++    monkeypatch.setattr(capture, "data_dir", lambda: account_one)
++    receipt_one, journal_one, first = save(account_one, record)
++    objects = {path.name for path in shared.iterdir()}
++    monkeypatch.setattr(capture, "data_dir", lambda: account_two)
++    receipt_two, journal_two, second = save(account_two, record)
++    assert {path.name for path in shared.iterdir()} == objects
++    assert first["payload"]["account_id"] != second["payload"]["account_id"]
++    for key in ("code_sha256", "settings_sha256", "completed_prefix_sha256"):
++        assert first["payload"][key] == second["payload"][key]
++    assert not (account_one / "signal_inputs").exists()
++    assert not (account_two / "signal_inputs").exists()
++    for receipt, envelope in ((receipt_one, first), (receipt_two, second)):
++        assert receipt["shared_objects"] is True and receipt["object_directory"] is None
++        assert str(shared) not in json.dumps(receipt)
++        assert str(shared) not in json.dumps(envelope)
++        with pytest.raises(ValueError, match="missing_object_directory"):
++            capture.replay_runner_decision(envelope)
++        assert capture.replay_runner_decision(envelope, object_directory=shared)["decision_match"] is True
++    command = [sys.executable, str(Path(__file__).resolve().parents[1] / "scripts/replay_runner_decisions.py")]
++    for journal in (journal_one, journal_two):
++        result = subprocess.run([*command, str(journal), "--object-directory", str(shared)],
++                                capture_output=True, text=True)
++        assert result.returncode == 0, result.stdout + result.stderr
++    # ES v1 retains its own local store even when v2 sharing is explicitly enabled.
++    monkeypatch.setenv("CBP_CAPTURE_ES_SIGNAL_INPUTS", "1")
++    es_receipt = capture.capture_es_inputs(strategy={"name": "sma_200_trend"},
++                                            symbol="BTC/USDT", venue="coinbase", ohlcv=record["ohlcv"])
++    assert es_receipt["signal_input_capture_status"] == "captured"
++    assert (account_two / "signal_inputs" / f"{es_receipt['signal_input_sha256']}.json").exists()
++    assert {path.name for path in shared.iterdir()} == objects
++
++
++def test_shared_cas_relative_path_refused_without_disclosing_path(archive, monkeypatch):
++    monkeypatch.setenv("CBP_RUNNER_DECISION_OBJECT_DIR", "DO_NOT_LEAK/relative")
++    receipt = capture.capture_runner_decision(make_record())
++    assert receipt == {"ok": False, "status": "failed", "error_type": "ValueError"}
++    assert not list(archive.rglob("*.jsonl"))
+--- /dev/null
++++ tests/test_runner_recording_integration.py
+@@ -0,0 +1,605 @@
++"""R6/R9 offline integration of the real runner, signals, archive and SQLite.
++
++Only synthetic public inputs, configuration and the minimal fill driver are
++substituted. This is self-checked diagnostic proof, not independent acceptance,
++service/runtime proof, market research, execution replay or evidence of profit.
++The saved .before runner and strategy implementations execute in-process: no
++subprocess is needed, and production source files are never rewritten.
++"""
++from __future__ import annotations
++
++import ast
++import builtins
++from contextlib import contextmanager
++import copy
++from datetime import datetime, timedelta, timezone
++from importlib.machinery import SourceFileLoader
++import importlib.util
++import io
++import json
++import os
++from pathlib import Path
++import sqlite3
++import sys
++import time
++from types import SimpleNamespace
++import uuid
++
++import pytest
++
++from tests.test_runner_multi_symbol_integration import (
++    PRICES, ROOT, SYMBOLS, VENUE, harness as _base_harness,
++)
++
++
++ARTIFACTS = ROOT / "docs/review_artifacts/paper_simulation_r6r9_20261103"
++SOURCE = ROOT / "services/execution/strategy_runner.py"
++BEFORE = ARTIFACTS / "services__execution__strategy_runner.py.before"
++TRIO = ("breakout_donchian", "ema_cross", "mean_reversion_rsi")
++SOURCES = ("public_ohlcv_1h", "synthetic_mid_ohlcv")
++START = datetime(2026, 11, 3, 1, tzinfo=timezone.utc)
++HOUR_MS = 3_600_000
++
++
++def _restore_signals(h):
++    # The shared harness replaces signals. Restore the exact source functions,
++    # not an imitation, while retaining its bounded loop and I/O isolation.
++    tree = ast.parse(h.source.read_text())
++    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
++                 and node.name in {"_strategy_signal", "_registry_signal_with_context"}]
++    assert len(functions) == 2
++    exec(compile(ast.Module(body=functions, type_ignores=[]), str(h.source), "exec"),
++         h.runner.__dict__)
++    for name in ("_strategy_signal", "_registry_signal_with_context"):
++        assert Path(getattr(h.runner, name).__code__.co_filename) == h.source
++
++
++def _saved_module(mp, filename):
++    path = ARTIFACTS / filename
++    assert path.is_file(), f"required before artifact missing: {path}"
++    name = f"services.strategies._recording_before_{uuid.uuid4().hex}"
++    spec = importlib.util.spec_from_file_location(
++        name, path, loader=SourceFileLoader(name, str(path)))
++    module = importlib.util.module_from_spec(spec)
++    mp.setitem(sys.modules, name, module)
++    spec.loader.exec_module(module)
++    return module
++
++
++def _restore_before_strategy_stack(h):
++    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
++    for strategy, alias in (("ema_cross", "ema_cross"),
++                            ("breakout_donchian", "breakout_donchian"),
++                            ("mean_reversion_rsi", "mean_rev_rsi")):
++        old = _saved_module(h.mp, f"services__strategies__{strategy}.py.before")
++        setattr(registry, alias, old.signal_from_ohlcv)
++        registry.SUPPORTED[strategy] = old.signal_from_ohlcv
++    h.mp.setattr(h.runner, "compute_signal", registry.compute_signal)
++    exits = _saved_module(h.mp, "services__risk__exit_controls.py.before")
++    h.mp.setattr(h.runner, "evaluate_strategy_exit_stack", exits.evaluate_strategy_exit_stack)
++
++
++class _Inputs:
++    def __init__(self, h):
++        self.h = h
++        self.seen = []
++        self.fixed_price = None
++        self.empty = False
++        self.row_count = 64
++        self.stable_history = False
++        self.observed_signals = []
++        h.mp.setattr(h.runner, "_now", lambda: self.now().isoformat())
++        h.mp.setattr(h.runner, "_fetch_public_ohlcv", self.public)
++        h.mp.setattr(h.runner, "_fetch_mid", self.tick)
++        # Observe returns without replacing the decision bindings under test.
++        codes = {getattr(h.runner, name).__code__ for name in
++                 ("_strategy_signal", "_registry_signal_with_context")}
++        self.previous_profile = sys.getprofile()
++
++        def returned(frame, event, result):
++            if event == "return" and frame.f_code in codes and isinstance(result, dict):
++                self.observed_signals.append((h.stop.turn, copy.deepcopy(result)))
++            if self.previous_profile is not None:
++                self.previous_profile(frame, event, result)
++
++        sys.setprofile(returned)
++
++    def now(self):
++        return START + timedelta(seconds=60 * (max(1, self.h.stop.turn) - 1))
++
++    def price(self, symbol):
++        if self.fixed_price is not None:
++            return self.fixed_price * PRICES[symbol] / PRICES[SYMBOLS[0]]
++        moves = ((1.01, 0.99, 1.012, 0.988, 1.0)
++                 if self.h.cfg["signal_source"] == SOURCES[0]
++                 else (1.10, 0.90, 1.12, 0.88, 1.0))
++        return PRICES[symbol] * moves[(self.h.stop.turn - 1) % len(moves)]
++
++    def public(self, cfg, **_kwargs):
++        symbol = cfg["symbol"]
++        self.h.active_symbol = symbol
++        now_ms = int(self.now().timestamp() * 1000)
++        forming_open = now_ms // HOUR_MS * HOUR_MS
++        rows = [] if self.empty else [
++            [forming_open - (self.row_count - 1 - i) * HOUR_MS,
++             PRICES[symbol], PRICES[symbol] * 1.003, PRICES[symbol] * 0.997, PRICES[symbol], 1.0]
++            for i in range(self.row_count)
++        ]
++        if rows:
++            price = self.price(symbol)
++            if (not self.stable_history and self.h.cfg["strategy_id"] == "mean_reversion_rsi"
++                    and len(rows) >= 24):
++                # An oversold path with an actual final uptick, or its inverse,
++                # exercises the public preset's unchanged reversal filter.
++                direction = -1 if price < PRICES[symbol] else 1
++                beginning = PRICES[symbol] * (1.0 - direction * 0.02)
++                end = price + direction * PRICES[symbol] * 0.001
++                for index in range(20):
++                    close = beginning + (end - beginning) * index / 19
++                    rows[-21 + index][1:5] = [close, close * 1.003, close * 0.997, close]
++            rows[-1] = [forming_open, PRICES[symbol], max(price, PRICES[symbol]),
++                        min(price, PRICES[symbol]), price, 1.0 + self.h.stop.turn]
++        self.seen.append((self.h.stop.turn, symbol, copy.deepcopy(rows)))
++        return rows, {"source": "public_ohlcv", "env_sample_mode": False,
++                      "sample_fallback": False, "row_count": len(rows)}
++
++    def tick(self, cfg):
++        symbol = cfg["symbol"]
++        self.h.active_symbol = symbol
++        result = None if self.empty else (self.price(symbol), int(self.now().timestamp() * 1000))
++        self.seen.append((self.h.stop.turn, symbol, result))
++        return result
++
++
++@pytest.fixture
++def recording_case(tmp_path):
++    counter = 0
++    proof_output = os.environ.get("CBP_R6_PROOF_OUTPUT")
++
++    @contextmanager
++    def case(strategy="breakout_donchian", signal_source=SOURCES[0], *, enabled=True,
++             before=False, seed_ticks=True):
++        nonlocal counter
++        counter += 1
++        root = tmp_path / str(counter)
++        root.mkdir()
++        with pytest.MonkeyPatch.context() as mp:
++            source = BEFORE if before else SOURCE
++            # SourceFileLoader is necessary for the literal .py.before artifact.
++            real_spec = importlib.util.spec_from_file_location
++
++            def spec(name, location, **kwargs):
++                if str(location).endswith(".before"):
++                    kwargs["loader"] = SourceFileLoader(name, str(location))
++                return real_spec(name, location, **kwargs)
++
++            mp.setattr(importlib.util, "spec_from_file_location", spec)
++            mp.setenv("CBP_MULTISYMBOL_BEFORE_SOURCE", str(source))
++            h = _base_harness.__wrapped__(mp, root)
++            _restore_signals(h)
++            if before:
++                _restore_before_strategy_stack(h)
++            else:
++                # The base harness wraps this pure evaluator for older tests;
++                # this proof must bind and exercise the actual implementation.
++                from services.risk.exit_controls import evaluate_strategy_exit_stack
++                mp.setattr(h.runner, "evaluate_strategy_exit_stack", evaluate_strategy_exit_stack)
++            h.cfg.update(strategy_id=strategy, strategy={"name": strategy, "trade_enabled": True},
++                         strategy_preset="default", signal_source=signal_source,
++                         min_bars=64, max_bars=80, take_profit_pct=0.06, max_bars_hold=60)
++            h.stop = SimpleNamespace(turn=0)
++            mp.setenv("CBP_CAPTURE_RUNNER_DECISIONS", "1" if enabled else "0")
++            import services.strategies.signal_input_capture as capture
++            import services.strategies.evidence_logger as evidence_logger
++
++            # Commit/version lookup is not the behavior under test. No git child
++            # or private configuration read is allowed even on the capture path.
++            mp.setattr(capture, "_runner_commit_identity", lambda: None)
++            mp.setattr(evidence_logger, "_version_stamp", lambda *_a, **_k: {})
++            for owner in (builtins, io):
++                real_open = owner.open
++
++                def guarded_open(path, *args, _open=real_open, **kwargs):
++                    if isinstance(path, (str, bytes, Path)):
++                        p = Path(path)
++                        assert not (p.name.startswith(".env") or p.name in {
++                            ".browser-access-token", ".browser-compose-override.json"}
++                            or (p.name == "user.yaml" and p.parent.name == "config")), p
++                    return _open(path, *args, **kwargs)
++
++                mp.setattr(owner, "open", guarded_open)
++            inputs = _Inputs(h)
++            inputs.proof_output = proof_output
++            if seed_ticks and signal_source == "synthetic_mid_ohlcv":
++                for symbol in SYMBOLS:
++                    h.state.set(_key(h, "prices", symbol), json.dumps([PRICES[symbol]] * 64))
++            assert h.source == source
++            assert Path(h.runner.run_forever.__code__.co_filename) == source
++            try:
++                yield h, inputs, capture
++            finally:
++                sys.setprofile(inputs.previous_profile)
++
++    case.proof_output = proof_output
++    return case
++
++
++def _key(h, kind, symbol):
++    return f"{kind}:{VENUE}:{symbol}:{h.cfg['strategy_id']}"
++
++
++def _snapshot(h, inputs):
++    import storage.strategy_state_sqlite as state
++
++    with sqlite3.connect(state.DB_PATH) as db:
++        values = db.execute("SELECT k, v FROM strategy_state ORDER BY k").fetchall()
++    intents = sorted((r["symbol"], r["side"], r["qty"], r["order_type"], r["status"],
++                      r["meta"]["reference_price"], r["meta"].get("reason"),
++                      r["meta"].get("exit_stack_rule")) for r in h.intents())
++    positions = sorted((p["symbol"], p["qty"], p["avg_price"]) for p in h.paper.list_positions())
++    return {"signals": inputs.observed_signals, "state": values, "intents": intents,
++            "positions": positions, "cash": h.paper.get_state("cash_quote")}
++
++
++def _records(h, capture, count):
++    paths = list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
++    assert len(paths) == 1, (paths, h.statuses[-1])
++    records = capture.read_runner_records(paths[0])
++    assert len(records) == count, h.statuses[-1]
++    expected_code = capture._runner_code_identity()
++    for envelope in records:
++        recorded_code = json.loads((Path(envelope["object_directory"]) / f"{envelope['payload']['code_sha256']}.json").read_bytes())
++        assert recorded_code == expected_code, [
++            (module, key) for module, bindings in expected_code["modules"].items()
++            for key in bindings if recorded_code["modules"][module].get(key) != bindings[key]]
++    assert [r["payload"]["loop"] for r in records] == list(range(1, count + 1))
++    assert h.statuses[-1]["runner_decision_capture"] == {
++        "enabled": True, "written": count, "failed": 0}
++    return records
++
++
++def _rows(envelope):
++    payload = envelope["payload"]
++    directory = Path(envelope["object_directory"])
++    prefix = json.loads((directory / f"{payload['completed_prefix_sha256']}.json").read_bytes())
++    bars = [json.loads((directory / f"{ref}.json").read_bytes())["row"]
++            for ref in prefix["bar_refs"]]
++    return [bars[slot["index"]] if slot["complete"] else slot["row"]
++            for slot in payload["ohlcv"]]
++
++
++def _export_summary(inputs, capture, records, *, recording_seconds, off_seconds=None):
++    if not inputs.proof_output:
++        return
++    output = Path(inputs.proof_output).resolve()
++    assert output.is_relative_to(ARTIFACTS.resolve()), "proof output must stay in approved artifact directory"
++    output.mkdir(parents=True, exist_ok=True)
++    journals = list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
++    cas = list((capture.data_dir() / "signal_inputs").glob("*.json"))
++    by_kind = {}
++    by_object = {}
++    for record in records:
++        kind = record["payload"]["kind"]
++        by_kind[kind] = by_kind.get(kind, 0) + 1
++    for path in cas:
++        kind = json.loads(path.read_bytes())["type"]
++        item = by_object.setdefault(kind, {"objects": 0, "bytes": 0})
++        item["objects"] += 1
++        item["bytes"] += path.stat().st_size
++    replays = [capture.replay_runner_decision(record) for record in records]
++    summary = {
++        "scope": "synthetic_clockhour_diagnostic_only_not_runtime_benchmark",
++        "strategy": inputs.h.cfg["strategy_id"], "signal_source": inputs.h.cfg["signal_source"],
++        "record_count": len(records), "by_kind": by_kind,
++        "replay_matches": sum(r["decision_match"] is True for r in replays),
++        "diagnostic_verified": sum(r["status"] == "diagnostic_verified" for r in replays),
++        "stream_bytes": sum(p.stat().st_size for p in journals),
++        "cas_bytes": sum(p.stat().st_size for p in cas), "cas_by_type": by_object,
++        "synthetic_seconds": 3600, "poll_step_seconds": 60, "symbols": list(SYMBOLS),
++        "recording_on_process_elapsed_seconds": recording_seconds,
++        "recording_off_process_elapsed_seconds": off_seconds,
++        "limits": ["Three symbols round robin, not nine single-symbol services",
++                   "Includes cold-start code/settings/history; linear 26-week extrapolation is not a storage forecast",
++                   "Tick bars are model timestamps, not observed market candles",
++                   "Held duration is distinct-bar count, not elapsed hours",
++                   "No runtime configuration, real fills, infrastructure cost or operational performance inspected"],
++    }
++    (output / f"synthetic_hour_{summary['strategy']}_{summary['signal_source']}.json").write_text(
++        json.dumps(summary, sort_keys=True, indent=2) + "\n")
++
++
++@pytest.mark.parametrize("strategy", TRIO)
++@pytest.mark.parametrize("signal_source", SOURCES)
++def test_recording_toggle_and_saved_before_have_identical_real_behavior(
++        recording_case, strategy, signal_source):
++    snapshots = []
++    for enabled, before in ((False, True), (False, False), (True, False)):
++        with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
++            h.run(18)
++            snapshots.append(_snapshot(h, inputs))
++            assert len(inputs.observed_signals) == 18
++            assert {signal["action"] for _, signal in inputs.observed_signals} >= {"buy", "sell"}
++            assert h.intents("buy") and h.intents("sell"), "parity must exercise actions, not only idle state"
++            if enabled:
++                records = _records(h, capture, 18)
++                assert [r["payload"]["signal"] for r in records] == [s for _, s in inputs.observed_signals]
++                assert all(capture.replay_runner_decision(r)["decision_match"] for r in records)
++            else:
++                assert not list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
++    assert snapshots[0] == snapshots[1] == snapshots[2]
++
++
++@pytest.mark.parametrize("strategy", TRIO)
++@pytest.mark.parametrize("signal_source", SOURCES)
++def test_full_synthetic_clockhour_replays_every_turn_without_future_inputs(
++        recording_case, strategy, signal_source):
++    off_seconds = None
++    off_snapshot = None
++    if recording_case.proof_output:
++        with recording_case(strategy, signal_source, enabled=False) as (h, inputs, _capture):
++            inputs.stable_history = True
++            started = time.perf_counter()
++            h.run(61)
++            off_seconds = time.perf_counter() - started
++            off_snapshot = _snapshot(h, inputs)
++    with recording_case(strategy, signal_source) as (h, inputs, capture):
++        inputs.stable_history = True
++        started = time.perf_counter()
++        h.run(61)
++        recording_seconds = time.perf_counter() - started
++        records = _records(h, capture, 61)
++        observed = [datetime.fromisoformat(r["payload"]["observed_at"]) for r in records]
++        assert observed[0] == START and observed[-1] - observed[0] == timedelta(hours=1)
++        assert {r["payload"]["symbol"] for r in records} == set(SYMBOLS)
++        assert len({r["payload"]["session_id"] for r in records}) == 1
++        actual_signals = dict(inputs.observed_signals)
++        for envelope, (turn, symbol, supplied) in zip(records, inputs.seen, strict=True):
++            payload = envelope["payload"]
++            assert payload["kind"] == "decision" and payload["signal_computed"] is True
++            assert payload["symbol"] == symbol and payload["loop"] == turn
++            assert payload["signal"] == actual_signals[turn]
++            rows = _rows(envelope)
++            observed_ms = int(datetime.fromisoformat(payload["observed_at"]).timestamp() * 1000)
++            assert all(row[0] <= observed_ms for row in rows)
++            if signal_source == "public_ohlcv_1h":
++                assert payload["timeframe"] == "1h"
++                assert rows == supplied[-h.cfg["min_bars"]:]
++                assert all(slot["complete"] == (row[0] + HOUR_MS <= observed_ms)
++                           for slot, row in zip(payload["ohlcv"], rows, strict=True))
++                assert payload["ohlcv"][-1]["complete"] is False
++            else:
++                assert payload["timeframe"] == "synthetic_ticks_1s"
++                assert rows[-1][0] == supplied[1] and rows[-1][4] == supplied[0]
++                assert all(slot["complete"] is False for slot in payload["ohlcv"])
++            replay = capture.replay_runner_decision(envelope)
++            assert replay["status"] == "decision_match", replay
++            assert replay["recomputed"] is True and replay["signal_recomputed"] is True
++        if signal_source == "public_ohlcv_1h":
++            first, second = records[0], records[3]  # same symbol, changing forming bar
++            assert first["payload"]["completed_prefix_sha256"] == second["payload"]["completed_prefix_sha256"]
++            assert _rows(first)[-1] != _rows(second)[-1]
++            assert _rows(first)[-1][4] == inputs.seen[0][2][-1][4]
++        if off_snapshot is not None:
++            assert _snapshot(h, inputs) == off_snapshot
++        _export_summary(inputs, capture, records, recording_seconds=recording_seconds,
++                        off_seconds=off_seconds)
++
++
++@pytest.mark.parametrize("filtered", [False, True])
++def test_simultaneous_stop_trailing_raw_sell_keeps_old_priority(recording_case, filtered):
++    snapshots = []
++    for enabled, before in ((False, True), (False, False), (True, False)):
++        with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
++            inputs.fixed_price = 90.0
++            if filtered:
++                h.cfg["strategy"]["min_volume_ratio"] = 1000.0
++            h.seed_holdings()
++            for symbol in SYMBOLS:
++                h.state.set(_key(h, "trailing_peak", symbol), str(PRICES[symbol] * 1.2))
++            h.run(3)
++            snapshots.append(_snapshot(h, inputs))
++            assert len(h.intents("sell")) == 3
++            if enabled:
++                for record in _records(h, capture, 3):
++                    payload = record["payload"]
++                    assert payload["raw_signal"]["raw_action"] == "sell"
++                    assert payload["signal"]["action"] == ("hold" if filtered else "sell")
++                    if filtered:
++                        assert payload["signal"]["reason"] == "low_volume_filter"
++                    chosen = payload["decision"]["exit"]
++                    assert chosen["conditions"]["stop"] is True
++                    assert chosen["conditions"]["trailing"] is True
++                    assert chosen["conditions"]["pre_filter_sell"] is True
++                    assert chosen["conditions"]["strategy_sell"] is not filtered
++                    assert chosen["exit_out"]["stack_rule"] == "stop_loss"
++                    assert chosen["action"] == payload["actual"]["intended_action"] == "sell"
++                    assert payload["actual"]["outcome"] == "written"
++                    assert capture.replay_runner_decision(record)["decision_match"] is True
++    assert snapshots[0] == snapshots[1] == snapshots[2]
++
++
++@pytest.mark.parametrize("case", ["warming", "no_price", "pending", "cooldown", "fetch_error"])
++@pytest.mark.parametrize("signal_source", SOURCES)
++def test_skip_error_and_warming_receipts_truthfully_distinguish_signal_computation(
++        recording_case, case, signal_source):
++    with recording_case(signal_source=signal_source, seed_ticks=False) as (h, inputs, capture):
++        if case == "warming":
++            inputs.row_count = 2
++        elif case == "no_price":
++            inputs.empty = True
++        elif case == "pending":
++            h.consume = lambda: None
++            h.seed_holdings()
++            for symbol in SYMBOLS:
++                identity = "pending-" + symbol.replace("/", "-")
++                h.queue.upsert_intent({"intent_id": identity, "venue": VENUE,
++                    "symbol": symbol, "side": "sell", "order_type": "market", "qty": 0.5,
++                    "strategy_id": h.cfg["strategy_id"], "source": "strategy", "status": "queued",
++                    "ts": datetime.now(timezone.utc).isoformat(),
++                    "meta": {"paper_exit_policy": "retry_until_filled_v1", "paper_exit_id": identity,
++                             "reference_price": PRICES[symbol]}})
++        elif case == "cooldown":
++            inputs.fixed_price = 110.0
++            if signal_source == "synthetic_mid_ohlcv":
++                for symbol in SYMBOLS:
++                    h.state.set(_key(h, "prices", symbol), json.dumps([PRICES[symbol]] * 64))
++            for symbol in SYMBOLS:
++                h.state.set(_key(h, "kill_remaining", symbol), "10")
++        else:
++            def fail(*_a, **_kw):
++                raise RuntimeError("synthetic input failure")
++            h.mp.setattr(h.runner, "_fetch_mid" if signal_source == "synthetic_mid_ohlcv"
++                         else "_fetch_public_ohlcv", fail)
++        h.run(3)
++        records = _records(h, capture, 3)
++        for envelope in records:
++            payload = envelope["payload"]
++            replay = capture.replay_runner_decision(envelope)
++            if case == "warming":
++                # The accepted multi-symbol runner still manages held exits on
++                # a fresh warmup quote, using its explicit default no_signal.
++                assert payload["kind"] == "decision" and payload["signal_computed"] is False
++                assert payload["signal"]["reason"] == "no_signal"
++                assert replay["decision_match"] is True
++                assert replay["recomputed"] is True and replay["signal_recomputed"] is False
++            elif case == "cooldown":
++                assert payload["kind"] == "decision"
++                assert payload["actual"]["outcome"] == "kill_cooldown"
++                assert payload["actual"]["gates"]["kill"]["ok"] is False
++                assert replay["decision_match"] is True
++            else:
++                assert payload["kind"] == ("error" if case == "fetch_error" else "skipped")
++                assert payload["signal_computed"] is False
++                assert replay["status"] == "diagnostic_verified"
++                assert replay["recomputed"] is False and replay["decision_match"] is None
++                if case == "pending":
++                    assert payload["pipeline_stage"] == "pending_exit"
++                elif case == "no_price":
++                    assert payload["reason"] == ("no_public_ohlcv" if signal_source == SOURCES[0]
++                                                   else h.runner._no_fresh_tick_note())
++        assert not h.intents("buy")
++
++
++@pytest.mark.parametrize("after_commit", [False, True])
++def test_queue_write_failure_receipt_preserves_uncertainty_and_other_symbols(
++        recording_case, after_commit):
++    with recording_case() as (h, inputs, capture):
++        inputs.fixed_price = 110.0
++        h.consume = lambda: None
++        real_upsert = h.runner.IntentQueueSQLite.upsert_intent
++
++        def failing(db, row):
++            if row["symbol"] == SYMBOLS[0]:
++                if after_commit:
++                    real_upsert(db, row)
++                raise OSError("synthetic acknowledgement loss")
++            return real_upsert(db, row)
++
++        h.mp.setattr(h.runner.IntentQueueSQLite, "upsert_intent", failing)
++        h.run(3)
++        records = _records(h, capture, 3)
++        failed = records[0]["payload"]
++        assert failed["kind"] == "error" and failed["signal_computed"] is True
++        assert failed["actual"]["outcome"] == "write_failed_or_unknown"
++        assert failed["actual"]["intended_action"] == "buy"
++        assert (failed["actual"]["intent_id"] in {r["intent_id"] for r in h.intents()}) is after_commit
++        assert all(r["payload"]["actual"]["outcome"] == "written" for r in records[1:])
++        assert capture.replay_runner_decision(records[0])["recomputed"] is False
++        assert {r["symbol"] for r in h.intents()} >= set(SYMBOLS[1:])
++
++
++@pytest.mark.parametrize("state_kind", ["last_action", "warmed", "trailing_peak"])
++@pytest.mark.parametrize("after_commit", [False, True])
++def test_failed_state_write_has_receipt_without_changing_old_failure_behavior(
++        recording_case, state_kind, after_commit):
++    snapshots = []
++    for enabled, before in ((False, True), (False, False), (True, False)):
++        with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
++            inputs.fixed_price = 90.0
++            if state_kind == "trailing_peak":
++                h.seed_holdings()
++            real_set = h.runner.StrategyStateSQLite.set
++            failed_once = []
++
++            def failing(db, key, value):
++                if key == _key(h, state_kind, SYMBOLS[0]) and not failed_once:
++                    failed_once.append(key)
++                    if after_commit:
++                        real_set(db, key, value)
++                    raise OSError("synthetic state acknowledgement loss")
++                return real_set(db, key, value)
++
++            h.mp.setattr(h.runner.StrategyStateSQLite, "set", failing)
++            h.run(3)
++            assert failed_once
++            snapshots.append(_snapshot(h, inputs))
++            if enabled:
++                records = _records(h, capture, 3)
++                payload = records[0]["payload"]
++                assert payload["kind"] == "error" and payload["signal_computed"] is True
++                assert payload["signal"] == dict(inputs.observed_signals)[1]
++                assert payload["actual"]["outcome"] != "written"
++                assert capture.replay_runner_decision(records[0])["recomputed"] is False
++                assert all(r["payload"]["kind"] == "decision" for r in records[1:])
++    assert snapshots[0] == snapshots[1] == snapshots[2]
++
++
++@pytest.mark.parametrize("failure", ["receipt", "exception"])
++def test_capture_failure_is_diagnostic_not_trading_authority(recording_case, failure):
++    snapshots = []
++    for enabled in (False, True):
++        with recording_case(enabled=enabled) as (h, inputs, capture):
++            calls = []
++
++            def fail(record, **_kwargs):
++                calls.append(copy.deepcopy(record))
++                if failure == "exception":
++                    raise OSError("synthetic archive write failure")
++                return {"ok": False, "status": "failed", "error_type": "OSError"}
++
++            h.mp.setattr(capture, "capture_runner_decision", fail)
++            h.run(9)
++            snapshots.append(_snapshot(h, inputs))
++            assert len(calls) == (9 if enabled else 0)
++            assert h.statuses[-1]["runner_decision_capture"] == {
++                "enabled": enabled, "written": 0, "failed": 9 if enabled else 0}
++            assert not list((capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
++    assert snapshots[0] == snapshots[1]
++
++
++def test_zero_tick_timestamp_captures_exact_actual_synthetic_rows(recording_case):
++    with recording_case(signal_source="synthetic_mid_ohlcv") as (h, inputs, capture):
++        supplied_rows = []
++        real_compute = h.runner.compute_signal
++        clock_reads = []
++
++        def moving_clock():
++            stamp = inputs.now().timestamp() - 10 + len(clock_reads) * 0.001
++            clock_reads.append(stamp)
++            return stamp
++
++        previous_profile = sys.getprofile()
++
++        def observe_inputs(frame, event, result):
++            if event == "call" and frame.f_code is real_compute.__code__:
++                supplied_rows.append(copy.deepcopy(frame.f_locals["ohlcv"]))
++            if previous_profile is not None:
++                previous_profile(frame, event, result)
++
++        def tick(cfg):
++            h.active_symbol = cfg["symbol"]
++            return inputs.price(cfg["symbol"]), 0
++
++        h.mp.setattr(h.runner.time, "time", moving_clock)
++        sys.setprofile(observe_inputs)
++        h.mp.setattr(h.runner, "_fetch_mid", tick)
++        try:
++            h.run(6)
++        finally:
++            sys.setprofile(previous_profile)
++        assert len(supplied_rows) == 6 and len(clock_reads) >= 6
++        records = _records(h, capture, 6)
++        for envelope, rows in zip(records, supplied_rows, strict=True):
++            assert _rows(envelope) == rows
++            assert envelope["payload"]["timeframe"] == "synthetic_ticks_1s"
++            assert capture.replay_runner_decision(envelope)["decision_match"] is True

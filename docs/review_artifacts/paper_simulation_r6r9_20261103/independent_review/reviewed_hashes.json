@@ -1,0 +1,13 @@
+{
+  "services/execution/runner_decision.py": "1b400cd9feba3f8ccb3f635f25ba76b440c08ad2d394b91eabe990559d90faee",
+  "services/execution/strategy_runner.py": "8e856f01e19ad8eeacd03e838dbc4847742890c551d3ea0cd2610eb87f37065b",
+  "services/strategies/signal_input_capture.py": "844951837eb299c2ff729b3673075c6926c94ced200dedb3df741b68c9705a3b",
+  "services/strategies/strategy_registry.py": "db4cc349310eac07ef82d50e6c8c779b39fa788a265fc837681325f797049692",
+  "services/strategies/ema_cross.py": "68b3522c816b94d6e1b864398dbf212558492e2d8143c849f64d17926e5b8a6f",
+  "services/strategies/breakout_donchian.py": "5de5765593c9addc540a4d32da77c8ac879ddb9d7b3697719d970793fa57975a",
+  "services/strategies/mean_reversion_rsi.py": "63d125e3ec914c1118f523ca81337f7647faa14cfba3ad8ce0c2b5956dca37d3",
+  "scripts/replay_runner_decisions.py": "806b3d0fab9d5e312a5abff3fb5598af62d3819aea56c870fc30779333e79624",
+  "tests/test_runner_decision_kernel.py": "9770fa40ab5f64bba5ed57b7cf7a36c17183c1195d077903212eef3f4586f9f9",
+  "tests/test_runner_decision_capture.py": "756f57c4131011ccf6dc89dcd23c8f2100962286fe5c535af7b3a42e3e172653",
+  "tests/test_runner_recording_integration.py": "082993aa9c12a31f31291b438eaa4d89a40b3740b663efae195868b4c76591ed"
+}

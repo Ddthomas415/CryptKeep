@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "native_session_id": 31953,
+  "attempt_receipt": "instrumented_attempt_20261111T112512Z.json",
+  "owner_direction": "carry out the next steps",
+  "same_session_only": true,
+  "automatic_retry": false,
+  "initial_observation": "transport_connected",
+  "approval_url_saved": false,
+  "status": "INCOMPLETE",
+  "owner_confirmed_this_live_check": true,
+  "confirmation_text": "Done—approved this live check",
+  "session_substituted": false,
+  "native_session_ended": true,
+  "native_exit_code": 0,
+  "attempt_outcome": "identity_bound_partial_inventory_received",
+  "receipt_sha256": "d6afffc54c319a767019b3654f5f00dae984638482003072131b45cee70901a6"
+}

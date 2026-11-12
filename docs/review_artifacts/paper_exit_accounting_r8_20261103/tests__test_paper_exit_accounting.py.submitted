@@ -1,0 +1,456 @@
+"""R8 written-intent accounting: real runner/helper/journal/temporary SQLite.
+
+The shared bounded harness substitutes config, quotes/signals and a minimal fill
+driver, never the runner loop or accounting helper. Counters are provisional
+written-sell reference-price metrics, not fills or realized profit. Set
+CBP_MULTISYMBOL_BEFORE_SOURCE to the saved R8 runner for failure-before proof.
+No service, process, private configuration or production file is used.
+"""
+from __future__ import annotations
+
+import builtins
+import copy
+from importlib.machinery import SourceFileLoader
+import importlib.util
+import io
+import json
+from pathlib import Path
+import sqlite3
+from types import SimpleNamespace
+
+import pytest
+
+from tests.test_runner_multi_symbol_integration import (
+    PRICES, STRATEGY, SYMBOLS, TS, VENUE, harness as _base_harness,
+)
+
+
+BTC = SYMBOLS[0]
+LIMITS = {"max_consecutive_losing_exits": 3, "max_strategy_drawdown_pct": 1000.0,
+          "performance_kill_cooldown_loops": 50}
+
+
+@pytest.fixture
+def flow(monkeypatch, tmp_path):
+    real_spec = importlib.util.spec_from_file_location
+
+    def spec(name, path, **kwargs):
+        if str(path).endswith(".before"):
+            kwargs["loader"] = SourceFileLoader(name, str(path))
+        return real_spec(name, path, **kwargs)
+
+    monkeypatch.setattr(importlib.util, "spec_from_file_location", spec)
+    h = _base_harness.__wrapped__(monkeypatch, tmp_path)
+    h.stop = SimpleNamespace(turn=0)
+    h.consume = lambda: None
+    h.cfg["risk"] = dict(LIMITS)
+    import services.execution.paper_exit_accounting as accounting
+    import services.strategies.signal_input_capture as capture
+    import storage.intent_queue_sqlite as queue_store
+    import storage.strategy_state_sqlite as state_store
+
+    monkeypatch.setattr(capture, "_runner_commit_identity", lambda: None)
+    for owner in (builtins, io):
+        real_open = owner.open
+
+        def guarded(path, *args, _open=real_open, **kwargs):
+            if isinstance(path, (str, Path)):
+                p = Path(path)
+                assert not (p.name.startswith(".env") or p.name in {
+                    ".browser-access-token", ".browser-compose-override.json"}
+                    or (p.name == "user.yaml" and p.parent.name == "config")), p
+            return _open(path, *args, **kwargs)
+
+        monkeypatch.setattr(owner, "open", guarded)
+    h.accounting_lib = accounting
+    h.queue_store = queue_store
+    h.state_store = state_store
+    h.capture = capture
+    h.accounting = accounting.PaperExitAccounting(h.state, h.queue)
+    return h
+
+
+def _scope(h, symbol=BTC, venue=VENUE, strategy=STRATEGY):
+    return h.accounting_lib.scope_for(venue, symbol, strategy)
+
+
+def _counts(h, symbol=BTC, venue=VENUE, strategy=STRATEGY):
+    keys = h.accounting_lib.counter_keys(_scope(h, symbol, venue, strategy))
+    return {name: float(h.state.get(key) or 0) for name, key in keys.items()}
+
+
+def _refresh(h, *, symbol=BTC, venue=VENUE, strategy=STRATEGY, accounting=None):
+    return (accounting or h.accounting).refresh(
+        venue=venue, symbol=symbol, strategy=strategy, limits=LIMITS)
+
+
+def _restart(h):
+    h.accounting = h.accounting_lib.PaperExitAccounting(
+        h.runner.StrategyStateSQLite(), h.runner.IntentQueueSQLite())
+    return h.accounting
+
+
+def _event(h, identity, *, price=99.0, symbol=BTC, venue=VENUE, strategy=STRATEGY,
+           status="queued", event=None):
+    event = event if event is not None else h.accounting_lib.make_event(
+        scope=_scope(h, symbol, venue, strategy), entry_price=100.0,
+        current_price=price, created_ts=TS)
+    row = {"intent_id": identity, "ts": TS, "created_ts": TS, "source": "strategy",
+           "symbol": symbol, "venue": venue, "strategy_id": strategy, "side": "sell",
+           "action": "sell", "order_type": "market", "qty": 0.5,
+           "status": status, "meta": {"exit_event": event, "reference_price": price}}
+    h.queue.upsert_intent(row)
+    return row
+
+
+def _journal_rows(h):
+    # Open through the real journal first so an empty database is valid evidence.
+    h.accounting.journal.status_of("absent")
+    with sqlite3.connect(h.state_store.DB_PATH) as db:
+        return db.execute(
+            "SELECT intent_id,status,confirmed,quarantined,payload FROM exit_events ORDER BY seq"
+        ).fetchall()
+
+
+def _losing_positions(h):
+    h.seed_holdings()
+    for symbol in SYMBOLS:
+        h.quotes[symbol] = [PRICES[symbol] * 0.96]
+
+
+@pytest.mark.parametrize("block", ["queue_write", "open_intent"])
+def test_real_runner_does_not_count_an_unwritten_or_blocked_sell(flow, block):
+    h = flow
+    _losing_positions(h)
+    if block == "queue_write":
+        h.fault = ("intent", BTC)
+    else:
+        h.queue.upsert_intent({"intent_id": "existing-buy", "ts": TS, "source": "strategy",
+            "venue": VENUE, "symbol": BTC, "side": "buy", "order_type": "market",
+            "qty": 0.1, "strategy_id": STRATEGY, "status": "queued", "meta": {}})
+    h.run(3)
+    assert _counts(h) == {"cum_pnl": 0, "peak_pnl": 0, "loss_streak": 0, "kill_remaining": 0}
+    assert not [row for row in h.intents("sell") if row["symbol"] == BTC]
+    assert {row["symbol"] for row in h.intents("sell")} == set(SYMBOLS[1:])
+    assert all(_counts(h, symbol)["loss_streak"] == 1 for symbol in SYMBOLS[1:])
+    # The pre-write stop reset is deliberately inherited, including failure.
+    for kind in ("entry_price", "trailing_peak", "bars_held", "last_held_bar_ts"):
+        assert h.state.get(h.key(kind, BTC)) is None
+
+
+@pytest.mark.parametrize("after_commit", [False, True])
+def test_real_queue_acknowledgement_loss_counts_only_durable_rows_after_restart(flow, after_commit):
+    h = flow
+    _losing_positions(h)
+    real = h.runner.IntentQueueSQLite.upsert_intent
+
+    def fail(db, row):
+        if row["symbol"] == BTC:
+            if after_commit:
+                real(db, row)
+            raise OSError("synthetic queue acknowledgement loss")
+        return real(db, row)
+
+    h.mp.setattr(h.runner.IntentQueueSQLite, "upsert_intent", fail)
+    h.run(3)
+    assert _counts(h)["loss_streak"] == 0
+    written = [r for r in h.intents("sell") if r["symbol"] == BTC]
+    assert len(written) == int(after_commit)
+    h.mp.setattr(h.runner.IntentQueueSQLite, "upsert_intent", real)
+    report = _refresh(h, accounting=_restart(h))
+    assert report["unsettled"] is False
+    assert _counts(h)["loss_streak"] == int(after_commit)
+    assert _counts(h)["cum_pnl"] == -4 * int(after_commit)
+    assert len(_refresh(h)["applied"]) == 0
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_normal_three_symbol_writes_account_once_without_fills_or_stop_basis_change(flow, enabled):
+    h = flow
+    h.mp.setenv("CBP_CAPTURE_RUNNER_DECISIONS", "1" if enabled else "0")
+    _losing_positions(h)
+    cash = h.paper.get_state("cash_quote")
+    before_holdings = h.holdings()
+    h.run(3)
+    assert h.holdings() == before_holdings and h.paper.get_state("cash_quote") == cash
+    assert len(h.intents("sell")) == 3
+    for row in h.intents("sell"):
+        symbol = row["symbol"]
+        assert row["status"] == "queued"
+        assert row["meta"]["exit_event"]["basis"] == h.accounting_lib.BASIS
+        assert row["meta"]["exit_event"]["entry_price"] == PRICES[symbol]
+        assert _counts(h, symbol) == {"cum_pnl": -4, "peak_pnl": 0,
+                                      "loss_streak": 1, "kill_remaining": 0}
+        for kind in ("entry_price", "trailing_peak", "bars_held", "last_held_bar_ts"):
+            assert h.state.get(h.key(kind, symbol)) is None
+    h.run(3)  # Pending exits are serviced, not accounted again.
+    assert len(h.intents("sell")) == 3
+    assert all(_counts(h, symbol)["loss_streak"] == 1 for symbol in SYMBOLS)
+    assert [row[1] for row in _journal_rows(h)] == ["applied"] * 3
+    if enabled:
+        paths = list((h.capture.data_dir() / "runner_decisions").glob("*/*.jsonl"))
+        records = [r for path in paths for r in h.capture.read_runner_records(path)]
+        assert len(records) == 6
+        assert sum(r["payload"]["actual"]["outcome"] == "written" for r in records) == 3
+        assert h.statuses[-1]["runner_decision_capture"]["failed"] == 0
+
+
+def test_multiple_written_losses_recover_in_order_and_third_loss_arms_owed_kill(flow):
+    h = flow
+    identities = [f"loss-{index}" for index in range(3)]
+    for identity in identities:
+        _event(h, identity, status="rejected")
+    real = h.accounting.journal.apply
+    h.mp.setattr(h.accounting.journal, "apply", lambda *_a, **_k: False)
+    assert _refresh(h)["unsettled"] is True
+    assert [(r[0], r[1], r[2]) for r in _journal_rows(h)] == [(i, "pending", 1) for i in identities]
+    assert _counts(h)["loss_streak"] == 0
+    report = _refresh(h, accounting=_restart(h))
+    assert [r["intent_id"] for r in report["applied"]] == identities
+    assert [r["loss_streak"] for r in report["applied"]] == [1, 2, 3]
+    assert report["applied"][-1]["kill"]["reason"] == "kill:consecutive_losing_exits"
+    assert _counts(h) == {"cum_pnl": -3, "peak_pnl": 0, "loss_streak": 3, "kill_remaining": 49}
+    assert not h.paper.list_positions(), "intent metrics must not imply any fill"
+    assert _refresh(h)["applied"] == []
+
+
+@pytest.mark.parametrize("method", ["prepare", "confirm", "apply"])
+@pytest.mark.parametrize("after_commit", [False, True])
+def test_journal_acknowledgement_failures_recover_exactly_once(flow, method, after_commit):
+    h = flow
+    _event(h, "recoverable")
+    journal = h.accounting.journal
+    real = getattr(journal, method)
+    calls = []
+
+    def fail(*args, **kwargs):
+        calls.append(method)
+        if after_commit:
+            real(*args, **kwargs)
+        raise OSError("synthetic journal acknowledgement loss")
+
+    h.mp.setattr(journal, method, fail)
+    report = _refresh(h)
+    assert calls == [method] and report["unsettled"] is True and report["error_type"] == "OSError"
+    already_applied = method == "apply" and after_commit
+    assert _counts(h)["loss_streak"] == int(already_applied)
+    assert h.queue.get_intent("recoverable")["meta"]["exit_event"]["basis"] == h.accounting_lib.BASIS
+    report = _refresh(h, accounting=_restart(h))
+    assert report["unsettled"] is False
+    assert len(report["applied"]) == (0 if already_applied else 1)
+    assert _counts(h)["loss_streak"] == 1 and _counts(h)["cum_pnl"] == -1
+    assert _refresh(h)["applied"] == []
+    assert _journal_rows(h)[0][1:4] == ("applied", 1, 0)
+
+
+def test_queue_first_outbox_survives_total_journal_failure_and_recovers_after_restart(flow):
+    h = flow
+    _losing_positions(h)
+    journal_type = h.accounting_lib.ExitEventJournal
+    real = journal_type._connect
+
+    def fail(_self):
+        raise OSError("synthetic entire journal unavailable")
+
+    h.mp.setattr(journal_type, "_connect", fail)
+    h.run(3)
+    rows = h.intents("sell")
+    assert len(rows) == 3, "unsettled accounting must not suppress protective sells"
+    assert all("exit_event" in row["meta"] for row in rows)
+    assert all(_counts(h, symbol)["loss_streak"] == 0 for symbol in SYMBOLS)
+    h.mp.setattr(journal_type, "_connect", real)
+    _restart(h)
+    for symbol in SYMBOLS:
+        report = _refresh(h, symbol=symbol)
+        assert report["unsettled"] is False and len(report["applied"]) == 1
+        assert _counts(h, symbol)["loss_streak"] == 1
+    assert len(_journal_rows(h)) == 3
+
+
+def test_queue_unavailable_cannot_apply_even_an_already_confirmed_event(flow):
+    h = flow
+    row = _event(h, "confirmed")
+    scope = _scope(h)
+    h.accounting.journal.prepare(scope, row["intent_id"], row["meta"]["exit_event"])
+    h.accounting.journal.confirm(scope, row["intent_id"])
+    real = h.runner.IntentQueueSQLite.strategy_sell_intents_after
+
+    def fail(*_a, **_kw):
+        raise OSError("synthetic queue evidence unavailable")
+
+    h.mp.setattr(h.runner.IntentQueueSQLite, "strategy_sell_intents_after", fail)
+    report = _refresh(h)
+    assert report["unsettled"] is True and report["applied"] == []
+    assert _counts(h)["loss_streak"] == 0
+    assert _journal_rows(h)[0][1:3] == ("pending", 1)
+    h.mp.setattr(h.runner.IntentQueueSQLite, "strategy_sell_intents_after", real)
+    assert len(_refresh(h, accounting=_restart(h))["applied"]) == 1
+
+
+@pytest.mark.parametrize("uncertainty", ["queue", "journal", "quarantine"])
+@pytest.mark.parametrize("held", [False, True])
+def test_unsettled_accounting_blocks_only_entries_not_protective_exits(flow, uncertainty, held):
+    h = flow
+    if held:
+        _losing_positions(h)
+    else:
+        h.signal_action = "buy"
+    if uncertainty == "queue":
+        real = h.runner.IntentQueueSQLite.strategy_sell_intents_after
+
+        def fail(db, symbol, after):
+            if symbol == BTC:
+                raise OSError("synthetic queue read failure")
+            return real(db, symbol, after)
+
+        h.mp.setattr(h.runner.IntentQueueSQLite, "strategy_sell_intents_after", fail)
+    elif uncertainty == "journal":
+        def fail(_self):
+            raise OSError("synthetic journal read failure")
+        h.mp.setattr(h.accounting_lib.ExitEventJournal, "_connect", fail)
+    else:
+        h.accounting.journal.quarantine_raw(_scope(h), "bad-evidence", "{", "invalid_json")
+    h.run(3)
+    btc_rows = [r for r in h.intents() if r["symbol"] == BTC]
+    assert [r["side"] for r in btc_rows] == (["sell"] if held else [])
+    if not held:
+        assert any(s.get("note") == "exit_accounting_unsettled" and s.get("symbol") == BTC
+                   for s in h.statuses)
+    else:
+        assert len(h.intents("sell")) == 3
+    assert _counts(h)["loss_streak"] == 0
+
+
+@pytest.mark.parametrize("damage", ["json", "list", "nan", "infinite", "wrong_pnl", "wrong_scope", "wrong_loss"])
+def test_invalid_queue_evidence_is_preserved_quarantined_and_blocks_later_events(flow, damage):
+    h = flow
+    first = _event(h, "damaged")
+    event = copy.deepcopy(first["meta"]["exit_event"])
+    if damage == "json":
+        raw = "{"
+    elif damage == "list":
+        raw = "[]"
+    else:
+        field, value = {"nan": ("pnl_pct", float("nan")),
+                        "infinite": ("current_price", float("inf")),
+                        "wrong_pnl": ("pnl_pct", 100.0),
+                        "wrong_scope": ("scope", "coinbase:ETH/USD:ema_cross"),
+                        "wrong_loss": ("is_loss", "false")}[damage]
+        event[field] = value
+        raw = json.dumps({"exit_event": event})
+    with sqlite3.connect(h.queue_store.DB_PATH) as db:
+        db.execute("UPDATE trade_intents SET meta=? WHERE intent_id='damaged'", (raw,))
+    _event(h, "later-valid")
+    report = _refresh(h)
+    assert report["unsettled"] is True and report["applied"] == []
+    assert _counts(h)["loss_streak"] == 0
+    unresolved = h.accounting.journal.unresolved(_scope(h))
+    assert [r["intent_id"] for r in unresolved] == ["damaged", "later-valid"]
+    assert unresolved[0]["quarantined"] is True and unresolved[0]["confirmed"] is True
+    if damage in {"json", "list"}:
+        assert unresolved[0]["raw"] == raw
+    assert h.queue.strategy_sell_intents_after(BTC, 0)[0]["meta_raw"] == raw
+    assert _refresh(h, accounting=_restart(h))["unsettled"] is True
+    assert _counts(h)["loss_streak"] == 0
+
+
+@pytest.mark.parametrize("status", ["queued", "submitting", "submitted", "held", "filled", "rejected", "cancelled", "expired"])
+def test_all_written_sell_statuses_count_as_intents_not_fill_results(flow, status):
+    h = flow
+    _event(h, "written-" + status, status=status)
+    report = _refresh(h)
+    assert report["unsettled"] is False and len(report["applied"]) == 1
+    assert _counts(h)["cum_pnl"] == -1 and _counts(h)["loss_streak"] == 1
+    assert h.paper.list_positions() == []
+    assert _refresh(h, accounting=_restart(h))["applied"] == []
+
+
+def test_permanent_exactly_once_after_more_than_fifty_written_events_and_cursor_rewind(flow):
+    h = flow
+    for index in range(75):
+        _event(h, f"written-{index:03}", status="cancelled" if index % 2 else "rejected")
+    report = _refresh(h)
+    assert [row["intent_id"] for row in report["applied"]] == [f"written-{i:03}" for i in range(75)]
+    assert _counts(h) == {"cum_pnl": -75, "peak_pnl": 0, "loss_streak": 75, "kill_remaining": 49}
+    h.state.set("exit_reconciled_position:" + _scope(h), "0|")
+    assert _refresh(h, accounting=_restart(h))["applied"] == []
+    assert _counts(h)["loss_streak"] == 75
+    rows = _journal_rows(h)
+    assert len(rows) == 75 and all(row[1] == "applied" for row in rows)
+
+
+@pytest.mark.parametrize("replacement", [False, True])
+def test_lost_queue_cursor_anchor_or_replaced_queue_rescans_without_reapplying(flow, replacement):
+    h = flow
+    _event(h, "old-a")
+    _event(h, "old-b")
+    assert len(_refresh(h)["applied"]) == 2
+    if replacement:
+        h.mp.setattr(h.queue_store, "DB_PATH", h.tmp / "replacement-queue.sqlite")
+        h.queue = h.runner.IntentQueueSQLite()
+        _event(h, "old-a")  # Stable applied identity remains permanently fenced.
+    else:
+        with sqlite3.connect(h.queue_store.DB_PATH) as db:
+            db.execute("DELETE FROM trade_intents WHERE intent_id='old-b'")
+    _event(h, "new-c")
+    report = _refresh(h, accounting=_restart(h))
+    assert [row["intent_id"] for row in report["applied"]] == ["new-c"]
+    assert _counts(h)["loss_streak"] == 3 and _counts(h)["cum_pnl"] == -3
+    assert _refresh(h)["applied"] == []
+
+
+def test_interleaved_scopes_remain_independent_and_legacy_rows_are_not_recounted(flow):
+    h = flow
+    _event(h, "ours-a")
+    _event(h, "other-venue", venue="binance")
+    _event(h, "other-strategy", strategy="ema_cross")
+    _event(h, "other-symbol", symbol=SYMBOLS[1])
+    legacy = _event(h, "legacy")
+    legacy["meta"] = {"reference_price": 99.0}
+    h.queue.upsert_intent(legacy)
+    _event(h, "ours-b", price=102.0)
+    report = _refresh(h)
+    assert [row["intent_id"] for row in report["applied"]] == ["ours-a", "ours-b"]
+    assert _counts(h) == {"cum_pnl": 1, "peak_pnl": 1, "loss_streak": 0, "kill_remaining": 0}
+    assert _counts(h, venue="binance")["loss_streak"] == 0
+    assert _counts(h, strategy="ema_cross")["loss_streak"] == 0
+    assert _counts(h, symbol=SYMBOLS[1])["loss_streak"] == 0
+    assert _refresh(h, venue="binance")["unsettled"] is False
+    assert _counts(h, venue="binance")["loss_streak"] == 1
+
+
+@pytest.mark.parametrize("journal_state", ["conflicting_payload", "marked_unwritten"])
+def test_queue_authority_conflicting_journal_evidence_cannot_be_silently_accepted(flow, journal_state):
+    h = flow
+    row = _event(h, "contradiction")
+    scope = _scope(h)
+    payload = row["meta"]["exit_event"]
+    if journal_state == "conflicting_payload":
+        payload = h.accounting_lib.make_event(scope=scope, entry_price=100.0,
+                                              current_price=98.0, created_ts=TS)
+    h.accounting.journal.prepare(scope, row["intent_id"], payload)
+    if journal_state == "marked_unwritten":
+        h.accounting.journal.settle(scope, row["intent_id"], written=False,
+                                    reduce=lambda *_args: {}, allowed_keys=("unused",))
+    report = _refresh(h)
+    assert report["unsettled"] is True, "queue/journal contradiction must block new entries"
+    assert report["applied"] == [], "a conflicting journal payload cannot replace the written queue event"
+    assert _counts(h)["cum_pnl"] == 0 and _counts(h)["loss_streak"] == 0
+    assert h.queue.get_intent(row["intent_id"])["meta"]["exit_event"]["pnl_pct"] == -1
+
+
+@pytest.mark.parametrize("early_branch", ["pending_exit", "no_price"])
+def test_runner_recovers_written_event_before_pending_service_or_no_price_turn(flow, early_branch):
+    h = flow
+    row = _event(h, "preexisting-written")
+    if early_branch == "pending_exit":
+        h.seed_holdings()
+        row["meta"].update(paper_exit_policy="retry_until_filled_v1",
+                            paper_exit_id=row["intent_id"])
+        h.queue.upsert_intent(row)
+    else:
+        h.quotes[BTC] = [None]
+    h.run(3)
+    assert _counts(h)["loss_streak"] == 1 and _counts(h)["cum_pnl"] == -1
+    assert h.accounting.journal.status_of(row["intent_id"])["status"] == "applied"
+    assert not [r for r in h.intents("buy") if r["symbol"] == BTC]

@@ -1,0 +1,29 @@
+FFFFFFFFFFFFFFFFFFFFFF.FFF.F                                             [100%]
+=========================== short test summary info ============================
+FAILED tests/test_pending_paper_exit_integration.py::test_protective_exit_fills_under_each_blocker_without_new_signal[cooldown-stop]
+FAILED tests/test_pending_paper_exit_integration.py::test_protective_exit_fills_under_each_blocker_without_new_signal[cooldown-trailing]
+FAILED tests/test_pending_paper_exit_integration.py::test_protective_exit_fills_under_each_blocker_without_new_signal[refusal-stop]
+FAILED tests/test_pending_paper_exit_integration.py::test_protective_exit_fills_under_each_blocker_without_new_signal[refusal-trailing]
+FAILED tests/test_pending_paper_exit_integration.py::test_protective_exit_fills_under_each_blocker_without_new_signal[stale-quotes-stop]
+FAILED tests/test_pending_paper_exit_integration.py::test_protective_exit_fills_under_each_blocker_without_new_signal[stale-quotes-trailing]
+FAILED tests/test_pending_paper_exit_integration.py::test_pending_exit_blocks_new_buys_and_bookkeeping_even_without_runner_quote
+FAILED tests/test_pending_paper_exit_integration.py::test_restart_after_claim_recovers_same_root_and_one_fill[stop]
+FAILED tests/test_pending_paper_exit_integration.py::test_restart_after_claim_recovers_same_root_and_one_fill[trailing]
+FAILED tests/test_pending_paper_exit_integration.py::test_restart_after_fill_recovers_submission_then_journals_before_terminal[stop]
+FAILED tests/test_pending_paper_exit_integration.py::test_restart_after_fill_recovers_submission_then_journals_before_terminal[trailing]
+FAILED tests/test_pending_paper_exit_integration.py::test_filled_root_replay_cannot_sell_replacement_holding[canonical-client]
+FAILED tests/test_pending_paper_exit_integration.py::test_filled_root_replay_cannot_sell_replacement_holding[different-client]
+FAILED tests/test_pending_paper_exit_integration.py::test_other_exit_supersedes_pending_root_and_never_sells_new_holding
+FAILED tests/test_pending_paper_exit_integration.py::test_retry_never_exceeds_current_holding_or_original_exit_size[0.3-0.3]
+FAILED tests/test_pending_paper_exit_integration.py::test_retry_never_exceeds_current_holding_or_original_exit_size[0.7-0.5]
+FAILED tests/test_pending_paper_exit_integration.py::test_retry_preserves_limit_type_price_and_identity_until_marketable
+FAILED tests/test_pending_paper_exit_integration.py::test_quote_staleness_after_submission_defers_fill_until_fresh[snapshot]
+FAILED tests/test_pending_paper_exit_integration.py::test_quote_staleness_after_submission_defers_fill_until_fresh[old-symbol-quote]
+FAILED tests/test_pending_paper_exit_integration.py::test_quote_staleness_after_submission_defers_fill_until_fresh[future-symbol-quote]
+FAILED tests/test_pending_paper_exit_integration.py::test_over_two_minutes_alert_failure_keeps_exit_and_allows_later_fill[exception]
+FAILED tests/test_pending_paper_exit_integration.py::test_over_two_minutes_alert_failure_keeps_exit_and_allows_later_fill[not-delivered]
+FAILED tests/test_pending_paper_exit_integration.py::test_exchange_rejection_after_order_creation_reuses_same_order[stop]
+FAILED tests/test_pending_paper_exit_integration.py::test_exchange_rejection_after_order_creation_reuses_same_order[trailing]
+FAILED tests/test_pending_paper_exit_integration.py::test_submit_exception_after_committed_fill_recovers_one_fill_and_journal
+FAILED tests/test_pending_paper_exit_integration.py::test_pending_exit_retries_when_signal_has_not_changed
+26 failed, 2 passed in 2.15s

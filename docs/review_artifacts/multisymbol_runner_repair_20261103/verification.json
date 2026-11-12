@@ -1,0 +1,40 @@
+{
+  "date_utc": "2026-11-03",
+  "deployed": false,
+  "final_combined_targeted_author": {
+    "passed": 197,
+    "seconds": 7.04
+  },
+  "final_integration_author": {
+    "passed": 28,
+    "seconds": 3.21
+  },
+  "final_source_and_tests_sha256": {
+    "services/execution/strategy_runner.py": "9fb545d0a105e25a7d595a3c0518d11084764d4e454d3c80cacc36a0689ff153",
+    "tests/test_runner_multi_symbol_integration.py": "b1509eead2b0ea315afc17710ad87fc7988cc1878f13ae672b701fd915f1d888"
+  },
+  "full_suite_run": false,
+  "initial_submission_new_6_cases": {
+    "deselected": 22,
+    "failed": 5,
+    "passed": 1,
+    "seconds": 1.05
+  },
+  "operational_readiness": "INCOMPLETE",
+  "original_source_initial_22_cases": {
+    "failed": 19,
+    "passed": 3,
+    "seconds": 1.99
+  },
+  "runtime_configuration_checked": false,
+  "separate_reviewer": {
+    "additional_failure_probes_passed": 3,
+    "agent": "01a19fcb-7ac7-7fd3-b750-bc2834721e49",
+    "combined_197_independently_rerun": false,
+    "final_integration_passed": 28,
+    "focused_final_disposition": "ACCEPTED",
+    "initial_disposition": "REJECTED",
+    "name": "Poincare",
+    "seconds": 3.1
+  }
+}

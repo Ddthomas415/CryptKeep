@@ -1,0 +1,56 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__paper_runner.py.before	2026-11-03 00:38:03
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/paper_runner.py	2026-11-03 00:46:03
+@@ -10,6 +10,9 @@
+ from services.execution.intent_reconciler import reconcile_once
+ from services.execution.state_authority import LiveStateContext, paper_queue_status
+ from services.execution.paper_engine import PaperEngine
++from services.execution.paper_exit_retry import (
++    has_exit_marker, consume_pending_paper_exit,
++)
+ from services.live_router.router import decide_order
+ from storage.intent_queue_sqlite import IntentQueueSQLite
+ from storage.trade_journal_sqlite import TradeJournalSQLite
+@@ -101,6 +104,14 @@
+     return list(zip(intents, results))
+ 
+ 
++def _hold_pending_failure(qdb, row, exc):
++    try:
++        qdb.paper_exit_transition(row["intent_id"], "held", event="recovery_error",
++                                 reason=type(exc).__name__)
++    except Exception as receipt_exc:
++        _LOG.warning("paper_exit_receipt_failed error_type=%s", type(receipt_exc).__name__)
++
++
+ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
+     queued = qdb.claim_next_queued(limit=int(limit))
+     ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
+@@ -123,6 +134,12 @@
+         for it in queued:
+             intent_id = str(it.get("intent_id") or "").strip()
+             if not intent_id:
++                continue
++            if has_exit_marker(it):
++                try:
++                    consume_pending_paper_exit(qdb, eng, it, e)
++                except Exception as exc:
++                    _hold_pending_failure(qdb, it, exc)
+                 continue
+             paper_queue_status(
+                 qdb,
+@@ -147,6 +164,15 @@
+ 
+         client_order_id = str(it.get("client_order_id") or f"paper_intent_{intent_id}")
+ 
++        if has_exit_marker(it):
++            try:
++                result = consume_pending_paper_exit(qdb, eng, it, decision_or_exc)
++                submitted += result["submitted"]
++                idempotent += result["idempotent"]
++            except Exception as exc:
++                _hold_pending_failure(qdb, it, exc)
++            continue
++
+         if isinstance(decision_or_exc, Exception):
+             paper_queue_status(
+                 qdb,

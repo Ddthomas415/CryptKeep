@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "platform": "darwin_arm64",
+  "signature_verified": false,
+  "tools": {
+    "restic": {
+      "version": "0.19.1",
+      "archive": "restic_0.19.1_darwin_arm64.bz2",
+      "bytes": 9733199,
+      "sha256": "7be0a144ccc377880f294204aa271d76e4b79554b42a751151d425ce6ebac143",
+      "checksums_bytes": 2503,
+      "checksums_sha256": "fb520966ee01d2a3d4219c66762c66efa56300833b6f639f36082b7462f91cb8"
+    },
+    "rclone": {
+      "version": "1.76.0",
+      "archive": "rclone-v1.76.0-osx-arm64.zip",
+      "bytes": 33189281,
+      "sha256": "e72dc90b70f4947a7b72b61bde4a4fbba5777b2874fb448951ffdde67ebd0ab7",
+      "checksums_bytes": 4795,
+      "checksums_sha256": "70bb995ce08e93222b3ea894c81173e2dd30237d47371d7a6721e7f062cc3796"
+    }
+  }
+}

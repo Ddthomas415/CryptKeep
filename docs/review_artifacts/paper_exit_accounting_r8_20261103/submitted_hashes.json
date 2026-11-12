@@ -1,0 +1,12 @@
+{
+  "services/execution/paper_exit_accounting.py": "dd3f1de9587340a1df34cd9709021f64d9b64bb5e334b3d9904378f2bac508d4",
+  "storage/exit_event_journal.py": "6c8ee1c44cd551a65139a16bfaa5fa18fbc29b4b5bee93c6e66835ae6e6f3ff8",
+  "services/execution/strategy_runner.py": "347b8e7fcf2dfe2579b62c3d2b309d95ca5d0fa0d74f9ff6f65a0847e613269f",
+  "services/strategies/signal_input_capture.py": "962ef51f959d256a30aa04fc0aa93b2e60898db778d5948a9bff5418adfe6abe",
+  "storage/intent_queue_sqlite.py": "10f80c25950a7b9ff6c1916f5d0e3d491618405acd03efb04b9e8262764ed08b",
+  "tests/test_strategy_runtime_runner.py": "46f31a04710a9296962632d4658fd27f723a02a3d3dbb8464faf6f5a3b2b9f0b",
+  "tests/test_runner_decision_capture.py": "e87f6de7d1d3c387bae814c46ac4b1ac27a048f98b132e8a2219b1b1838a8048",
+  "tests/test_runner_recording_integration.py": "0e01a642f81393ccaa429f9688fe245ad1dbc44937debbef254e3370f3b9b0bf",
+  "tests/test_exit_event_journal.py": "e49b3adddd4934297b0bf229fd4b74a87e6254a87528a51c189969d6d219b7ce",
+  "tests/test_paper_exit_accounting.py": "225d3ad8dd3712d0d58c010a7b528a3571fcf75766ef5a864beb8271fbcc60c7"
+}

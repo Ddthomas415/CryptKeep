@@ -1,0 +1,116 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/tests__test_pending_paper_exit_integration.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/tests/test_pending_paper_exit_integration.py	2026-11-03 01:02:46
+@@ -10,6 +10,8 @@
+ import copy
+ from datetime import datetime, timedelta, timezone
+ import importlib
++import os
++from pathlib import Path
+ import time
+ from types import SimpleNamespace
+ 
+@@ -26,6 +28,7 @@
+ 
+ BTC = SYMBOLS[0]
+ POLICY = "retry_until_filled_v1"
++SUBMITTED_SOURCE_DIR = os.environ.get("CBP_R12_SUBMITTED_SOURCE_DIR")
+ 
+ 
+ class _PendingFlow:
+@@ -56,10 +59,17 @@
+         h.mp.setattr(evidence_logger, "_version_stamp", lambda strategy_id, **_kw: {
+             "_strategy_id": strategy_id, "_stage": "offline_test", "_commit": "synthetic",
+         })
+-        for name in ("storage.execution_guard_store_sqlite", "storage.trade_journal_sqlite",
++        names = ("storage.execution_guard_store_sqlite", "storage.trade_journal_sqlite",
++                     "services.execution.paper_exit_retry",
+                      "services.execution.paper_engine", "services.execution.intent_reconciler",
+-                     "services.execution.paper_runner"):
+-            importlib.reload(importlib.import_module(name))
++                     "services.execution.paper_runner")
++        for name in names:
++            module = importlib.reload(importlib.import_module(name))
++            if SUBMITTED_SOURCE_DIR and name.startswith("services.execution."):
++                # Explicit trusted saved-source verification, confined to this
++                # offline process; never replace production files on disk.
++                saved = Path(SUBMITTED_SOURCE_DIR) / (name.replace(".", "__") + ".py.submitted")
++                exec(compile(saved.read_bytes(), str(saved), "exec"), module.__dict__)
+         self.engine_module = importlib.import_module("services.execution.paper_engine")
+         self.consumer = importlib.import_module("services.execution.paper_runner")
+         self.reconciler = importlib.import_module("services.execution.intent_reconciler")
+@@ -179,11 +189,11 @@
+         return result["order"]
+ 
+     def seed_exit(self, identity="limit-root", *, order_type="limit", limit_price=105.0,
+-                  created=None, tagged=True):
++                  created=None, tagged=True, strategy_id=STRATEGY):
+         stamp = (created or datetime.now(timezone.utc)).isoformat()
+         row = {
+             "intent_id": identity, "created_ts": stamp, "ts": stamp,
+-            "source": "strategy", "strategy_id": STRATEGY, "venue": VENUE,
++            "source": "strategy", "strategy_id": strategy_id, "venue": VENUE,
+             "symbol": BTC, "side": "sell", "action": "sell", "qty": 0.5,
+             "order_type": order_type, "limit_price": limit_price, "status": "queued",
+             "meta": ({"paper_exit_policy": POLICY, "paper_exit_id": identity}
+@@ -559,3 +569,61 @@
+     f.cycle()
+     assert f.root(row)["status"] == "filled"
+     assert len(f.root_fills(row)) == 1
++
++
++@pytest.mark.parametrize("linked", ["unrelated-buy", "filled-without-receipt"])
++def test_reconciler_never_completes_root_from_unverified_link(pending, linked):
++    f = pending
++    row = f.trigger()
++    if linked == "unrelated-buy":
++        unrelated = f.manual_fill(side="buy", qty=0.1, identity="unrelated-filled-buy")
++        order_id = unrelated["order_id"]
++    else:
++        f.consume()
++        order = f.order(row)
++        f.eng.db.update_order_status(order["order_id"], "filled", None)
++        order_id = order["order_id"]
++    f.h.queue.paper_exit_transition(row["intent_id"], "submitted", event="test_corrupt_link",
++                                    linked_order_id=order_id)
++    f.reconcile()
++    assert f.root(row)["status"] == "held"
++    assert f.jdb.count() == 0
++    assert not f.root_fills(row)
++    assert f.h.paper.get_position(BTC)["qty"] == pytest.approx(
++        0.6 if linked == "unrelated-buy" else 0.5)
++
++
++def test_optional_strategy_is_preserved_through_prepare_and_fill(pending):
++    f = pending
++    row = f.seed_exit("optional-strategy", order_type="market", limit_price=None, strategy_id=None)
++    f.consume()
++    order = f.order(row)
++    assert order["strategy_id"] is None
++    assert f.eng.evaluate_open_orders()["filled"] == 1
++    f.reconcile()
++    assert f.root(row)["status"] == "filled"
++
++
++@pytest.mark.parametrize("holding_grows_after_route", [False, True])
++def test_router_and_execution_share_bounded_attempt_size(pending, holding_grows_after_route):
++    f = pending
++    row = f.seed_exit("bounded-route", order_type="market", limit_price=None)
++    f.manual_fill(side="sell", qty=0.2, identity="reduce-before-routing")
++    routed = []
++
++    async def size_sensitive(intents):
++        assert len(intents) == 1
++        routed.append(intents[0]["qty"])
++        if holding_grows_after_route:
++            f.manual_fill(side="buy", qty=0.4, identity="buy-after-routing")
++        return [(it, SimpleNamespace(allowed=it["qty"] <= 0.3, reason="size_bound"))
++                for it in intents]
++
++    f.h.mp.setattr(f.consumer, "_decide_batch", size_sensitive)
++    f.cycle()
++    assert routed == [pytest.approx(0.3)]
++    assert f.h.queue.get_intent(row["intent_id"])["qty"] == 0.5
++    assert f.root(row)["status"] == "filled"
++    assert f.root_fills(row)[0]["qty"] == pytest.approx(0.3)
++    assert f.h.paper.get_position(BTC)["qty"] == pytest.approx(
++        0.4 if holding_grows_after_route else 0.0)

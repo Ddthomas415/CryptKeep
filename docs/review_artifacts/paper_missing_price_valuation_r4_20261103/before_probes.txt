@@ -1,0 +1,74 @@
+FFFFFFFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+__________ test_held_unknown_mark_never_writes_cash_only_equity[None] __________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote1] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote2] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote3] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote4] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote5] _________
+tests/test_paper_missing_price_valuation.py:39: in test_held_unknown_mark_never_writes_cash_only_equity
+    result = eng.mark_to_market("coinbase", "ADA/USD")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+docs/review_artifacts/paper_missing_price_valuation_r4_20261103/before/services/execution/paper_engine.py:507: in mark_to_market
+    self.db.insert_equity(_now(), cash, equity, unreal, realized)
+storage/paper_trading_sqlite.py:740: in insert_equity
+    con.execute(
+E   sqlite3.IntegrityError: NOT NULL constraint failed: paper_equity.equity_quote
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote6] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote7] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote8] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+_________ test_held_unknown_mark_never_writes_cash_only_equity[quote9] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+________ test_held_unknown_mark_never_writes_cash_only_equity[quote10] _________
+tests/test_paper_missing_price_valuation.py:40: in test_held_unknown_mark_never_writes_cash_only_equity
+    assert result["ok"] is False
+E   assert True is False
+________ test_held_unknown_mark_never_writes_cash_only_equity[quote11] _________
+tests/test_paper_missing_price_valuation.py:39: in test_held_unknown_mark_never_writes_cash_only_equity
+    result = eng.mark_to_market("coinbase", "ADA/USD")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+docs/review_artifacts/paper_missing_price_valuation_r4_20261103/before/services/execution/paper_engine.py:507: in mark_to_market
+    self.db.insert_equity(_now(), cash, equity, unreal, realized)
+storage/paper_trading_sqlite.py:740: in insert_equity
+    con.execute(
+E   sqlite3.IntegrityError: NOT NULL constraint failed: paper_equity.equity_quote
+=========================== short test summary info ============================
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[None]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote1]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote2]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote3]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote4]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote5]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote6]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote7]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote8]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote9]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote10]
+FAILED tests/test_paper_missing_price_valuation.py::test_held_unknown_mark_never_writes_cash_only_equity[quote11]
+12 failed, 16 deselected in 0.55s

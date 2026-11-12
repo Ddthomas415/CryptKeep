@@ -1,0 +1,35 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__intent_reconciler.py.before	2026-11-03 00:38:03
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/intent_reconciler.py	2026-11-03 00:40:53
+@@ -10,6 +10,7 @@
+ from storage.trade_journal_sqlite import TradeJournalSQLite
+ from services.execution.state_authority import LiveStateContext, paper_queue_status
+ from services.execution.outcome_logger import log_strategy_outcome
++from services.execution.paper_exit_retry import has_exit_marker
+ from services.os.file_utils import atomic_write
+ from services.control.managed_component import clean_stale_lock_file
+ 
+@@ -162,6 +163,12 @@
+         if st in ("new",):
+             continue
+         if st in ("rejected", "canceled"):
++            if has_exit_marker(it):
++                qdb.paper_exit_transition(it["intent_id"], "held", event="refused",
++                                          reason=order.get("reject_reason") or st,
++                                          linked_order_id=order_id)
++                intents_updated += 1
++                continue
+             paper_queue_status(
+                 qdb,
+                 it,
+@@ -173,6 +180,11 @@
+             )
+             intents_updated += 1
+             continue
++        if st == "superseded" and has_exit_marker(it):
++            qdb.paper_exit_transition(it["intent_id"], "superseded", event="ledger_recovery",
++                                      reason="superseded", linked_order_id=order_id)
++            intents_updated += 1
++            continue
+         if st == "filled":
+             fills = pdb.list_fills_for_order(order_id, limit=5000)
+             pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}

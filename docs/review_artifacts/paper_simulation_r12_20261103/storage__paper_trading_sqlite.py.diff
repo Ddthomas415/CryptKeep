@@ -1,0 +1,311 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/storage__paper_trading_sqlite.py.before	2026-11-03 00:38:03
++++ /Users/baitus/Downloads/crypto-bot-pro/storage/paper_trading_sqlite.py	2026-11-03 00:42:45
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ import sqlite3
+ import json
++import math
+ from datetime import datetime, timezone
+ from pathlib import Path
+ from typing import Optional, List, Dict, Any
+@@ -8,6 +9,7 @@
+ 
+ DB_PATH = data_dir() / "paper_trading.sqlite"
+ FLOAT_CASH_EPSILON = 1e-9
++PAPER_EXIT_POLICY = "retry_until_filled_v1"
+ 
+ SCHEMA = """
+ PRAGMA journal_mode=WAL;
+@@ -113,6 +115,166 @@
+     def _set_state_conn(self, con: sqlite3.Connection, k: str, v: str) -> None:
+         con.execute("INSERT OR REPLACE INTO paper_state(k,v) VALUES(?,?)", (str(k), str(v)))
+ 
++    @staticmethod
++    def _exit_number(value: Any, *, positive: bool = True) -> bool:
++        try:
++            return (isinstance(value, (int, float)) and not isinstance(value, bool)
++                    and math.isfinite(value) and (value > 0 if positive else value >= 0))
++        except OverflowError:
++            return False
++
++    @classmethod
++    def _exit_identity(cls, row: dict) -> dict | None:
++        meta = row.get("meta")
++        if not isinstance(meta, dict) or meta.get("paper_exit_policy") != PAPER_EXIT_POLICY:
++            return None
++        exit_id = meta.get("paper_exit_id")
++        if not isinstance(exit_id, str) or not exit_id or exit_id != exit_id.strip():
++            return None
++        if row.get("client_order_id") != "paper_intent_" + exit_id or row.get("side") != "sell":
++            return None
++        for field in ("venue", "symbol"):
++            value = row.get(field)
++            if not isinstance(value, str) or not value or value != value.strip():
++                return None
++        if not isinstance(row.get("order_type"), str) or row["order_type"] not in {"market", "limit"}:
++            return None
++        limit = row.get("limit_price")
++        if limit is not None and not cls._exit_number(limit):
++            return None
++        if row["order_type"] == "limit" and limit is None:
++            return None
++        strategy = row.get("strategy_id")
++        if strategy is not None and (not isinstance(strategy, str) or not strategy.strip()):
++            return None
++        return {**{key: row.get(key) for key in (
++            "client_order_id", "venue", "symbol", "side", "order_type", "limit_price", "strategy_id",
++        )}, "paper_exit_id": exit_id, "paper_exit_policy": PAPER_EXIT_POLICY}
++
++    @staticmethod
++    def _exit_order_conn(con: sqlite3.Connection, *, client_order_id: str) -> dict | None:
++        cur = con.execute("SELECT * FROM paper_orders WHERE client_order_id=?", (client_order_id,))
++        raw = cur.fetchone()
++        if raw is None:
++            return None
++        row = dict(zip((col[0] for col in cur.description), raw))
++        try:
++            row["meta"] = json.loads(row.pop("meta_json") or "null")
++        except (TypeError, ValueError):
++            row["meta"] = None
++        return row
++
++    def _exit_terminal_conn(self, con: sqlite3.Connection, identity: dict) -> dict | None:
++        raw = self._get_state_conn(con, "paper_exit_terminal:" + identity["paper_exit_id"])
++        if raw is None:
++            return None
++        try:
++            terminal = json.loads(raw)
++            if (not isinstance(terminal, dict) or terminal.get("identity") != identity
++                    or terminal.get("state") not in {"filled", "superseded"}):
++                raise ValueError("invalid terminal")
++            return terminal
++        except (TypeError, ValueError):
++            return {"state": "blocked", "reason": "invalid_exit_terminal"}
++
++    def _write_exit_terminal_conn(self, con: sqlite3.Connection, identity: dict, state: str, **extra) -> None:
++        self._set_state_conn(
++            con, "paper_exit_terminal:" + identity["paper_exit_id"],
++            json.dumps({"identity": identity, "state": state, **extra}, sort_keys=True, allow_nan=False),
++        )
++
++    def _supersede_exit_conn(self, con: sqlite3.Connection, identity: dict, existing: dict | None) -> dict:
++        self._write_exit_terminal_conn(con, identity, "superseded", qty=0.0)
++        if existing is not None and existing["status"] != "filled":
++            self._update_order_status_conn(con, existing["order_id"], "superseded", "zero_holding")
++            existing.update(status="superseded", reject_reason="zero_holding")
++        return {"state": "superseded", "qty": 0.0, "reason": "zero_holding", "order": existing}
++
++    @classmethod
++    def _exit_fills_conn(cls, con: sqlite3.Connection, identity: dict) -> list[dict]:
++        # Include noncanonical legacy/corrupt rows sharing the root, not just the unique client ID.
++        rows = con.execute(
++            "SELECT f.fill_id, f.order_id, f.price, f.qty, f.fee FROM paper_fills f "
++            "JOIN paper_orders o ON o.order_id=f.order_id WHERE o.client_order_id=? OR "
++            "CASE WHEN json_valid(o.meta_json) THEN json_extract(o.meta_json, '$.paper_exit_id') END=?",
++            (identity["client_order_id"], identity["paper_exit_id"]),
++        ).fetchall()
++        return [dict(zip(("fill_id", "order_id", "price", "qty", "fee"), row)) for row in rows]
++
++    @classmethod
++    def _valid_exit_fill(cls, fills: list[dict], existing: dict | None) -> bool:
++        return (existing is not None and len(fills) == 1
++                and fills[0]["order_id"] == existing["order_id"]
++                and cls._exit_number(fills[0]["price"])
++                and cls._exit_number(fills[0]["qty"])
++                and cls._exit_number(fills[0]["fee"], positive=False)
++                and fills[0]["qty"] <= existing["qty"])
++
++    def prepare_paper_exit(
++        self, *, client_order_id, exit_id, venue, symbol, order_type, qty,
++        limit_price, strategy_id, meta, activate=False,
++    ) -> dict:
++        requested = dict(client_order_id=client_order_id, venue=venue, symbol=symbol, side="sell",
++                         order_type=order_type, qty=qty, limit_price=limit_price,
++                         strategy_id=strategy_id, meta=meta)
++        identity = self._exit_identity(requested)
++        blocked = {"state": "blocked", "qty": 0.0}
++        if (identity is None or identity["paper_exit_id"] != exit_id
++                or not self._exit_number(qty) or not isinstance(activate, bool)):
++            return {**blocked, "reason": "invalid_exit_request"}
++        con = _connect()
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            existing = self._exit_order_conn(con, client_order_id=client_order_id)
++            result = {**blocked, "reason": "exit_identity_mismatch", "order": existing}
++            if existing is not None and (self._exit_identity(existing) != identity
++                                        or not self._exit_number(existing["qty"])):
++                con.execute("COMMIT")
++                return result
++            terminal = self._exit_terminal_conn(con, identity)
++            fills = self._exit_fills_conn(con, identity)
++            if terminal and terminal["state"] == "blocked":
++                result = {**blocked, "reason": terminal["reason"], "order": existing}
++            elif terminal and terminal["state"] == "superseded":
++                if fills or (existing and existing["status"] == "filled"):
++                    result = {**blocked, "reason": "exit_terminal_conflict", "order": existing}
++                else:
++                    result = self._supersede_exit_conn(con, identity, existing)
++            elif existing and existing["status"] == "filled":
++                if self._valid_exit_fill(fills, existing) and (
++                    not terminal or terminal.get("fill_id") == fills[0]["fill_id"]
++                ):
++                    result = {"state": "filled", "qty": fills[0]["qty"], "order": existing,
++                              "reason": "durable_fill"}
++                else:
++                    result = {**blocked, "reason": "missing_or_conflicting_fill", "order": existing}
++            elif fills or terminal:
++                result = {**blocked, "reason": "exit_fill_state_conflict", "order": existing}
++            elif existing and existing["status"] not in {"new", "rejected", "superseded"}:
++                result = {**blocked, "reason": "unsupported_exit_status", "order": existing}
++            else:
++                pos = self._get_position_conn(con, symbol)
++                held = pos["qty"] if pos else 0.0
++                if not self._exit_number(held, positive=False):
++                    result = {**blocked, "reason": "invalid_holding", "order": existing}
++                elif held == 0 or (existing and existing["status"] == "superseded"):
++                    result = self._supersede_exit_conn(con, identity, existing)
++                else:
++                    bounded = min(qty, held, existing["qty"] if existing else qty)
++                    if existing and activate:
++                        con.execute("UPDATE paper_orders SET qty=?, status='new', reject_reason=NULL "
++                                    "WHERE order_id=?", (bounded, existing["order_id"]))
++                        existing.update(qty=bounded, status="new", reject_reason=None)
++                    result = {"state": "ready", "qty": bounded, "order": existing,
++                              "reason": "activated" if activate else "validated"}
++            con.execute("COMMIT")
++            return result
++        except Exception:
++            con.rollback()
++            raise
++        finally:
++            con.close()
++
+     def insert_order(self, row: Dict[str, Any]) -> None:
+         con = _connect()
+         try:
+@@ -302,7 +464,8 @@
+         try:
+             con.execute("BEGIN IMMEDIATE")
+             order_row = con.execute(
+-                "SELECT order_id, symbol, side, status, reject_reason FROM paper_orders WHERE order_id=?",
++                "SELECT order_id, symbol, side, status, reject_reason, client_order_id, meta_json "
++                "FROM paper_orders WHERE order_id=?",
+                 (str(order["order_id"]),),
+             ).fetchone()
+             if not order_row:
+@@ -313,12 +476,73 @@
+             symbol = str(order_row[1])
+             side = str(order_row[2]).strip().lower()
+             status = str(order_row[3]).strip().lower()
++            try:
++                stored_meta = json.loads(order_row[6] or "null")
++            except (TypeError, ValueError):
++                stored_meta = None
++            tagged_exit = any(isinstance(meta, dict) and meta.get("paper_exit_policy") == PAPER_EXIT_POLICY
++                              for meta in (stored_meta, order.get("meta")))
++            exit_identity = None
++            if tagged_exit:
++                existing = self._exit_order_conn(con, client_order_id=order_row[5])
++                status = existing["status"]
++                exit_identity = self._exit_identity(existing)
++
++                def blocked(reason):
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": reason}
++
++                if (exit_identity is None or self._exit_identity(order) != exit_identity
++                        or existing["meta"] != order.get("meta")
++                        or not self._exit_number(existing["qty"])
++                        or not self._exit_number(order.get("qty"))):
++                    return blocked("exit_identity_mismatch")
++                if (not self._exit_number(price) or not self._exit_number(qty)
++                        or not self._exit_number(fee, positive=False)):
++                    return blocked("invalid_exit_fill_values")
++                terminal = self._exit_terminal_conn(con, exit_identity)
++                fills = self._exit_fills_conn(con, exit_identity)
++                if terminal and terminal["state"] == "blocked":
++                    return blocked(terminal["reason"])
++                if terminal and terminal["state"] == "superseded":
++                    if fills or status == "filled":
++                        return blocked("exit_terminal_conflict")
++                    self._supersede_exit_conn(con, exit_identity, existing)
++                    return blocked("superseded")
++                if status == "filled":
++                    if not self._valid_exit_fill(fills, existing) or (
++                        terminal and terminal.get("fill_id") != fills[0]["fill_id"]
++                    ):
++                        return blocked("missing_or_conflicting_fill")
++                    con.execute("COMMIT")
++                    return {"ok": True, "fill_id": fills[0]["fill_id"], "qty": fills[0]["qty"],
++                            "fee": fills[0]["fee"], "idempotent": True}
++                if terminal or fills:
++                    return blocked("exit_fill_state_conflict")
++                if status == "superseded":
++                    self._supersede_exit_conn(con, exit_identity, existing)
++                    return blocked("superseded")
++                if status != "new":
++                    return blocked(status)
++                if existing["order_type"] == "limit" and price < existing["limit_price"]:
++                    return blocked("exit_fill_below_limit")
++                pos = self._get_position_conn(con, symbol)
++                held = pos["qty"] if pos else 0.0
++                if not self._exit_number(held, positive=False):
++                    return blocked("invalid_holding")
++                if held == 0:
++                    self._supersede_exit_conn(con, exit_identity, existing)
++                    return blocked("superseded")
++                actual_qty = min(qty, order["qty"], existing["qty"], held)
++                fee = float(fee) * (actual_qty / qty)
++                qty = actual_qty
++                con.execute("UPDATE paper_orders SET qty=? WHERE order_id=?", (qty, order_id))
+             fill_id = _paper_fill_id(order_id, price, qty)
+ 
+             if status == "filled":
+                 con.execute("COMMIT")
+                 return {"ok": True, "fill_id": fill_id, "fee": float(fee), "idempotent": True}
+-            if status in {"rejected", "canceled", "cancelled"}:
++            if status in {"rejected", "canceled", "cancelled", "superseded"}:
+                 con.execute("COMMIT")
+                 return {"ok": False, "reason": status}
+ 
+@@ -334,6 +558,11 @@
+             cash = float(self._get_state_conn(con, "cash_quote") or "0.0")
+             realized_total = float(self._get_state_conn(con, "realized_pnl") or "0.0")
+             fill_realized_pnl = 0.0
++            if tagged_exit and not all(math.isfinite(value) for value in (
++                pos_qty, avg, realized_pos, cash, realized_total,
++            )):
++                con.execute("ROLLBACK")
++                return {"ok": False, "reason": "invalid_exit_accounting"}
+ 
+             if side == "buy":
+                 cost = float(price) * float(qty) + float(fee)
+@@ -362,6 +591,11 @@
+                 new_realized_total = realized_total + fill_realized_pnl
+                 new_pos_realized = realized_pos + fill_realized_pnl
+ 
++            if tagged_exit and not all(math.isfinite(value) for value in (
++                new_qty, new_avg, new_cash, new_realized_total, new_pos_realized, fill_realized_pnl,
++            )):
++                con.execute("ROLLBACK")
++                return {"ok": False, "reason": "invalid_exit_accounting"}
+             self._upsert_position_conn(
+                 con,
+                 symbol,
+@@ -393,6 +627,8 @@
+                     json.dumps(execution_identity_evidence, sort_keys=True, allow_nan=False),
+                 )
+             self._update_order_status_conn(con, order_id, "filled", None)
++            if tagged_exit:
++                self._write_exit_terminal_conn(con, exit_identity, "filled", fill_id=fill_id, qty=float(qty))
+             con.execute("COMMIT")
+             return {
+                 "ok": True,
+@@ -401,6 +637,7 @@
+                 "realized_pnl_usd": float(fill_realized_pnl),
+                 "pnl_usd_semantics": "net_of_fees",
+                 "idempotent": False,
++                **({"qty": float(qty)} if tagged_exit else {}),
+             }
+         except Exception:
+             try:

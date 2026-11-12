@@ -1,0 +1,24 @@
+{
+  "before": {
+    "services/execution/paper_engine.py": "a299822dc207e5170766a536273c9bd5ddef81d8d03eed524ce242d5ba4f6ab6",
+    "services/execution/strategy_runner.py": "347b8e7fcf2dfe2579b62c3d2b309d95ca5d0fa0d74f9ff6f65a0847e613269f",
+    "services/market_data/hourly_candle_quality.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "services/market_data/local_data_reader.py": "54d9e98249e5672a4c64609b67c5798832203ceb089629cd02b5ba96f047645a",
+    "services/strategies/signal_input_capture.py": "962ef51f959d256a30aa04fc0aa93b2e60898db778d5948a9bff5418adfe6abe",
+    "storage/paper_trading_sqlite.py": "f45e3d0add56302beb5668277f861a253af15a8d228fa137f6c686c1ad024d7e",
+    "tests/test_hourly_candle_quality.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_ohlcv_snapshot_provenance.py": "46d49af25f602d402fd83934f943581a4d48b0cce9172c8a0d637916de4a69d4",
+    "tests/test_paper_candle_fill_boundary.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "current": {
+    "services/execution/paper_engine.py": "757b798272cd95993e0e57b174d6277806188fcb3263387f12a77f375870328e",
+    "services/execution/strategy_runner.py": "17a567356e01d0422ebf5ff7083733afbea45f4b17e7c88d63501c6c323acb65",
+    "services/market_data/hourly_candle_quality.py": "22abf215476ef9a74cb67b622197c3fb6f0ae9c976b67fc90f9de455aa4db4a8",
+    "services/market_data/local_data_reader.py": "bccd28b74f169871209166ff80d220c19288d77516cbfccb40f8110bca283929",
+    "services/strategies/signal_input_capture.py": "ae5e0679d7cd737d41847baef5d5e8f0952c8e5c917ee0e8043a50f60bb06151",
+    "storage/paper_trading_sqlite.py": "87cd864d59dbf66a678f1f5239d491ead505b8c1bccea2f015fcba29d8414e0a",
+    "tests/test_hourly_candle_quality.py": "83aafe52fd501744780a34caa94aa4285f8f6cb3e687cca243b203815a3f8951",
+    "tests/test_ohlcv_snapshot_provenance.py": "59ba58a73dde5c383a2e0aa722dd5399bc2935d2f9d2c9c109f6fb64b6ed06a5",
+    "tests/test_paper_candle_fill_boundary.py": "31e374e90ad40471d5c6780c4dd676ee4ddd1d896b7cddc76b83eeb43f3adb50"
+  }
+}

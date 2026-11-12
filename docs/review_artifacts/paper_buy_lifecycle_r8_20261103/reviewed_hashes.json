@@ -1,0 +1,31 @@
+{
+  "before": {
+    "services/execution/intent_reconciler.py": "dc53c713485ea4fb99fc0963bd1ae230fd4053b75098276ccfd99ae4378abb2a",
+    "services/execution/paper_buy_lifecycle.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "services/execution/paper_buy_policy.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "services/execution/paper_engine.py": "19967af7fc30161275f958bd43d5e964992ea323ef06fec859243a2387245f33",
+    "services/execution/paper_runner.py": "32e7e4a2082303b580e5ca754e13db72db188bef25ec5b355728815bb36d3d79",
+    "storage/intent_queue_sqlite.py": "8b7aa575ebffee92db513925b1d81758591bad9e316a4b9378f10cabb4a5d1d3",
+    "storage/paper_trading_sqlite.py": "06be88937f5d8aad58b1e3dfe2090c984d6ab74109b88b396dfa597260d15e46",
+    "tests/test_paper_buy_before_boundary.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_paper_buy_fill_expiry.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_paper_buy_lifecycle.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_paper_reconciler_recovery.py": "7ab6fe8eea4f4c266675028b5fb23807488b770530d20b0394ed8d771ab8f6b7",
+    "tests/test_paper_runner_lifecycle.py": "ec81e18aeb7f537a805bcd4f7118f02cbf0413fea684fbfadc663797a8715e85"
+  },
+  "current": {
+    "services/execution/intent_reconciler.py": "9b22f08b06aed974a7409e7b346d47c4dbd57703d68b989b1a92d3ca5d55eae1",
+    "services/execution/paper_buy_lifecycle.py": "b0e103d8b71cd6cc4f3de828f3b80bf807db6cd18245ee09cc30f0053791d869",
+    "services/execution/paper_buy_policy.py": "b784637ed904f9feb4c86a0fe038221f7aac1a96ca1db38d8b751796a0ea02b7",
+    "services/execution/paper_engine.py": "1d6baf67195f55498cfb4669ad2e28581464b915a6ec135aebb55f3491428f6a",
+    "services/execution/paper_runner.py": "cc15eb6924a75ebc93edd18fd63d8a83abf480cd30a33953d0acae6b87486a4f",
+    "storage/intent_queue_sqlite.py": "95d3ca80ee34e20190c227f3ef8c11c5ce1cca88cd199f50195fc123dbd74342",
+    "storage/paper_trading_sqlite.py": "c533e50915448b3464c7ee5270357a84a50ea8f55e4113e347daece0718d9f56",
+    "tests/test_paper_buy_before_boundary.py": "701fcf19dffca2efd6dd2be56426dd6b268da07b2cc745bbb097dcb44af0d619",
+    "tests/test_paper_buy_fill_expiry.py": "053de1f8f1db80be4ca1f0972e4744a284569979337b70cb5b7ff3e7b84bf93c",
+    "tests/test_paper_buy_lifecycle.py": "3867afbb069c0f16ae192661ea591406cee0843ffe08e51a4892a989c3e8a9dd",
+    "tests/test_paper_reconciler_recovery.py": "de4d454304f00459e16f1293eab319645f30a673d7357216889006137c68c7c6",
+    "tests/test_paper_runner_lifecycle.py": "7c39ebe65f7b812afbb87959ee22f8ea535d0c8acd332b59550829f4aeab6cff"
+  },
+  "scope": "public source only; before fixture bytes from HEAD, production bytes from saved before tree"
+}

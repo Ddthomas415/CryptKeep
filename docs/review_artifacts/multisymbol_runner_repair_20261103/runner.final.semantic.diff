@@ -1,0 +1,148 @@
+diff --git a/services/execution/strategy_runner.py b/services/execution/strategy_runner.py
+index e6f974dcc..e2b6697c3 100644
+--- a/services/execution/strategy_runner.py
++++ b/services/execution/strategy_runner.py
+@@ -35,7 +35,7 @@ from services.validation.paper_multi_symbol_validation import collect_runtime_ro
+ from storage.intent_queue_sqlite import IntentQueueSQLite
+ from storage.paper_trading_sqlite import PaperTradingSQLite
+ from storage.strategy_state_sqlite import StrategyStateSQLite
+-from services.execution.startup_guard import require_known_flat_or_override
++from services.execution.startup_guard import StartupGuardError, require_known_flat_or_override
+ from services.strategies.crypto_edge_context import (
+     DEFAULT_CONTEXT_SOURCE,
+     DEFAULT_FUNDING_MAX_AGE_SEC,
+@@ -1098,6 +1098,7 @@ def run_forever() -> None:
+     loops = 0
+     enqueued = 0
+     checked_startup_pairs: set[tuple[str, str]] = set()
++    startup_precheck_complete = False
+     public_clients = _PublicOHLCVClients()
+     context_capture = start_capture(cfg)
+     try:
+@@ -1132,7 +1133,23 @@ def run_forever() -> None:
+                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                 continue
+ 
+-            for symbol in symbols:
++            if len(symbols) > 1 and not startup_precheck_complete:
++                # Preserve patch 0004's all-symbol startup check and round-robin
++                # service; no symbol trades before these checks have passed.
++                for startup_symbol in symbols:
++                    startup_pair = (_choose_venue_for_symbol(cfg, startup_symbol, candidates=venue_candidates), startup_symbol)
++                    if startup_pair not in checked_startup_pairs:
++                        require_known_flat_or_override(venue=startup_pair[0], symbol=startup_symbol)
++                        checked_startup_pairs.add(startup_pair)
++                startup_precheck_complete = True
++            symbol_turn = (loops - 1) % max(1, len(symbols))
++            persist_prices = ((loops - 1) // max(1, len(symbols)) + 1) % 5 == 0
++
++            turn_state_ready = False
++            prices_loaded = False
++            try:
++                for symbol in symbols[symbol_turn:symbol_turn + 1]:
++                    fresh_market = None
+                     selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
+                     startup_pair = (selected_venue, symbol)
+                     if startup_pair not in checked_startup_pairs:
+@@ -1166,6 +1183,7 @@ def run_forever() -> None:
+                         if not isinstance(prices, list):
+                             prices = []
+                         prices = [float(x) for x in prices if isinstance(x, (int, float)) and math.isfinite(float(x))]
++                        prices_loaded = True
+                     except Exception:
+                         prices = []
+ 
+@@ -1177,6 +1195,8 @@ def run_forever() -> None:
+                     if last_emitted_action not in ("buy", "sell", "hold"):
+                         last_emitted_action = "hold"
+ 
++                    turn_state_ready = True
++
+                     sym_cfg = dict(cfg)
+                     sym_cfg["symbol"] = symbol
+                     sym_cfg["venue"] = selected_venue
+@@ -1202,7 +1222,12 @@ def run_forever() -> None:
+                             time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                             continue
+                         prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+-                    if loops % 5 == 0:
++                        fresh_market = (
++                            float(ohlcv[-1][4]),
++                            int(ohlcv[-1][0] or (time.time() * 1000)),
++                            len(ohlcv),
++                        )
++                        if persist_prices and (len(symbols) == 1 or prices_loaded):
+                             sdb.set(k_prices, json.dumps(prices))
+ 
+                         __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
+@@ -1307,7 +1332,8 @@ def run_forever() -> None:
+                         prices.append(float(m))
+                         if len(prices) > int(cfg["max_bars"]):
+                             prices = prices[-int(cfg["max_bars"]):]
+-                    if loops % 5 == 0:
++                        fresh_market = (float(m), ts_ms, len(prices))
++                        if persist_prices and (len(symbols) == 1 or prices_loaded):
+                             sdb.set(k_prices, json.dumps(prices))
+                         if len(prices) < int(cfg["min_bars"]):
+                             _write_status(
+@@ -1328,6 +1354,10 @@ def run_forever() -> None:
+                             continue
+                         signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
+                         bars = len(prices)
++                if len(symbols) > 1:
++                    if fresh_market is None:
++                        continue
++                    m, ts_ms, bars = fresh_market
+                 context_quote_id = None
+                 if context_capture is not None:
+                     context_quote_id = capture_call(context_capture, "quote", selected_venue, symbol, evidence_extra)
+@@ -1812,11 +1842,40 @@ def run_forever() -> None:
+                     "note": note if 'note' in locals() else None,
+                 })
+                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
++            except StartupGuardError:
++                # Newly selected venues retain the same fail-closed startup gate.
++                raise
++            except Exception as exc:
++                if len(symbols) == 1:
++                    raise
++                # A symbol-local failure must not strand other symbols' exits.
++                _LOG.warning("symbol_turn_failed symbol=%s error_type=%s", symbol, type(exc).__name__)
++                _write_status({
++                    "ok": False, "status": "running", "ts": _now(),
++                    "note": "symbol_turn_failed", "symbol": symbol,
++                    "error_type": type(exc).__name__, "loops": loops,
++                    "enqueued": enqueued,
++                })
++                time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
++            finally:
++                if len(symbols) > 1 and turn_state_ready:
++                    # These keys and values all belong to this loaded turn.
++                    # Checkpoint even early-continue/error turns, never stale locals.
++                    try:
++                        if prices_loaded:
++                            sdb.set(k_prices, json.dumps(prices))
++                        sdb.set(k_last_action, last_action)
++                        sdb.set(k_last_emitted_action, last_emitted_action)
++                    except Exception as exc:
++                        _LOG.warning("symbol_checkpoint_failed symbol=%s error_type=%s",
++                                     symbol, type(exc).__name__)
++
+     finally:
+         public_clients.close()
+         context_capture_status = capture_call(context_capture, "close") if context_capture is not None else {
+             "enabled": False, "requested": os.environ.get("CBP_CAPTURE_MARKET_CONTEXT") == "1"
+         }
++        if len(symbols) == 1:
+             try:
+                 sdb.set(k_prices, json.dumps(prices))
+                 sdb.set(k_last_action, last_action)
+@@ -1834,7 +1893,7 @@ def run_forever() -> None:
+             "enqueued_total": enqueued,
+             "mid": m if 'm' in locals() else None,
+             "ts_ms": ts_ms if 'ts_ms' in locals() else None,
+-            "bars": bars if 'bars' in locals() else len(prices),
++            "bars": bars if 'bars' in locals() else len(prices) if 'prices' in locals() else 0,
+             "strategy_id": cfg["strategy_id"] if 'cfg' in locals() else None,
+             "strategy_preset": cfg["strategy_preset"] if 'cfg' in locals() else None,
+             "signal_source": cfg["signal_source"] if 'cfg' in locals() else None,

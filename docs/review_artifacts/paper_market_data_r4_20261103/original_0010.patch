@@ -1,0 +1,463 @@
+From a59c77d100d6ee4c80ae828e3a5dbcd06a26bfb4 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 3 Oct 2026 01:11:55 +0000
+Subject: [PATCH] fix: price lookup returns a quote only for the symbol asked
+ for
+
+get_best_bid_ask_last no longer falls back to the snapshot's venue-level row,
+which holds whichever symbol the publisher fetched first. Symbols are matched
+with the publisher's spelling rule. A failed exchange fetch in the paper
+engine's price lookup returns no price.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011p3WBrLHso7qjbJYsguxAY
+---
+ docs/work_log/review_stabilized_work_log.md |  54 +++++
+ services/execution/paper_engine.py          |  11 +-
+ services/market_data/tick_reader.py         |  31 +--
+ tests/test_market_snapshot_readers.py       |   7 +-
+ tests/test_tick_reader_exact_symbol.py      | 249 ++++++++++++++++++++
+ 5 files changed, 328 insertions(+), 24 deletions(-)
+ create mode 100644 tests/test_tick_reader_exact_symbol.py
+
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index 1b4b9cbc..b5816612 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,59 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-03 - Price lookup returns a quote only for the symbol asked for
++
++- ENGINEER (Claude, separate thread). Operator approved this as the next
++  separate patch. Independent of the multi-symbol series in its code.
++- Defect: `tick_reader.get_best_bid_ask_last(venue, symbol)` fell back to the
++  snapshot's venue-level row when the symbol had no tick. The publisher fills
++  that row with the first symbol it fetched, so the caller received another
++  symbol's quote. SHOWN in the paper history (audit findings 30, 32): eleven
++  fills across five symbols at one price; XRP/EUR fills at a BTC price.
++  Reproduced by test: with the old lookup a paper market order for ADA/EUR
++  fills from a snapshot that holds only a BTC/USDT tick.
++- Change: the fallback and its helper are removed; a symbol with no tick of
++  its own has no snapshot quote. The reader now matches symbols with the
++  publisher's own spelling rule (`symbol_router.normalize_symbol`: case, dash
++  or slash), so a spelling difference the fallback used to hide still
++  matches. `PaperEngine._price` no longer lets a failed exchange fetch escape,
++  because that fetch is now the normal path for a symbol with no tick and the
++  paper runner does not catch it around `evaluate_open_orders`.
++- One existing test asserted the fallback
++  (tests/test_market_snapshot_readers.py, venue-row-only snapshot returns a
++  quote); it now asserts None. No producer of a snapshot without a tick list
++  exists in the repository; only that test fixture had the shape.
++- Effect on each caller when a symbol has no tick (reviewer traced, SHOWN
++  unless noted): strategy runner and paper engine fetch that symbol from the
++  exchange, or get no price when `use_ccxt_fallback` is off; paper market
++  orders are refused `market_quality:no_reference_price`; the live local gate
++  price is None and the intent stays pending `missing_local_quote`; shadow
++  fills record nothing; last-price provider and price probe report no quote.
++- NOT fixed, operator decision needed: `market_quality_guard.check` returns
++  ok with reason `no_quote_data` when it has no quote, unless
++  `block_when_unknown` is set (default false; the strict template sets it).
++  Before this change the guard checked the wrong symbol's spread; now it
++  checks nothing. A LIMIT intent for a symbol with no tick therefore reaches
++  submission with no spread check, on the paper and live paths. Pinned by a
++  test in both settings.
++- NOT fixed, noted: the live intent consumer estimates zero notional for a
++  market intent with no quote and consumes a daily trade slot before the
++  router rejects it; `multi_venue_view.venue_rows` raises NameError before and
++  after; venue aliases (`gate` vs `gateio`) still do not match.
++- Operator note: the publisher's symbol list comes from the environment and
++  defaults to BTC/USD; `config/trading.yaml` lists BTC/USDT first. A symbol
++  the publisher does not publish now gets no snapshot quote.
++- Reviewer subagent returned ACCEPT WITH FIXES. Fixed after it: the paper
++  price-fetch crash path, symbol spelling, and six test gaps it found by
++  mutation. Fixes not re-reviewed.
++- VERIFIED_ENV (cloud clone, Python 3.11.15): seven affected test files =>
++  110 passed; the new tests fail on the old lookup; 14 of 14 mutations
++  fail a test (bytecode caching off); 75-scenario single-symbol differential
++  identical; full suite 4015 passed, 19 failed, the same 19 that fail on
++  unmodified master here.
++- UNVERIFIED: Python 3.12, CI, end-to-end live intent paths, Hetzner
++  environment and publisher symbol list. HIGH risk (shared by paper and live
++  price paths). Not pushed, not deployed. READY_FOR_INDEPENDENT_REVIEW.
++
+ ## 2026-10-03 - Exposure limits measured against current paper equity
+ 
+ - ENGINEER (Claude, separate thread). Treats the second finding of Codex's
+diff --git a/services/execution/paper_engine.py b/services/execution/paper_engine.py
+index 07d0f02c..7e51e22b 100644
+--- a/services/execution/paper_engine.py
++++ b/services/execution/paper_engine.py
+@@ -139,7 +139,13 @@ class PaperEngine:
+             return q
+         if not self.cfg["use_ccxt_fallback"]:
+             return None
+-        ex = make_exchange(str(venue).lower().strip(), {"apiKey": None, "secret": None}, enable_rate_limit=True)
++        # A symbol with no snapshot tick reaches this fetch routinely; a
++        # failed fetch means no price, not a crashed paper loop.
++        try:
++            ex = make_exchange(str(venue).lower().strip(), {"apiKey": None, "secret": None}, enable_rate_limit=True)
++        except Exception as exc:
++            _LOG.warning("paper price fetch unavailable for %s %s: %s", venue, symbol, type(exc).__name__)
++            return None
+         try:
+             t = ex.fetch_ticker(symbol)
+             return {
+@@ -148,6 +154,9 @@ class PaperEngine:
+                 "ask": t.get("ask"),
+                 "last": t.get("last"),
+             }
++        except Exception as exc:
++            _LOG.warning("paper price fetch failed for %s %s: %s", venue, symbol, type(exc).__name__)
++            return None
+         finally:
+             try:
+                 if hasattr(ex, "close"):
+diff --git a/services/market_data/tick_reader.py b/services/market_data/tick_reader.py
+index 10a7aadc..dd9bb135 100644
+--- a/services/market_data/tick_reader.py
++++ b/services/market_data/tick_reader.py
+@@ -2,6 +2,7 @@ from __future__ import annotations
+ import json
+ from typing import Optional, Tuple
+ from services.os.app_paths import runtime_dir
++from services.market_data.symbol_router import normalize_symbol
+ 
+ LATEST = runtime_dir() / "snapshots" / "system_status.latest.json"
+ 
+@@ -11,12 +12,13 @@ def _from_ticks_snapshot(snap: dict, venue: str, symbol: str) -> Optional[dict]:
+     if not isinstance(ticks, list):
+         return None
+     v = str(venue).lower().strip()
+-    s = str(symbol).strip()
++    # Same spelling rule the publisher writes ticks with (case, dash or slash).
++    s = normalize_symbol(str(symbol))
+     best = None
+     for t in ticks:
+         if not isinstance(t, dict):
+             continue
+-        if str(t.get("venue", "")).lower().strip() == v and str(t.get("symbol", "")).strip() == s:
++        if str(t.get("venue", "")).lower().strip() == v and normalize_symbol(str(t.get("symbol", ""))) == s:
+             best = t
+     if not best:
+         return None
+@@ -28,29 +30,18 @@ def _from_ticks_snapshot(snap: dict, venue: str, symbol: str) -> Optional[dict]:
+     }
+ 
+ 
+-def _from_venues_snapshot(snap: dict, venue: str) -> Optional[dict]:
+-    venues = snap.get("venues") if isinstance(snap, dict) else None
+-    if not isinstance(venues, dict):
+-        return None
+-    row = venues.get(str(venue).lower().strip())
+-    if not isinstance(row, dict):
+-        return None
+-    return {
+-        "ts_ms": int(snap.get("ts_ms") or row.get("timestamp") or 0),
+-        "bid": row.get("bid"),
+-        "ask": row.get("ask"),
+-        "last": row.get("last"),
+-    }
+-
+ def get_best_bid_ask_last(venue: str, symbol: str) -> Optional[dict]:
++    """Latest snapshot quote for exactly this venue and symbol, or None.
++
++    The snapshot's venue-level row is the quote of whichever symbol was
++    fetched first for that venue. It is never returned here: a symbol with no
++    tick of its own has no quote.
++    """
+     try:
+         if not LATEST.exists():
+             return None
+         snap = json.loads(LATEST.read_text(encoding="utf-8"))
+-        best = _from_ticks_snapshot(snap, venue, symbol)
+-        if best is not None:
+-            return best
+-        return _from_venues_snapshot(snap, venue)
++        return _from_ticks_snapshot(snap, venue, symbol)
+     except Exception:
+         return None
+ 
+diff --git a/tests/test_market_snapshot_readers.py b/tests/test_market_snapshot_readers.py
+index e8ac005e..09dbba32 100644
+--- a/tests/test_market_snapshot_readers.py
++++ b/tests/test_market_snapshot_readers.py
+@@ -20,7 +20,9 @@ def test_staleness_guard_accepts_valid_snapshot_json(monkeypatch, tmp_path):
+ 
+ 
+ 
+-def test_tick_reader_supports_venues_snapshot_shape(monkeypatch, tmp_path):
++def test_tick_reader_does_not_price_a_symbol_from_the_venue_level_row(monkeypatch, tmp_path):
++    # The venue-level row carries no symbol: it is the quote of whichever
++    # symbol the publisher fetched first. It must not be returned for a symbol.
+     snap = tmp_path / "system_status.latest.json"
+     snap.write_text(
+         json.dumps(
+@@ -43,8 +45,7 @@ def test_tick_reader_supports_venues_snapshot_shape(monkeypatch, tmp_path):
+ 
+     out = tick_reader.get_best_bid_ask_last("coinbase", "BTC/USD")
+ 
+-    assert out == {"ts_ms": 123456, "bid": 100.0, "ask": 102.0, "last": 101.0}
+-    assert tick_reader.mid_price(out) == 101.0
++    assert out is None
+ 
+ 
+ 
+diff --git a/tests/test_tick_reader_exact_symbol.py b/tests/test_tick_reader_exact_symbol.py
+new file mode 100644
+index 00000000..f91fb4e8
+--- /dev/null
++++ b/tests/test_tick_reader_exact_symbol.py
+@@ -0,0 +1,249 @@
++"""A symbol is priced only from its own tick, never from another symbol's quote."""
++from __future__ import annotations
++
++import json
++import time
++
++import pytest
++
++from services.market_data import tick_reader
++from tests.test_strategy_runtime_runner import _reload_strategy_runner
++
++
++def _real_shape(now_ms):
++    """The shape of the operator's snapshot on 2026-10-03: one tick, one venue row."""
++    return {
++        "ts": "2026-10-03T00:01:21+00:00", "ts_ms": now_ms,
++        "venues": {"coinbase": {"bid": 84515.06, "ask": 84516.14, "last": 84516.14, "timestamp": now_ms, "ok": True}},
++        "ticks": [{"venue": "coinbase", "symbol": "BTC/USDT", "bid": 84515.06, "ask": 84516.14, "last": 84516.14, "ts_ms": now_ms}],
++    }
++
++
++@pytest.fixture
++def snapshot(monkeypatch, tmp_path):
++    path = tmp_path / "system_status.latest.json"
++    now_ms = int(time.time() * 1000)
++    path.write_text(json.dumps(_real_shape(now_ms)), encoding="utf-8")
++    monkeypatch.setattr(tick_reader, "LATEST", path)
++    return now_ms
++
++
++def test_symbol_with_its_own_tick_is_returned(snapshot):
++    assert tick_reader.get_best_bid_ask_last("coinbase", "BTC/USDT") == {
++        "ts_ms": snapshot, "bid": 84515.06, "ask": 84516.14, "last": 84516.14,
++    }
++
++
++@pytest.mark.parametrize("symbol", ["SOL/USD", "ORCA/USD", "ADA/EUR", "BTC/USD", "XRP/EUR", "BTC/USDC", "BTCUSDT", "USDT/BTC"])
++def test_symbol_without_its_own_tick_has_no_quote(snapshot, symbol):
++    assert tick_reader.get_best_bid_ask_last("coinbase", symbol) is None
++
++
++@pytest.mark.parametrize("symbol", ["btc/usdt", "BTC-USDT", " btc-usdt "])
++def test_same_symbol_in_another_spelling_is_matched(snapshot, symbol):
++    assert tick_reader.get_best_bid_ask_last("coinbase", symbol)["bid"] == 84515.06
++
++
++def _write(monkeypatch, tmp_path, snap):
++    path = tmp_path / "snap.json"
++    path.write_text(json.dumps(snap), encoding="utf-8")
++    monkeypatch.setattr(tick_reader, "LATEST", path)
++
++
++VENUE_ROW = {"coinbase": {"bid": 1.0, "ask": 2.0, "last": 1.5, "timestamp": 7, "ok": True}}
++
++
++def test_missing_symbol_in_a_snapshot_with_several_ticks_has_no_quote(monkeypatch, tmp_path):
++    # The production shape of the defect: several symbols published, one missing.
++    _write(monkeypatch, tmp_path, {"ts_ms": 7, "venues": VENUE_ROW, "ticks": [
++        {"venue": "coinbase", "symbol": "BTC/USD", "bid": 1.0, "ask": 2.0, "last": 1.5, "ts_ms": 7},
++        {"venue": "coinbase", "symbol": "ETH/USD", "bid": 3.0, "ask": 4.0, "last": 3.5, "ts_ms": 7},
++    ]})
++
++    assert tick_reader.get_best_bid_ask_last("coinbase", "XRP/EUR") is None
++    assert tick_reader.get_best_bid_ask_last("coinbase", "ETH/USD")["bid"] == 3.0
++
++
++@pytest.mark.parametrize("ticks", [[], None, "x"])
++def test_empty_or_missing_tick_list_has_no_quote(monkeypatch, tmp_path, ticks):
++    snap = {"ts_ms": 7, "venues": VENUE_ROW}
++    if ticks is not None:
++        snap["ticks"] = ticks
++    _write(monkeypatch, tmp_path, snap)
++
++    assert tick_reader.get_best_bid_ask_last("coinbase", "BTC/USD") is None
++
++
++def test_tick_without_bid_and_ask_is_returned_as_is_not_replaced_by_the_venue_row(monkeypatch, tmp_path):
++    _write(monkeypatch, tmp_path, {"ts_ms": 7, "venues": VENUE_ROW, "ticks": [
++        {"venue": "coinbase", "symbol": "BTC/USD", "bid": None, "ask": None, "last": None, "ts_ms": 7},
++    ]})
++
++    assert tick_reader.get_best_bid_ask_last("coinbase", "BTC/USD") == {"ts_ms": 7, "bid": None, "ask": None, "last": None}
++
++
++def test_last_matching_tick_wins_and_venue_spelling_is_tolerated(monkeypatch, tmp_path):
++    _write(monkeypatch, tmp_path, {"ticks": [
++        {"venue": "coinbase", "symbol": "BTC/USD", "bid": 1.0, "ask": 2.0, "last": 1.5, "ts_ms": 7},
++        {"venue": " Coinbase ", "symbol": "BTC/USD", "bid": 5.0, "ask": 6.0, "last": 5.5, "ts_ms": 8},
++    ]})
++
++    assert tick_reader.get_best_bid_ask_last("COINBASE", "BTC/USD")["bid"] == 5.0
++
++
++def test_another_venues_tick_is_not_returned(snapshot):
++    assert tick_reader.get_best_bid_ask_last("kraken", "BTC/USDT") is None
++
++
++def _runner_cfg(symbol, *, fallback):
++    return {"venue": "coinbase", "symbol": symbol, "max_tick_age_sec": 5.0, "use_ccxt_fallback": fallback}
++
++
++def test_runner_gets_no_price_for_a_symbol_without_a_tick(snapshot, monkeypatch, tmp_path):
++    runner = _reload_strategy_runner(monkeypatch, tmp_path)
++
++    assert runner._fetch_mid(_runner_cfg("SOL/USD", fallback=False)) is None
++    price, ts_ms = runner._fetch_mid(_runner_cfg("BTC/USDT", fallback=False))
++    assert price == pytest.approx(84515.6)
++    assert ts_ms == snapshot
++
++
++def test_runner_exchange_fallback_asks_for_the_same_symbol(snapshot, monkeypatch, tmp_path):
++    runner = _reload_strategy_runner(monkeypatch, tmp_path)
++    asked = []
++
++    class Exchange:
++        def fetch_ticker(self, symbol):
++            asked.append(symbol)
++            return {"bid": 150.0, "ask": 152.0, "last": 151.0, "timestamp": 42}
++
++        def close(self):
++            pass
++
++    monkeypatch.setattr(runner, "make_exchange", lambda *a, **k: Exchange())
++
++    assert runner._fetch_mid(_runner_cfg("SOL/USD", fallback=True)) == (151.0, 42)
++    assert asked == ["SOL/USD"]
++
++
++def test_paper_engine_gets_no_price_for_a_symbol_without_a_tick(snapshot, monkeypatch, tmp_path):
++    _reload_strategy_runner(monkeypatch, tmp_path)
++    from services.execution import paper_engine
++
++    engine = paper_engine.PaperEngine()
++    engine.cfg["use_ccxt_fallback"] = False
++
++    assert engine._price("coinbase", "ADA/EUR") is None
++    assert engine._price("coinbase", "BTC/USDT")["bid"] == 84515.06
++
++
++def test_paper_market_order_for_a_symbol_without_a_tick_is_not_filled(snapshot, monkeypatch, tmp_path):
++    # In April 2026 paper orders for ADA/EUR, LTC/USD, LINK/EUR and XRP/EUR
++    # were filled at another symbol's price this way. The pre-submit gate is
++    # bypassed so the order reaches the fill step, which is what is tested.
++    _reload_strategy_runner(monkeypatch, tmp_path)
++    from services.execution import paper_engine
++
++    engine = paper_engine.PaperEngine()
++    engine.cfg["use_ccxt_fallback"] = False
++    engine.set_cash_quote(1_000_000.0)
++    monkeypatch.setattr(engine, "_pre_submit_gate", lambda **kw: (True, "ok"))
++
++    result = engine.submit_order(
++        client_order_id="no-tick-1", venue="coinbase", symbol="ADA/EUR", side="buy", order_type="market", qty=0.001,
++    )
++    assert result.get("ok") is True
++    summary = engine.evaluate_open_orders()
++
++    assert summary["open_orders_seen"] == 1
++    assert summary["filled"] == 0
++    assert float((engine.db.get_position("ADA/EUR") or {"qty": 0.0}).get("qty") or 0.0) == 0.0
++    assert engine.cash_quote() == 1_000_000.0
++
++
++def test_paper_engine_price_fetch_failure_means_no_price_not_a_crash(snapshot, monkeypatch, tmp_path):
++    _reload_strategy_runner(monkeypatch, tmp_path)
++    from services.execution import paper_engine
++
++    engine = paper_engine.PaperEngine()
++    engine.cfg["use_ccxt_fallback"] = True
++
++    def unavailable(*a, **k):
++        raise RuntimeError("no network")
++
++    monkeypatch.setattr(paper_engine, "make_exchange", unavailable)
++    assert engine._price("coinbase", "XRP/EUR") is None
++
++    class Exchange:
++        def fetch_ticker(self, symbol):
++            raise RuntimeError("bad symbol")
++
++        def close(self):
++            pass
++
++    monkeypatch.setattr(paper_engine, "make_exchange", lambda *a, **k: Exchange())
++    assert engine._price("coinbase", "XRP/EUR") is None
++
++
++def test_paper_engine_exchange_fallback_asks_for_the_same_symbol(snapshot, monkeypatch, tmp_path):
++    _reload_strategy_runner(monkeypatch, tmp_path)
++    from services.execution import paper_engine
++
++    asked = []
++
++    class Exchange:
++        def fetch_ticker(self, symbol):
++            asked.append(symbol)
++            return {"bid": 0.5, "ask": 0.7, "last": 0.6, "timestamp": 9}
++
++        def close(self):
++            pass
++
++    engine = paper_engine.PaperEngine()
++    engine.cfg["use_ccxt_fallback"] = True
++    monkeypatch.setattr(paper_engine, "make_exchange", lambda *a, **k: Exchange())
++
++    assert engine._price("coinbase", "XRP/EUR") == {"ts_ms": 9, "bid": 0.5, "ask": 0.7, "last": 0.6}
++    assert asked == ["XRP/EUR"]
++
++
++def test_real_pre_submit_gate_refuses_a_market_order_for_a_symbol_without_a_tick(snapshot, monkeypatch, tmp_path):
++    _reload_strategy_runner(monkeypatch, tmp_path)
++    from services.execution import paper_engine
++    from services.risk import staleness_guard
++
++    monkeypatch.setattr(staleness_guard, "LATEST_SNAPSHOT", tick_reader.LATEST)
++    engine = paper_engine.PaperEngine()
++    engine.set_cash_quote(1_000_000.0)
++
++    result = engine.submit_order(
++        client_order_id="no-tick-2", venue="coinbase", symbol="ADA/EUR", side="buy", order_type="market", qty=0.001,
++    )
++
++    assert result.get("ok") is not True
++    assert "no_reference_price" in str(result)
++
++
++@pytest.mark.parametrize("block, ok", [(False, True), (True, False)])
++def test_market_quality_guard_reports_no_quote_for_a_symbol_without_a_tick(snapshot, monkeypatch, block, ok):
++    # With the default setting the guard lets an unknown quote through
++    # unchecked; only block_when_unknown refuses it. Pinned so that the
++    # setting's effect is explicit.
++    from services.risk import market_quality_guard
++
++    real = market_quality_guard._cfg if hasattr(market_quality_guard, "_cfg") else None
++    assert real is not None
++    monkeypatch.setattr(market_quality_guard, "_cfg", lambda: {**real(), "block_when_unknown": block})
++
++    out = market_quality_guard.check("coinbase", "ADA/EUR")
++
++    assert out["reason"] == "no_quote_data"
++    assert out["ok"] is ok
++
++
++def test_tick_written_in_another_spelling_is_matched(monkeypatch, tmp_path):
++    _write(monkeypatch, tmp_path, {"ticks": [
++        {"venue": "coinbase", "symbol": "btc-usd", "bid": 1.0, "ask": 2.0, "last": 1.5, "ts_ms": 7},
++    ]})
++
++    assert tick_reader.get_best_bid_ask_last("coinbase", "BTC/USD")["bid"] == 1.0
+-- 
+2.43.0
+

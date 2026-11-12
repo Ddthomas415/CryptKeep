@@ -1,0 +1,514 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 13%]
+........................................................................ [ 17%]
+........................................................s............... [ 22%]
+........................................................................ [ 26%]
+........................................................................ [ 31%]
+................................................................FFFFFF.F [ 35%]
+........................................................................ [ 40%]
+........................................................................ [ 44%]
+........................................................................ [ 49%]
+........................................................................ [ 53%]
+........................................................................ [ 57%]
+........................................................................ [ 62%]
+........................................................................ [ 66%]
+........................................................................ [ 71%]
+F....................................................................... [ 75%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+.........................................................FFFFFF......FF. [ 89%]
+...........FFFFFF....................................................... [ 93%]
+...............................FFFFFFFFFFF.............................. [ 98%]
+................................                                         [100%]
+=================================== FAILURES ===================================
+_____ test_monitor_mode_is_explicit_and_status_read_does_not_repeat_audit ______
+tests/test_paper_account_reconciliation.py:215: in test_monitor_mode_is_explicit_and_status_read_does_not_repeat_audit
+    from services.analytics import paper_sim_monitor as monitor
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+______________ test_account_monitor_rejects_unbounded_interval[0] ______________
+tests/test_paper_account_reconciliation.py:229: in test_account_monitor_rejects_unbounded_interval
+    from services.analytics.paper_sim_monitor import PaperSimMonitorCfg
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_____________ test_account_monitor_rejects_unbounded_interval[-1] ______________
+tests/test_paper_account_reconciliation.py:229: in test_account_monitor_rejects_unbounded_interval
+    from services.analytics.paper_sim_monitor import PaperSimMonitorCfg
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_____________ test_account_monitor_rejects_unbounded_interval[301] _____________
+tests/test_paper_account_reconciliation.py:229: in test_account_monitor_rejects_unbounded_interval
+    from services.analytics.paper_sim_monitor import PaperSimMonitorCfg
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_____________ test_account_monitor_rejects_unbounded_interval[nan] _____________
+tests/test_paper_account_reconciliation.py:229: in test_account_monitor_rejects_unbounded_interval
+    from services.analytics.paper_sim_monitor import PaperSimMonitorCfg
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_____________ test_account_monitor_rejects_unbounded_interval[inf] _____________
+tests/test_paper_account_reconciliation.py:229: in test_account_monitor_rejects_unbounded_interval
+    from services.analytics.paper_sim_monitor import PaperSimMonitorCfg
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_________ test_account_monitor_loop_subtracts_check_time_from_interval _________
+tests/test_paper_account_reconciliation.py:269: in test_account_monitor_loop_subtracts_check_time_from_interval
+    from services.analytics import paper_sim_monitor as monitor
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_____________ test_monitor_keeps_failed_current_valuation_unknown ______________
+tests/test_paper_missing_price_valuation.py:117: in test_monitor_keeps_failed_current_valuation_unknown
+    from services.analytics import paper_sim_monitor as monitor
+services/analytics/paper_sim_monitor.py:18: in <module>
+    from services.analytics.paper_strategy_evidence_service import load_runtime_status as load_campaign_runtime_status
+services/analytics/paper_strategy_evidence_service.py:26: in <module>
+    from services.market_data.symbol_utils import split_symbol
+services/market_data/symbol_utils.py:3: in <module>
+    from core.symbol_parse import split_symbol
+E   ModuleNotFoundError: No module named 'core'
+_ test_recording_toggle_and_saved_before_have_identical_real_behavior[public_ohlcv_1h-breakout_donchian] _
+tests/test_runner_recording_integration.py:403: in test_recording_toggle_and_saved_before_have_identical_real_behavior
+    with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_recording_toggle_and_saved_before_have_identical_real_behavior[public_ohlcv_1h-ema_cross] _
+tests/test_runner_recording_integration.py:403: in test_recording_toggle_and_saved_before_have_identical_real_behavior
+    with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_recording_toggle_and_saved_before_have_identical_real_behavior[public_ohlcv_1h-mean_reversion_rsi] _
+tests/test_runner_recording_integration.py:403: in test_recording_toggle_and_saved_before_have_identical_real_behavior
+    with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_recording_toggle_and_saved_before_have_identical_real_behavior[synthetic_mid_ohlcv-breakout_donchian] _
+tests/test_runner_recording_integration.py:403: in test_recording_toggle_and_saved_before_have_identical_real_behavior
+    with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_recording_toggle_and_saved_before_have_identical_real_behavior[synthetic_mid_ohlcv-ema_cross] _
+tests/test_runner_recording_integration.py:403: in test_recording_toggle_and_saved_before_have_identical_real_behavior
+    with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_recording_toggle_and_saved_before_have_identical_real_behavior[synthetic_mid_ohlcv-mean_reversion_rsi] _
+tests/test_runner_recording_integration.py:403: in test_recording_toggle_and_saved_before_have_identical_real_behavior
+    with recording_case(strategy, signal_source, enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+______ test_simultaneous_stop_trailing_raw_sell_keeps_old_priority[False] ______
+tests/test_runner_recording_integration.py:478: in test_simultaneous_stop_trailing_raw_sell_keeps_old_priority
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+______ test_simultaneous_stop_trailing_raw_sell_keeps_old_priority[True] _______
+tests/test_runner_recording_integration.py:478: in test_simultaneous_stop_trailing_raw_sell_keeps_old_priority
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_failed_state_write_has_receipt_without_changing_old_failure_behavior[False-last_action] _
+tests/test_runner_recording_integration.py:603: in test_failed_state_write_has_receipt_without_changing_old_failure_behavior
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_failed_state_write_has_receipt_without_changing_old_failure_behavior[False-warmed] _
+tests/test_runner_recording_integration.py:603: in test_failed_state_write_has_receipt_without_changing_old_failure_behavior
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_failed_state_write_has_receipt_without_changing_old_failure_behavior[False-trailing_peak] _
+tests/test_runner_recording_integration.py:603: in test_failed_state_write_has_receipt_without_changing_old_failure_behavior
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_failed_state_write_has_receipt_without_changing_old_failure_behavior[True-last_action] _
+tests/test_runner_recording_integration.py:603: in test_failed_state_write_has_receipt_without_changing_old_failure_behavior
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_failed_state_write_has_receipt_without_changing_old_failure_behavior[True-warmed] _
+tests/test_runner_recording_integration.py:603: in test_failed_state_write_has_receipt_without_changing_old_failure_behavior
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_ test_failed_state_write_has_receipt_without_changing_old_failure_behavior[True-trailing_peak] _
+tests/test_runner_recording_integration.py:603: in test_failed_state_write_has_receipt_without_changing_old_failure_behavior
+    with recording_case(enabled=enabled, before=before) as (h, inputs, capture):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:182: in case
+    _restore_before_strategy_stack(h)
+tests/test_runner_recording_integration.py:71: in _restore_before_strategy_stack
+    registry = _saved_module(h.mp, "services__strategies__strategy_registry.py.before")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_runner_recording_integration.py:60: in _saved_module
+    assert path.is_file(), f"required before artifact missing: {path}"
+E   AssertionError: required before artifact missing: /private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/review_artifacts/paper_simulation_r6r9_20261103/services__strategies__strategy_registry.py.before').is_file
+_________________________ test_all_shipped_units_exist _________________________
+tests/test_systemd_units.py:51: in test_all_shipped_units_exist
+    assert (UNIT_DIR / name).exists(), name
+E   AssertionError: cbp-collector.service
+E   assert False
+E    +  where False = exists()
+E    +    where exists = (PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd') / 'cbp-collector.service').exists
+_____________________ test_units_never_carry_arming_tokens _____________________
+tests/test_systemd_units.py:58: in test_units_never_carry_arming_tokens
+    text = (UNIT_DIR / name).read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp-collector.service'
+___________ test_env_example_exists_and_carries_no_arming_assignment ___________
+tests/test_systemd_units.py:68: in test_env_example_exists_and_carries_no_arming_assignment
+    assert env.exists()
+E   AssertionError: assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp.env.example').exists
+_______________ test_units_supervision_and_hardening_directives ________________
+tests/test_systemd_units.py:81: in test_units_supervision_and_hardening_directives
+    parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp-collector.service'
+_______________ test_oneshot_units_are_hardened_and_timer_driven _______________
+tests/test_systemd_units.py:97: in test_oneshot_units_are_hardened_and_timer_driven
+    parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp-dead-man.service'
+__________ test_crypto_edge_collector_unit_is_read_only_research_path __________
+tests/test_systemd_units.py:113: in test_crypto_edge_collector_unit_is_read_only_research_path
+    text = (UNIT_DIR / "cbp-crypto-edge-collector.service").read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp-crypto-edge-collector.service'
+____________________ test_exec_start_scripts_exist_in_repo _____________________
+tests/test_systemd_units.py:125: in test_exec_start_scripts_exist_in_repo
+    parsed = _parse_unit((UNIT_DIR / name).read_text(encoding="utf-8"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp-collector.service'
+_______________ test_install_helper_static_verify_passes_dry_run _______________
+tests/test_systemd_units.py:139: in test_install_helper_static_verify_passes_dry_run
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+E   AssertionError: FAIL: missing unit: cbp-collector.service
+E     FAIL: missing unit: cbp-crypto-edge-collector.service
+E     FAIL: missing unit: cbp-intent-consumer.service
+E     FAIL: missing unit: cbp-reconciler.service
+E     FAIL: missing unit: cbp-dashboard.service
+E     FAIL: missing unit: cbp-dead-man.service
+E     FAIL: missing unit: cbp-edge-cadence.service
+E     FAIL: missing unit: cbp-dead-man.timer
+E     FAIL: missing unit: cbp-edge-cadence.timer
+E     FAIL: missing cbp.env.example
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python', '/private/tmp/cryptkeep-composed-202...sing unit: cbp-dead-man.timer\nFAIL: missing unit: cbp-edge-cadence.timer\nFAIL: missing cbp.env.example\n', stderr='').returncode
+___________ test_install_helper_renders_units_for_explicit_repo_dir ____________
+tests/test_systemd_units.py:160: in test_install_helper_renders_units_for_explicit_repo_dir
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+E   AssertionError: FAIL: missing unit: cbp-collector.service
+E     FAIL: missing unit: cbp-crypto-edge-collector.service
+E     FAIL: missing unit: cbp-intent-consumer.service
+E     FAIL: missing unit: cbp-reconciler.service
+E     FAIL: missing unit: cbp-dashboard.service
+E     FAIL: missing unit: cbp-dead-man.service
+E     FAIL: missing unit: cbp-edge-cadence.service
+E     FAIL: missing unit: cbp-dead-man.timer
+E     FAIL: missing unit: cbp-edge-cadence.timer
+E     FAIL: missing cbp.env.example
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python', '/private/tmp/cryptkeep-composed-202...sing unit: cbp-dead-man.timer\nFAIL: missing unit: cbp-edge-cadence.timer\nFAIL: missing cbp.env.example\n', stderr='').returncode
+__________________ test_install_helper_fails_on_arming_token ___________________
+tests/test_systemd_units.py:181: in test_install_helper_fails_on_arming_token
+    text = (UNIT_DIR / name).read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/packaging/systemd/cbp-collector.service'
+_______________ test_deployment_doc_names_the_authority_boundary _______________
+tests/test_systemd_units.py:204: in test_deployment_doc_names_the_authority_boundary
+    doc = (REPO / "docs" / "DEPLOYMENT.md").read_text(encoding="utf-8")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree/docs/DEPLOYMENT.md'
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_group_a_supervisor.py:181: requires Linux parent-death and WNOWAIT; not Mac proof
+FAILED tests/test_paper_account_reconciliation.py::test_monitor_mode_is_explicit_and_status_read_does_not_repeat_audit
+FAILED tests/test_paper_account_reconciliation.py::test_account_monitor_rejects_unbounded_interval[0]
+FAILED tests/test_paper_account_reconciliation.py::test_account_monitor_rejects_unbounded_interval[-1]
+FAILED tests/test_paper_account_reconciliation.py::test_account_monitor_rejects_unbounded_interval[301]
+FAILED tests/test_paper_account_reconciliation.py::test_account_monitor_rejects_unbounded_interval[nan]
+FAILED tests/test_paper_account_reconciliation.py::test_account_monitor_rejects_unbounded_interval[inf]
+FAILED tests/test_paper_account_reconciliation.py::test_account_monitor_loop_subtracts_check_time_from_interval
+FAILED tests/test_paper_missing_price_valuation.py::test_monitor_keeps_failed_current_valuation_unknown
+FAILED tests/test_runner_recording_integration.py::test_recording_toggle_and_saved_before_have_identical_real_behavior[public_ohlcv_1h-breakout_donchian]
+FAILED tests/test_runner_recording_integration.py::test_recording_toggle_and_saved_before_have_identical_real_behavior[public_ohlcv_1h-ema_cross]
+FAILED tests/test_runner_recording_integration.py::test_recording_toggle_and_saved_before_have_identical_real_behavior[public_ohlcv_1h-mean_reversion_rsi]
+FAILED tests/test_runner_recording_integration.py::test_recording_toggle_and_saved_before_have_identical_real_behavior[synthetic_mid_ohlcv-breakout_donchian]
+FAILED tests/test_runner_recording_integration.py::test_recording_toggle_and_saved_before_have_identical_real_behavior[synthetic_mid_ohlcv-ema_cross]
+FAILED tests/test_runner_recording_integration.py::test_recording_toggle_and_saved_before_have_identical_real_behavior[synthetic_mid_ohlcv-mean_reversion_rsi]
+FAILED tests/test_runner_recording_integration.py::test_simultaneous_stop_trailing_raw_sell_keeps_old_priority[False]
+FAILED tests/test_runner_recording_integration.py::test_simultaneous_stop_trailing_raw_sell_keeps_old_priority[True]
+FAILED tests/test_runner_recording_integration.py::test_failed_state_write_has_receipt_without_changing_old_failure_behavior[False-last_action]
+FAILED tests/test_runner_recording_integration.py::test_failed_state_write_has_receipt_without_changing_old_failure_behavior[False-warmed]
+FAILED tests/test_runner_recording_integration.py::test_failed_state_write_has_receipt_without_changing_old_failure_behavior[False-trailing_peak]
+FAILED tests/test_runner_recording_integration.py::test_failed_state_write_has_receipt_without_changing_old_failure_behavior[True-last_action]
+FAILED tests/test_runner_recording_integration.py::test_failed_state_write_has_receipt_without_changing_old_failure_behavior[True-warmed]
+FAILED tests/test_runner_recording_integration.py::test_failed_state_write_has_receipt_without_changing_old_failure_behavior[True-trailing_peak]
+FAILED tests/test_systemd_units.py::test_all_shipped_units_exist - AssertionE...
+FAILED tests/test_systemd_units.py::test_units_never_carry_arming_tokens - Fi...
+FAILED tests/test_systemd_units.py::test_env_example_exists_and_carries_no_arming_assignment
+FAILED tests/test_systemd_units.py::test_units_supervision_and_hardening_directives
+FAILED tests/test_systemd_units.py::test_oneshot_units_are_hardened_and_timer_driven
+FAILED tests/test_systemd_units.py::test_crypto_edge_collector_unit_is_read_only_research_path
+FAILED tests/test_systemd_units.py::test_exec_start_scripts_exist_in_repo - F...
+FAILED tests/test_systemd_units.py::test_install_helper_static_verify_passes_dry_run
+FAILED tests/test_systemd_units.py::test_install_helper_renders_units_for_explicit_repo_dir
+FAILED tests/test_systemd_units.py::test_install_helper_fails_on_arming_token
+FAILED tests/test_systemd_units.py::test_deployment_doc_names_the_authority_boundary
+33 failed, 1582 passed, 1 skipped in 122.76s (0:02:02)

@@ -1,0 +1,7 @@
+{
+  "provenance": "Original execution output transcribed from this review chat; not rerun when archived",
+  "exec_chunk_id": "187f2f",
+  "exit_code": 1,
+  "wall_time_seconds": 0.283221208,
+  "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ loaded_runner_adapter_change _________________________\n<string>:12: in loaded_runner_adapter_change\n    ???\nE   AssertionError: loaded decision adapter changed without changing implementation fingerprint\n=========================== short test summary info ============================\nFAILED tests/test_runner_decision_capture.py::loaded_runner_adapter_change - ...\n1 failed in 0.22s\n"
+}

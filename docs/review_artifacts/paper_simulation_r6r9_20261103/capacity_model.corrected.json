@@ -1,0 +1,101 @@
+{
+  "scope": "conditional_synthetic_journal_sizing_not_intended_host_forecast",
+  "inputs": [
+    {
+      "file": "corrected_synthetic_hours/synthetic_hour_breakout_donchian_public_ohlcv_1h.json",
+      "sha256": "509ee3a927f49a5a6e0a32fdb248efd483b45a641bcb8903d4827672626dfb96",
+      "source": "public_ohlcv_1h",
+      "strategy": "breakout_donchian",
+      "records": 61,
+      "matches": 61,
+      "stream_bytes": 402969,
+      "cas_bytes": 74242,
+      "mean_stream_bytes_per_record": 6606.049180327869
+    },
+    {
+      "file": "corrected_synthetic_hours/synthetic_hour_breakout_donchian_synthetic_mid_ohlcv.json",
+      "sha256": "417517f44729d0c14c9f6bb2f57f050761895de097f8a6814bd8feb844160aed",
+      "source": "synthetic_mid_ohlcv",
+      "strategy": "breakout_donchian",
+      "records": 61,
+      "matches": 61,
+      "stream_bytes": 621284,
+      "cas_bytes": 39135,
+      "mean_stream_bytes_per_record": 10184.983606557376
+    },
+    {
+      "file": "corrected_synthetic_hours/synthetic_hour_ema_cross_public_ohlcv_1h.json",
+      "sha256": "263e745655e222ecd41d5dbf5435531f0058d89226a8d02425cb3c9ce03f1f65",
+      "source": "public_ohlcv_1h",
+      "strategy": "ema_cross",
+      "records": 61,
+      "matches": 61,
+      "stream_bytes": 398645,
+      "cas_bytes": 74158,
+      "mean_stream_bytes_per_record": 6535.163934426229
+    },
+    {
+      "file": "corrected_synthetic_hours/synthetic_hour_ema_cross_synthetic_mid_ohlcv.json",
+      "sha256": "0ddf6d36fb1f40d0ec3e8a505740abf5e4f236f2441eaec34540815d6f5e290a",
+      "source": "synthetic_mid_ohlcv",
+      "strategy": "ema_cross",
+      "records": 61,
+      "matches": 61,
+      "stream_bytes": 617404,
+      "cas_bytes": 39111,
+      "mean_stream_bytes_per_record": 10121.377049180328
+    },
+    {
+      "file": "corrected_synthetic_hours/synthetic_hour_mean_reversion_rsi_public_ohlcv_1h.json",
+      "sha256": "0f7bf0be89a120742515dc64d6f98187f28ae5f3ff2010b48828196a7c81c8d4",
+      "source": "public_ohlcv_1h",
+      "strategy": "mean_reversion_rsi",
+      "records": 61,
+      "matches": 61,
+      "stream_bytes": 393877,
+      "cas_bytes": 74252,
+      "mean_stream_bytes_per_record": 6457.0
+    },
+    {
+      "file": "corrected_synthetic_hours/synthetic_hour_mean_reversion_rsi_synthetic_mid_ohlcv.json",
+      "sha256": "b96878785163325cce2452351405b6ae3c1f61177dd4ca3ced7a3fb15b443b93",
+      "source": "synthetic_mid_ohlcv",
+      "strategy": "mean_reversion_rsi",
+      "records": 61,
+      "matches": 61,
+      "stream_bytes": 616470,
+      "cas_bytes": 39138,
+      "mean_stream_bytes_per_record": 10106.065573770491
+    }
+  ],
+  "total_records": 366,
+  "total_matches": 366,
+  "journal_only_scenarios": [
+    {
+      "accounts": 9,
+      "assumed_interval_seconds": 15,
+      "assumed_days": 182,
+      "nominal_records": 9434880,
+      "journal_bytes_min": 60921020160.0,
+      "journal_bytes_max": 62327281290.491806
+    },
+    {
+      "accounts": 18,
+      "assumed_interval_seconds": 15,
+      "assumed_days": 182,
+      "nominal_records": 18869760,
+      "journal_bytes_min": 121842040320.0,
+      "journal_bytes_max": 124654562580.98361
+    }
+  ],
+  "limits": [
+    "Journal only: exclude CAS growth, filesystem overhead, backups, ledger, logs and other data.",
+    "Synthetic sixty-second round-robin sample scaled by record count, not a measured fifteen-second multi-account runtime.",
+    "Three symbols per synthetic run, versus nine separately configured Group A accounts.",
+    "R1 blocked turns skip sleep; actual record rate may exceed this nominal scenario.",
+    "No host capacity inspected; this cannot satisfy the below-sixty-percent commissioning requirement.",
+    "Shared completed-input CAS is opt-in and must be configured explicitly before operations.",
+    "Synchronous storage and code-fingerprint overhead require intended-host measurement."
+  ],
+  "phase": "corrected_active_binding_fingerprint_source"
+}

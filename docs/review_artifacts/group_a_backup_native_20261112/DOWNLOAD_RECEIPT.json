@@ -1,0 +1,25 @@
+{
+  "status": "COMPLETE",
+  "directory": "/private/tmp/cryptkeep-backup-tools-pdaujppb/tools-darwinarm64",
+  "receipt_sha256": "866a8650d1a3570d0fe3e02d7e9022db5c10023ed022aeddbc68bc7cc5108c4e",
+  "pins_sha256": "a048a74db7342f18c3a16d591f951e0564f57d9d8b45e687ef1513b3b3ca8041",
+  "archive_payload_bytes": 42929778,
+  "total_staged_bytes": 161465927,
+  "clients_executed": false,
+  "signature_verified": false,
+  "native_execution_authorized": false,
+  "tools": {
+    "restic": {
+      "version": "0.19.1",
+      "binary_bytes": 29756850,
+      "binary_sha256": "06582569ff2f10e1935a6f12187c76db02f0bae99e6e54098f2cdc374766d768",
+      "mode": "0600_NOT_EXECUTABLE"
+    },
+    "rclone": {
+      "version": "1.76.0",
+      "binary_bytes": 88778466,
+      "binary_sha256": "da7c43d491e41966f4af7f5f4ac34f7dac2c8866e3675393ef0316ebc57ccd42",
+      "mode": "0600_NOT_EXECUTABLE"
+    }
+  }
+}

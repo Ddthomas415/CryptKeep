@@ -1,0 +1,26 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_paper_exit_accounting.py",
+    "-k",
+    "real_runner_does_not_count_an_unwritten_or_blocked_sell",
+    "--tb=short",
+    "--junitxml=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/runner_before.xml"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "CBP_STATE_DIR": "/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/cbp-r8-before-17flqh8g",
+    "CBP_MULTISYMBOL_BEFORE_SOURCE": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/services__execution__strategy_runner.py.before"
+  },
+  "exit_code": 1,
+  "scope": "isolated process before-source proof; production files unchanged"
+}

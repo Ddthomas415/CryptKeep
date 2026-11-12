@@ -1,0 +1,17 @@
+{
+  "files": {
+    "scripts/run_group_a_alert.py": "9f112b7260134ba8b223717682be9b107a205cbcef12dc7312e5dcf80b982102",
+    "services/alerts/group_a_summary_delivery.py": "6433e5c2ad13be8127beb7cfdde2fed580b6b6544c94d556ec7501ee95584726",
+    "services/alerts/group_a_summary_protocol.py": "2929d8b9774f11bc6de74280a8c61d856aa7df8558d0ae7e92658c5b926f6154",
+    "services/alerts/group_a_summary_transport.py": "e6d5b4497321d87b117ffeec6a67c430dcbb59bb7a71f8bdda4e0dfaa4208dc7",
+    "services/alerts/group_a_supervisor.py": "690aca41a82b1f6d26f4744b86ea1fbfb73388f22405f97034c6e058064fe161",
+    "services/control/group_a_account_units.py": "169615d395074534214e0600a8a5c558cedee7bd7100666f4f9297a88d7991b9",
+    "services/control/group_a_systemd_policy.py": "7d6ae23802e6e6505340ca4705530efd9ea0d9d53f0b58694a2195faca88ede4",
+    "services/execution/paper_engine.py": "7523800c8f8217c0732e45beaa605dd598fc6a6bd2fab9a70bee6d4f02238407",
+    "services/execution/strategy_runner.py": "08660e17c36c36ebab78b5f4c6e78632f43828c91a179429d6af090777353da9",
+    "services/market_data/paper_snapshot_quote.py": "b2be12a269b71efa7e593be2435207e6f7f3ac89675bb33475c5018629723fdb",
+    "services/market_data/system_status_publisher.py": "1d32bfede5852a6fb6a2165b69eb55d629686ae332ca1a115e361697fa5843cc"
+  },
+  "kind": "local_source_reference_not_deployment",
+  "utc": "2026-11-11T02:54:26.484649+00:00"
+}

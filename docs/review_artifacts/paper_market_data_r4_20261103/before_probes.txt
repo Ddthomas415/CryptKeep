@@ -1,0 +1,88 @@
+FFFFFFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+_____________ test_wrong_symbol_never_borrows_venue_quote[ADA/USD] _____________
+tests/test_tick_reader_exact_symbol.py:41: in test_wrong_symbol_never_borrows_venue_quote
+    assert snapshot.getter("coinbase", symbol) is None
+E   AssertionError: assert {'ts_ms': 1793755117857, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117857, 'bid': 99, 'ask': 101, 'last': 100} = <function get_best_bid_ask_last at 0x106ca28e0>('coinbase', 'ADA/USD')
+E    +    where <function get_best_bid_ask_last at 0x106ca28e0> = namespace(path=PosixPath('/private/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/pytest-of-baitus/pytest-90/test_wrong_symbol_never_borrow0/snapshot.json'), now=1793755117857, getter=<function get_best_bid_ask_last at 0x106ca28e0>).getter
+_____________ test_wrong_symbol_never_borrows_venue_quote[BTC/USD] _____________
+tests/test_tick_reader_exact_symbol.py:41: in test_wrong_symbol_never_borrows_venue_quote
+    assert snapshot.getter("coinbase", symbol) is None
+E   AssertionError: assert {'ts_ms': 1793755117874, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117874, 'bid': 99, 'ask': 101, 'last': 100} = <function get_best_bid_ask_last at 0x106e6cd60>('coinbase', 'BTC/USD')
+E    +    where <function get_best_bid_ask_last at 0x106e6cd60> = namespace(path=PosixPath('/private/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/pytest-of-baitus/pytest-90/test_wrong_symbol_never_borrow1/snapshot.json'), now=1793755117874, getter=<function get_best_bid_ask_last at 0x106e6cd60>).getter
+____________ test_wrong_symbol_never_borrows_venue_quote[BTC/USDC] _____________
+tests/test_tick_reader_exact_symbol.py:41: in test_wrong_symbol_never_borrows_venue_quote
+    assert snapshot.getter("coinbase", symbol) is None
+E   AssertionError: assert {'ts_ms': 1793755117880, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117880, 'bid': 99, 'ask': 101, 'last': 100} = <function get_best_bid_ask_last at 0x106e6d3a0>('coinbase', 'BTC/USDC')
+E    +    where <function get_best_bid_ask_last at 0x106e6d3a0> = namespace(path=PosixPath('/private/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/pytest-of-baitus/pytest-90/test_wrong_symbol_never_borrow2/snapshot.json'), now=1793755117880, getter=<function get_best_bid_ask_last at 0x106e6d3a0>).getter
+_____________ test_wrong_symbol_never_borrows_venue_quote[ADA/EUR] _____________
+tests/test_tick_reader_exact_symbol.py:41: in test_wrong_symbol_never_borrows_venue_quote
+    assert snapshot.getter("coinbase", symbol) is None
+E   AssertionError: assert {'ts_ms': 1793755117885, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117885, 'bid': 99, 'ask': 101, 'last': 100} = <function get_best_bid_ask_last at 0x106e6d800>('coinbase', 'ADA/EUR')
+E    +    where <function get_best_bid_ask_last at 0x106e6d800> = namespace(path=PosixPath('/private/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/pytest-of-baitus/pytest-90/test_wrong_symbol_never_borrow3/snapshot.json'), now=1793755117885, getter=<function get_best_bid_ask_last at 0x106e6d800>).getter
+_____________ test_wrong_symbol_never_borrows_venue_quote[BTCUSDT] _____________
+tests/test_tick_reader_exact_symbol.py:41: in test_wrong_symbol_never_borrows_venue_quote
+    assert snapshot.getter("coinbase", symbol) is None
+E   AssertionError: assert {'ts_ms': 1793755117889, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117889, 'bid': 99, 'ask': 101, 'last': 100} = <function get_best_bid_ask_last at 0x106e6dd00>('coinbase', 'BTCUSDT')
+E    +    where <function get_best_bid_ask_last at 0x106e6dd00> = namespace(path=PosixPath('/private/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/pytest-of-baitus/pytest-90/test_wrong_symbol_never_borrow4/snapshot.json'), now=1793755117889, getter=<function get_best_bid_ask_last at 0x106e6dd00>).getter
+____________ test_wrong_symbol_never_borrows_venue_quote[USDT/BTC] _____________
+tests/test_tick_reader_exact_symbol.py:41: in test_wrong_symbol_never_borrows_venue_quote
+    assert snapshot.getter("coinbase", symbol) is None
+E   AssertionError: assert {'ts_ms': 1793755117895, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117895, 'bid': 99, 'ask': 101, 'last': 100} = <function get_best_bid_ask_last at 0x106e6d940>('coinbase', 'USDT/BTC')
+E    +    where <function get_best_bid_ask_last at 0x106e6d940> = namespace(path=PosixPath('/private/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/pytest-of-baitus/pytest-90/test_wrong_symbol_never_borrow5/snapshot.json'), now=1793755117895, getter=<function get_best_bid_ask_last at 0x106e6d940>).getter
+_______________ test_publisher_spelling_rule_is_reused[btc/usdt] _______________
+tests/test_tick_reader_exact_symbol.py:50: in test_publisher_spelling_rule_is_reused
+    assert snapshot.getter("COINBASE", spelling)["bid"] == 99
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: 'NoneType' object is not subscriptable
+______________ test_publisher_spelling_rule_is_reused[ BTC-USDT ] ______________
+tests/test_tick_reader_exact_symbol.py:50: in test_publisher_spelling_rule_is_reused
+    assert snapshot.getter("COINBASE", spelling)["bid"] == 99
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: 'NoneType' object is not subscriptable
+_______________ test_publisher_spelling_rule_is_reused[btc-usdt] _______________
+tests/test_tick_reader_exact_symbol.py:50: in test_publisher_spelling_rule_is_reused
+    assert snapshot.getter("COINBASE", spelling)["bid"] == 99
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: 'NoneType' object is not subscriptable
+_____________ test_real_paper_buy_cannot_fill_from_another_symbol ______________
+tests/test_tick_reader_exact_symbol.py:102: in test_real_paper_buy_cannot_fill_from_another_symbol
+    assert engine.evaluate_open_orders()["filled"] == 0
+E   assert 1 == 0
+___________ test_real_paper_sell_waits_for_its_own_quote_then_fills ____________
+tests/test_tick_reader_exact_symbol.py:110: in test_real_paper_sell_waits_for_its_own_quote_then_fills
+    assert engine.evaluate_open_orders()["filled"] == 0
+E   assert 1 == 0
+____ test_unavailable_exchange_price_is_none_not_a_loop_crash[construction] ____
+tests/test_tick_reader_exact_symbol.py:133: in test_unavailable_exchange_price_is_none_not_a_loop_crash
+    assert engine._price("coinbase", "ADA/USD") is None
+E   AssertionError: assert {'ts_ms': 1793755117992, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755117992, 'bid': 99, 'ask': 101, 'last': 100} = _price('coinbase', 'ADA/USD')
+E    +    where _price = <services.execution.paper_engine.PaperEngine object at 0x110d2e690>._price
+_______ test_unavailable_exchange_price_is_none_not_a_loop_crash[fetch] ________
+tests/test_tick_reader_exact_symbol.py:133: in test_unavailable_exchange_price_is_none_not_a_loop_crash
+    assert engine._price("coinbase", "ADA/USD") is None
+E   AssertionError: assert {'ts_ms': 1793755118002, 'bid': 99, 'ask': 101, 'last': 100} is None
+E    +  where {'ts_ms': 1793755118002, 'bid': 99, 'ask': 101, 'last': 100} = _price('coinbase', 'ADA/USD')
+E    +    where _price = <services.execution.paper_engine.PaperEngine object at 0x110d2f920>._price
+=========================== short test summary info ============================
+FAILED tests/test_tick_reader_exact_symbol.py::test_wrong_symbol_never_borrows_venue_quote[ADA/USD]
+FAILED tests/test_tick_reader_exact_symbol.py::test_wrong_symbol_never_borrows_venue_quote[BTC/USD]
+FAILED tests/test_tick_reader_exact_symbol.py::test_wrong_symbol_never_borrows_venue_quote[BTC/USDC]
+FAILED tests/test_tick_reader_exact_symbol.py::test_wrong_symbol_never_borrows_venue_quote[ADA/EUR]
+FAILED tests/test_tick_reader_exact_symbol.py::test_wrong_symbol_never_borrows_venue_quote[BTCUSDT]
+FAILED tests/test_tick_reader_exact_symbol.py::test_wrong_symbol_never_borrows_venue_quote[USDT/BTC]
+FAILED tests/test_tick_reader_exact_symbol.py::test_publisher_spelling_rule_is_reused[btc/usdt]
+FAILED tests/test_tick_reader_exact_symbol.py::test_publisher_spelling_rule_is_reused[ BTC-USDT ]
+FAILED tests/test_tick_reader_exact_symbol.py::test_publisher_spelling_rule_is_reused[btc-usdt]
+FAILED tests/test_tick_reader_exact_symbol.py::test_real_paper_buy_cannot_fill_from_another_symbol
+FAILED tests/test_tick_reader_exact_symbol.py::test_real_paper_sell_waits_for_its_own_quote_then_fills
+FAILED tests/test_tick_reader_exact_symbol.py::test_unavailable_exchange_price_is_none_not_a_loop_crash[construction]
+FAILED tests/test_tick_reader_exact_symbol.py::test_unavailable_exchange_price_is_none_not_a_loop_crash[fetch]
+13 failed, 36 deselected in 0.30s

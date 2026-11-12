@@ -1,0 +1,37 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_cooldown_runner_integration.py",
+    "tests/test_kill_cooldown_sessions.py",
+    "tests/test_kill_gate_protective_exit.py",
+    "tests/test_runner_multi_symbol_integration.py",
+    "tests/test_strategy_runtime_runner.py",
+    "tests/test_breakout_runner_exit_stack.py",
+    "tests/test_runner_public_client_reuse.py",
+    "tests/test_strategy_runner_lock.py",
+    "tests/test_ema_runner_risk_defaults.py",
+    "tests/test_daily_trend_exit_translation.py",
+    "tests/test_exit_control_stack.py",
+    "tests/test_managed_exit_policy.py",
+    "tests/test_exit_deferral.py",
+    "tests/test_exit_deferral_persistence_boundary.py",
+    "tests/test_paper_runner_lifecycle.py",
+    "--tb=short",
+    "--junitxml=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r1_20261103/focused.final.xml"
+  ],
+  "environment": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "CBP_CAPTURE_MARKET_CONTEXT": "0",
+    "CBP_CAPTURE_EXECUTION_IDENTITY": "0"
+  },
+  "exit_code": 0
+}

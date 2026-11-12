@@ -1,0 +1,8 @@
+FFFFF                                                                    [100%]
+=========================== short test summary info ============================
+FAILED tests/test_pending_paper_exit_integration.py::test_reconciler_never_completes_root_from_unverified_link[unrelated-buy]
+FAILED tests/test_pending_paper_exit_integration.py::test_reconciler_never_completes_root_from_unverified_link[filled-without-receipt]
+FAILED tests/test_pending_paper_exit_integration.py::test_optional_strategy_is_preserved_through_prepare_and_fill
+FAILED tests/test_pending_paper_exit_integration.py::test_router_and_execution_share_bounded_attempt_size[False]
+FAILED tests/test_pending_paper_exit_integration.py::test_router_and_execution_share_bounded_attempt_size[True]
+5 failed, 28 deselected in 0.66s

@@ -1,0 +1,10 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________ test_pristine_cash_has_durable_origin _____________________
+tests/test_paper_account_reconciliation.py:262: in test_pristine_cash_has_durable_origin
+    assert origin is not None, "initialized cash has no evidenced opening-balance receipt"
+E   AssertionError: initialized cash has no evidenced opening-balance receipt
+E   assert None is not None
+=========================== short test summary info ============================
+FAILED tests/test_paper_account_reconciliation.py::test_pristine_cash_has_durable_origin
+1 failed in 0.36s

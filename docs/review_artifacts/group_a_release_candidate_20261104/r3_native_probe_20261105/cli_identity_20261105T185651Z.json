@@ -1,0 +1,96 @@
+{
+  "after": {
+    "ctime_ns": 1793880738267247960,
+    "device": 16777233,
+    "inode": 4222196954,
+    "is_symlink": false,
+    "mode": "0o755",
+    "mtime_ns": 1793880707170728825,
+    "sha256": "e6bb967adc3e97c9a9027aa7a1b83691789630cb26a4bbcddd2e8353a8a89ea4",
+    "size": 43052752
+  },
+  "app_path": "/Applications/Docker.app",
+  "before": {
+    "ctime_ns": 1793880738267247960,
+    "device": 16777233,
+    "inode": 4222196954,
+    "is_symlink": false,
+    "mode": "0o755",
+    "mtime_ns": 1793880707170728825,
+    "sha256": "e6bb967adc3e97c9a9027aa7a1b83691789630cb26a4bbcddd2e8353a8a89ea4",
+    "size": 43052752
+  },
+  "bot_relation": "BOT_RULES",
+  "bundle_metadata": {
+    "CFBundleIdentifier": "com.docker.docker",
+    "CFBundleShortVersionString": "4.98.0",
+    "CFBundleVersion": "245422"
+  },
+  "cli_path": "/Applications/Docker.app/Contents/Resources/bin/docker",
+  "cli_stable_during_inspection": true,
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/codesign",
+        "--display",
+        "--verbose=4",
+        "/Applications/Docker.app/Contents/Resources/bin/docker"
+      ],
+      "check": "cli_display",
+      "output_truncated": false,
+      "returncode": 0,
+      "stderr": "Executable=/Applications/Docker.app/Contents/Resources/bin/docker\nIdentifier=docker\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=333938 flags=0x10000(runtime) hashes=10425+7 location=embedded\nVersionPlatform=1\nVersionMin=786432\nVersionSDK=786432\nHash type=sha256 size=32\nCandidateCDHash sha256=6946f198dc629c7c6c183df366eb04b6a149ad00\nCandidateCDHashFull sha256=6946f198dc629c7c6c183df366eb04b6a149ad001d865ea66bf41897c7444636\nHash choices=sha256\nCMSDigest=6946f198dc629c7c6c183df366eb04b6a149ad001d865ea66bf41897c7444636\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=23969792\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=6946f198dc629c7c6c183df366eb04b6a149ad00\nSignature size=8969\nAuthority=(unavailable)\nInfo.plist=not bound\nTeamIdentifier=9BNSXJN65R\nRuntime Version=12.0.0\nSealed Resources=none\nInternal requirements count=1 size=168\nTotal signatures=1\nChosen signature=1\n",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/codesign",
+        "--verify",
+        "--strict",
+        "--verbose=2",
+        "/Applications/Docker.app/Contents/Resources/bin/docker"
+      ],
+      "check": "cli_verify",
+      "output_truncated": false,
+      "returncode": 1,
+      "stderr": "/Applications/Docker.app/Contents/Resources/bin/docker: invalid signature (code or signature have been modified)\nIn architecture: arm64\n",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/codesign",
+        "--display",
+        "--verbose=4",
+        "/Applications/Docker.app"
+      ],
+      "check": "app_display",
+      "output_truncated": false,
+      "returncode": 0,
+      "stderr": "Executable=/Applications/Docker.app/Contents/MacOS/com.docker.backend\nIdentifier=com.docker.docker\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=1719613 flags=0x10000(runtime) hashes=53727+7 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=984320\nHash type=sha256 size=32\nCandidateCDHash sha256=24a007073a4164b8b5924d87986404875047a577\nCandidateCDHashFull sha256=24a007073a4164b8b5924d87986404875047a57790adc06f3dd1acbb2a842c7f\nHash choices=sha256\nCMSDigest=24a007073a4164b8b5924d87986404875047a57790adc06f3dd1acbb2a842c7f\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=139591680\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=24a007073a4164b8b5924d87986404875047a577\nSignature size=8971\nAuthority=(unavailable)\nInfo.plist=not bound\nTeamIdentifier=9BNSXJN65R\nRuntime Version=15.5.0\nSealed Resources version=2 rules=13 files=85\nInternal requirements count=1 size=180\nTotal signatures=1\nChosen signature=1\n",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/codesign",
+        "--verify",
+        "--strict",
+        "--verbose=2",
+        "/Applications/Docker.app"
+      ],
+      "check": "app_verify",
+      "output_truncated": false,
+      "returncode": 1,
+      "stderr": "/Applications/Docker.app: invalid signature (code or signature have been modified)\nIn architecture: arm64\n",
+      "stdout": ""
+    }
+  ],
+  "daemon_calls": 0,
+  "docker_commands_invoked": 0,
+  "elapsed_seconds": 0.145,
+  "limits": "Signature results are local checks, not proof of cause, notarization, publisher release matching, daemon health or safety of every app component.",
+  "recorded_at_utc": "2026-11-05T18:57:28.333205+00:00",
+  "runtime_configuration_checked": false,
+  "schema": 1,
+  "scope": "Local public executable/bundle metadata only; no Docker execution or daemon access",
+  "service_changes": 0
+}

@@ -1,0 +1,8 @@
+{
+  "services/execution/strategy_runner.py": "0e96ad15bf9033db217bc9a7de64d8f8fc2f353a1d6e4cf6d981c939197dbca3",
+  "services/execution/paper_engine.py": "73bb1c2d45829c82ff52929b171b1e57de65b864ef06e650c5d44b87259689e7",
+  "services/execution/paper_runner.py": "24f16c35d1c2e0723e9aa92b748eabd6a08a71a008e52b109574e632d1899770",
+  "services/execution/intent_reconciler.py": "1ced865c36cbf568d72a52310cb117bdfd9a3f5fe70b73e9d3025f897c518fff",
+  "storage/intent_queue_sqlite.py": "f3a84b7e208b377ed022b277f63674d3c3e6938a00340c79ca1bdeeb4a2b974a",
+  "storage/paper_trading_sqlite.py": "684720e504aaef479ab51dc8025df18e0f70053868314f5c0e587aa92d62fae3"
+}

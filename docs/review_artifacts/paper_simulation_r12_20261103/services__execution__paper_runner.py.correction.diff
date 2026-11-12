@@ -1,0 +1,54 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__paper_runner.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/paper_runner.py	2026-11-03 01:01:39
+@@ -11,7 +11,7 @@
+ from services.execution.state_authority import LiveStateContext, paper_queue_status
+ from services.execution.paper_engine import PaperEngine
+ from services.execution.paper_exit_retry import (
+-    has_exit_marker, consume_pending_paper_exit,
++    has_exit_marker, consume_pending_paper_exit, _prepare,
+ )
+ from services.live_router.router import decide_order
+ from storage.intent_queue_sqlite import IntentQueueSQLite
+@@ -127,8 +127,29 @@
+             "idempotent": 0,
+         }
+ 
++    # Route the executable attempt size, not the immutable root size. Keep
++    # the original row for recovery/identity and recheck holdings in the engine.
++    routed = []
++    originals = {str(row["intent_id"]): row for row in queued}
++    recovered = []
++    for it in queued:
++        if not has_exit_marker(it):
++            routed.append(it)
++            continue
++        try:
++            prepared = _prepare(eng.db, it)
++            if prepared["state"] == "ready":
++                routed.append({**it, "qty": prepared["qty"]})
++            else:
++                recovered.append((it, None))
++        except Exception as exc:
++            _hold_pending_failure(qdb, it, exc)
+     try:
+-        decisions = asyncio.run(_decide_batch(queued))
++        routed_quantities = {str(row["intent_id"]): row["qty"] for row in routed}
++        decisions = recovered + [
++            (originals[str(row["intent_id"])], decision)
++            for row, decision in asyncio.run(_decide_batch(routed))
++        ]
+     except Exception as e:
+         _LOG.exception("paper_runner.decide_batch_failed: %s", e)
+         for it in queued:
+@@ -166,7 +187,10 @@
+ 
+         if has_exit_marker(it):
+             try:
+-                result = consume_pending_paper_exit(qdb, eng, it, decision_or_exc)
++                result = consume_pending_paper_exit(
++                    qdb, eng, it, decision_or_exc,
++                    routed_qty=routed_quantities.get(str(it["intent_id"])),
++                )
+                 submitted += result["submitted"]
+                 idempotent += result["idempotent"]
+             except Exception as exc:

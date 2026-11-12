@@ -1,0 +1,17 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "-c",
+    "import importlib\nfrom pathlib import Path\nm=importlib.import_module('services.execution.paper_exit_accounting')\np=Path('/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/paper_exit_accounting.py.initial')\nexec(compile(p.read_bytes(),str(p),\"exec\"),m.__dict__)\nimport pytest\nresult=pytest.main(['-q', '-p', 'no:cacheprovider', 'tests/test_paper_exit_accounting.py', '-k', 'queue_authority_conflicting and marked_unwritten', '--tb=short', '--junitxml=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/contradiction_before.xml'])\nraise SystemExit(result)\n"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "CBP_STATE_DIR": "/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/cbp-r8-before-7d4y0e9t"
+  },
+  "exit_code": 1,
+  "scope": "isolated process before-source proof; production files unchanged"
+}

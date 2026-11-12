@@ -1,0 +1,20 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r1_20261103/intent_queue.before.py	2026-11-03 00:16:21
++++ /Users/baitus/Downloads/crypto-bot-pro/storage/intent_queue_sqlite.py	2026-11-03 00:17:09
+@@ -205,6 +205,17 @@
+         finally:
+             con.close()
+ 
++    def has_open_strategy_intent(self, symbol: str) -> bool:
++        con = _connect()
++        try:
++            return con.execute(
++                "SELECT 1 FROM trade_intents WHERE source='strategy' AND symbol=? "
++                "AND status IN ('queued', 'submitting', 'submitted', 'held') LIMIT 1",
++                (str(symbol),),
++            ).fetchone() is not None
++        finally:
++            con.close()
++
+     def get_intent(self, intent_id: str) -> Optional[Dict[str, Any]]:
+         con = _connect()
+         try:

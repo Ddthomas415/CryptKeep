@@ -1,0 +1,23 @@
+{
+  "0001.original.patch": "4f13c2d7c1b494b8620dec8e94caf4de2133ed4c244abdf3a7a6c99734f7d221",
+  "0002.original.patch": "df9edaeaa0d72b9947001ad2db178dce0fccc4373344921ca5b40f4b5e61274b",
+  "0006.original.patch": "4cc5b8fbaa1274f092469eb27116a91e9d189717f70c7be3a0d22e9930d1e4cd",
+  "README.md": "c0850fac39f67bbd8be4f006fbb9d13d744745713f80b141a2f32a9870439b56",
+  "baseline_hashes.json": "47d1f5998181ee3107453ddbf89afaebdc97bb0faacd7ff1b6a4803066bb8a21",
+  "focused.final.command.json": "8c554b2a6d46573a2de378b519691f98db9a7d348d164ba78e4a3c2222b1bf93",
+  "focused.final.txt": "7ef5d73f7ca8877516b33a09a796f47a7afabf985f0619052d900bb8f5582809",
+  "focused.final.xml": "4e9874a8f33b153ab03063dee7aa0bd249839b59d7242ccff8903d3ae31edd91",
+  "independent_review.md": "1a5b634a981ed835fb0d07026d04b33553665e7d148de83100ba25d5e404483d",
+  "integration.before.command.json": "8d62e88571132d8a11f189895d4f36b28c755fb10bb8472a34332dc2d6b24a58",
+  "integration.before.txt": "6270dbb93b8a63c6784eeb4e1081873a4a0c88f725ed8611fcf332e00c0b8d7f",
+  "integration.before.xml": "23744d80619790f79271416b77f9da43643f397667daaafc629d38fb7e04be3f",
+  "integration.submitted.snapshot.py": "954a18349d472f9660bd1954bdca2cc6ec98118ed6b03223ddaeb6d9444d88eb",
+  "intent_queue.before.py": "5b999000f5b5d8745e59dcee4cebe9cd922531c68c88240b72a78019ec84ea20",
+  "intent_queue.submitted.py": "f3a84b7e208b377ed022b277f63674d3c3e6938a00340c79ca1bdeeb4a2b974a",
+  "queue.r1.diff": "6ed846632f04e3a161dbda327931afa002c23051c0db7f08ec9486674295905a",
+  "runner.r1.diff": "0b4395e7fbe3a0e6776e0f7e5c9c9124a735e3b16f5a2575cf92b733801aae00",
+  "strategy_runner.before.py": "9fb545d0a105e25a7d595a3c0518d11084764d4e454d3c80cacc36a0689ff153",
+  "strategy_runner.submitted.py": "0e96ad15bf9033db217bc9a7de64d8f8fc2f353a1d6e4cf6d981c939197dbca3",
+  "submitted_source_hashes.json": "345be980b66dc3db74ce63d934a3d6eb36428887049817e8cd7a528d9dbcd885",
+  "verification.json": "271bd75c16dffe383228487c08f3af1bc259ac0bfac58cca0c89558355582137"
+}

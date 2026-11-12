@@ -1,0 +1,101 @@
+{
+  "bot_relation": "BOT_RULES",
+  "daemon_calls": 0,
+  "docker_commands": 0,
+  "docker_processes": [
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/com.docker.backend",
+      "pid": 60232
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/com.docker.backend",
+      "pid": 60234
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/com.docker.backend",
+      "pid": 60235
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/com.docker.build",
+      "pid": 60248
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/com.docker.virtualization",
+      "pid": 60249
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/MacOS/Docker Desktop",
+      "pid": 60250
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker Desktop Helper.app/Contents/MacOS/Docker Desktop Helper",
+      "pid": 60267
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker Desktop Helper.app/Contents/MacOS/Docker Desktop Helper",
+      "pid": 60268
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker Desktop Helper (Renderer).app/Contents/MacOS/Docker Desktop Helper (Renderer)",
+      "pid": 60278
+    },
+    {
+      "executable": "/Applications/Docker.app/Contents/Resources/cli-plugins/docker-agent",
+      "pid": 60316
+    }
+  ],
+  "elapsed_seconds": 0.038,
+  "metadata": [
+    {
+      "allocated_bytes": 0,
+      "is_socket": false,
+      "is_symlink": false,
+      "mode": "0o755",
+      "path": "/Applications/Docker.app",
+      "present": true,
+      "size": 96,
+      "target_present": true,
+      "uid": 501
+    },
+    {
+      "allocated_bytes": 0,
+      "is_socket": true,
+      "is_symlink": false,
+      "mode": "0o755",
+      "path": "/Users/baitus/.docker/run/docker.sock",
+      "present": true,
+      "size": 0,
+      "target_present": true,
+      "uid": 501
+    },
+    {
+      "allocated_bytes": 0,
+      "is_socket": true,
+      "is_symlink": true,
+      "link_target": "/Users/baitus/.docker/run/docker.sock",
+      "mode": "0o755",
+      "path": "/var/run/docker.sock",
+      "present": true,
+      "size": 0,
+      "target_present": true,
+      "uid": 0
+    },
+    {
+      "allocated_bytes": 37432770560,
+      "is_socket": false,
+      "is_symlink": false,
+      "mode": "0o644",
+      "path": "/Users/baitus/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw",
+      "present": true,
+      "size": 994662416384,
+      "target_present": true,
+      "uid": 501
+    }
+  ],
+  "process_inspection_exit": 0,
+  "runtime_configuration_checked": false,
+  "schema": 1,
+  "scope": "Selected public process names and filesystem metadata only; no daemon or disk-content access",
+  "service_changes": 0,
+  "utc": "2026-11-11T02:10:13.687394+00:00"
+}

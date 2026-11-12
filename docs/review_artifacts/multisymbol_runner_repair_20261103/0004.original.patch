@@ -1,0 +1,572 @@
+From 7f017d7df39f639f30e1a2f283ac123703b9ee85 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 22:35:34 +0000
+Subject: [PATCH] fix: act on every configured symbol in the strategy runner
+
+The per-symbol data loop ended before the decision, exit, kill-gate and
+emission code, which ran once per outer loop. With several symbols only the
+last one was acted on, and it could be managed with another symbol's price.
+Handle one symbol per outer loop in turn so the existing code runs for the
+symbol whose data was just read, and only with a price fetched in that same
+turn; keep the startup flat check for every symbol on the first loop.
+Single-symbol behaviour is unchanged.
+
+Portfolio limits do not hold across symbols (pending entries are not counted
+and percentage limits never bind); see the work log. Do not run a
+multi-symbol campaign on this alone.
+
+HIGH risk: READY_FOR_INDEPENDENT_REVIEW. Not pushed, not deployed.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011p3WBrLHso7qjbJYsguxAY
+---
+ docs/work_log/review_stabilized_work_log.md |  56 +++
+ services/execution/strategy_runner.py       |  35 +-
+ tests/test_runner_multi_symbol.py           | 395 ++++++++++++++++++++
+ 3 files changed, 483 insertions(+), 3 deletions(-)
+ create mode 100644 tests/test_runner_multi_symbol.py
+
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index c2b72b60..02af97a0 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,61 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-02 - Act on every configured symbol in the strategy runner
++
++- ENGINEER (Claude, separate thread), requested by the operator as the
++  backlog multi-symbol repair. Separate change on top of the cooldown,
++  protective-exit and reporting series; separate review.
++- Defect (Codex's review, on base and patched code): the per-symbol data loop
++  ended before the decision, exit, kill-gate and emission code, which ran once
++  per outer loop. With several symbols only the last one was acted on, and it
++  could be managed with a price left over from another symbol.
++- Change (+32/-3 in `strategy_runner.py`): each outer loop now handles one
++  symbol in turn, so the existing decision/exit/gate code always runs for the
++  symbol whose data was just read. With more than one symbol: the startup flat
++  check still covers every symbol on the first loop; a symbol is only managed
++  with a price fetched in that same turn (including one fetched during
++  warm-up); with no price this turn it is skipped and the fetch-failure
++  status stands. No price is cached between turns. The earlier isolated draft that moved the whole tail into
++  the loop (430 lines, 3 exit tests failing) is not used.
++- Single-symbol behaviour is intended to be unchanged: the new branches are
++  gated on more than one symbol. SHOWN: a 75-scenario single-symbol
++  differential (orders, per-loop gate results, final state) is identical
++  between the parent commit and this change.
++- Reviewer subagent returned ACCEPT_WITH_RISK and reproduced that a price
++  fetched during warm-up was discarded, so a held position lost its exit. Fixed
++  (price recorded where it is obtained) with tests in tick and public-OHLCV
++  modes.
++- Codex's local review of bundle rev10 then reproduced that the per-symbol
++  price cache reused an earlier price for exit evaluation after a failed
++  fetch, with no age check. Codex removed the cache in its isolated copy and
++  the operator accepted that correction. The cache is removed here to the same
++  description; this is Claude's re-implementation, NOT Codex's accepted bytes
++  (those live outside the shared folder), so it must be compared with them.
++  Two tests cover it: no exit evaluation on a failed fetch, and exit on the
++  recovered quote.
++- Pending-order exposure check (requested as the next safety check). SHOWN by
++  probe on this branch, three symbols all signalling buy, no fills:
++  with `max_concurrent_positions: 1` three buys are queued; with total and
++  strategy exposure limits near 0% and one symbol holding 100,000 notional,
++  the other two still queue buys. Cause, by reading: `summarize_exposure`
++  counts positions with qty > 0 only, `evaluate_entry` is called with
++  `open_intents_for_symbol=0`, and `list_positions` rows carry no exposure
++  fields, so the percentage limits never bind. NOT fixed here.
++- Consequences an operator must know before running several symbols:
++  each symbol is evaluated every N-th loop, so per-symbol cooldowns, tick
++  history and bar counters advance N times slower in wall time, and a symbol
++  whose fetch fails does not count down its cooldown that turn. Portfolio
++  limits do not hold across symbols (see the probe above). Do not run a
++  multi-symbol campaign until that is corrected and reviewed.
++- Not addressed (inherited): the `finally` block can persist one symbol's
++  last action under keys set for another symbol if an exception lands
++  mid-head; price persistence cadence has no test.
++- VERIFIED_ENV (cloud clone, Python 3.11.15): see commit message.
++- UNVERIFIED: Python 3.12, CI, hosts, a real multi-symbol campaign, auto venue
++  selection paths, exposure limits across symbols. No running campaign uses
++  more than one symbol today. HIGH risk. Not pushed, not deployed.
++  READY_FOR_INDEPENDENT_REVIEW.
++
+ ## 2026-10-02 - Label all-history paper PnL and state qualified PnL
+ 
+ - AUDITOR (Claude, separate thread): the campaign status line prints
+diff --git a/services/execution/strategy_runner.py b/services/execution/strategy_runner.py
+index 14ce5be1..4b17676b 100644
+--- a/services/execution/strategy_runner.py
++++ b/services/execution/strategy_runner.py
+@@ -1081,6 +1081,9 @@ def run_forever() -> None:
+     loops = 0
+     enqueued = 0
+     checked_startup_pairs: set[tuple[str, str]] = set()
++    # Decision, exit and kill handling below runs once per loop, so with several
++    # symbols each loop handles one of them in turn, and only with a price
++    # fetched in that same turn.
+     public_clients = _PublicOHLCVClients()
+     try:
+         while True:
+@@ -1114,7 +1117,18 @@ def run_forever() -> None:
+                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                 continue
+ 
+-            for symbol in symbols:
++            if len(symbols) > 1:
++                # Startup flat check for every symbol before any of them trades.
++                for symbol in symbols:
++                    startup_pair = (_choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates), symbol)
++                    if startup_pair not in checked_startup_pairs:
++                        require_known_flat_or_override(venue=startup_pair[0], symbol=symbol)
++                        checked_startup_pairs.add(startup_pair)
++            symbol_turn = (loops - 1) % max(1, len(symbols))
++            persist_prices = ((loops - 1) // max(1, len(symbols)) + 1) % 5 == 0
++
++            for symbol in symbols[symbol_turn:symbol_turn + 1]:
++                fresh_market = None
+                 selected_venue = _choose_venue_for_symbol(cfg, symbol, candidates=venue_candidates)
+                 startup_pair = (selected_venue, symbol)
+                 if startup_pair not in checked_startup_pairs:
+@@ -1184,7 +1198,12 @@ def run_forever() -> None:
+                         time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                         continue
+                     prices = [float(row[4]) for row in ohlcv[-int(cfg["max_bars"]):]]
+-                    if loops % 5 == 0:
++                    fresh_market = (
++                        float(ohlcv[-1][4]),
++                        int(ohlcv[-1][0] or (time.time() * 1000)),
++                        len(ohlcv),
++                    )
++                    if persist_prices:
+                         sdb.set(k_prices, json.dumps(prices))
+ 
+                     __import__("pathlib").Path("/tmp/cbp_debug.txt").open("a").write(
+@@ -1288,7 +1307,8 @@ def run_forever() -> None:
+                     prices.append(float(m))
+                     if len(prices) > int(cfg["max_bars"]):
+                         prices = prices[-int(cfg["max_bars"]):]
+-                    if loops % 5 == 0:
++                    fresh_market = (float(m), ts_ms, len(prices))
++                    if persist_prices:
+                         sdb.set(k_prices, json.dumps(prices))
+                     if len(prices) < int(cfg["min_bars"]):
+                         _write_status(
+@@ -1309,6 +1329,15 @@ def run_forever() -> None:
+                         continue
+                     signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
+                     bars = len(prices)
++            if len(symbols) > 1:
++                if fresh_market is None:
++                    # No price was fetched for this symbol this turn. Nothing
++                    # below may run on an older or another symbol's price; the
++                    # fetch failure status written above stands.
++                    continue
++                # Fetched this turn, even if warm-up or a config error then
++                # stopped the signal: exits below still need the price.
++                m, ts_ms, bars = fresh_market
+             pos = pdb.get_position(symbol) or {"qty": 0.0, "avg_price": 0.0}
+             decision = _position_aware_signal_action(
+                 signal, strategy_id=str(cfg["strategy_id"]),
+diff --git a/tests/test_runner_multi_symbol.py b/tests/test_runner_multi_symbol.py
+new file mode 100644
+index 00000000..5944684b
+--- /dev/null
++++ b/tests/test_runner_multi_symbol.py
+@@ -0,0 +1,395 @@
++"""With several symbols, every symbol must be decided, gated and exited on its own.
++
++Before this change the decision, kill gate and emission ran once per loop,
++after the per-symbol data loop, so only the last configured symbol was acted on
++and it could be managed with another symbol's price.
++"""
++from __future__ import annotations
++
++from tests.test_strategy_runtime_runner import _reload_strategy_runner
++
++BUY = {"ok": True, "action": "buy", "signal": "long", "reason": "test:long"}
++HOLD = {"ok": True, "action": "hold", "signal": "flat", "reason": "test:flat"}
++SYMBOLS = ["BTC/USD", "ETH/USD"]
++
++
++def _key(symbol, strategy="sma_200_trend"):
++    return f"coinbase:{symbol}:{strategy}"
++
++
++def _setup(monkeypatch, tmp_path, *, signals, mids, positions=None, cfg_extra=None):
++    runner = _reload_strategy_runner(monkeypatch, tmp_path)
++    emitted: list[dict] = []
++    positions = dict(positions or {})
++
++    class Queue:
++        def has_open_strategy_intent(self, symbol):
++            return False
++
++        def list_intents(self, **kwargs):
++            return []
++
++        def upsert_intent(self, row):
++            emitted.append(dict(row))
++            if row["side"] == "sell":
++                positions[row["symbol"]] = (0.0, 0.0)
++
++    class Paper:
++        def get_position(self, symbol):
++            qty, avg = positions.get(symbol, (0.0, 0.0))
++            return {"qty": qty, "avg_price": avg, "symbol": symbol}
++
++    monkeypatch.setattr(runner, "IntentQueueSQLite", Queue)
++    monkeypatch.setattr(runner, "PaperTradingSQLite", Paper)
++    monkeypatch.setattr(runner, "collect_runtime_rows", lambda **kw: ([], []))
++    cfg = dict(
++        enabled=True, strategy_id="sma_200_trend", strategy={"name": "sma_200_trend"},
++        strategy_preset="es_daily_trend_v1", venue="coinbase", symbol="BTC/USD", symbols=list(SYMBOLS),
++        fast_n=2, slow_n=4, min_bars=1, max_bars=20, loop_interval_sec=0.0, qty=0.5,
++        order_type="market", allow_first_signal_trade=False, use_ccxt_fallback=False,
++        max_tick_age_sec=5.0, position_aware=True, sell_full_position=True,
++        signal_source="synthetic_mid_ohlcv", auto_select_best_venue=False,
++        switch_only_when_blocked=True, venue_candidates=[],
++        stop_loss_pct=0.0, take_profit_pct=0.0, trailing_stop_pct=0.0, max_bars_hold=0,
++    )
++    cfg.update(cfg_extra or {})
++    monkeypatch.setattr(runner, "_cfg", lambda: dict(cfg))
++    calls = {symbol: 0 for symbol in cfg["symbols"]}
++
++    def fetch_mid(sym_cfg):
++        symbol = sym_cfg["symbol"]
++        calls[symbol] += 1
++        source = mids[symbol]
++        value = source(calls[symbol]) if callable(source) else source
++        return None if value is None else (float(value), 1)
++
++    monkeypatch.setattr(runner, "_fetch_mid", fetch_mid)
++    monkeypatch.setattr(runner, "_strategy_signal", lambda sym_cfg, prices, ts_ms=None: dict(signals[sym_cfg["symbol"]]))
++    monkeypatch.setattr(runner, "require_known_flat_or_override", lambda *, venue, symbol: None)
++    state = runner.StrategyStateSQLite()
++    for symbol in SYMBOLS:
++        state.set(f"warmed:{_key(symbol)}", "1")
++        state.set(f"last_action:{_key(symbol)}", "hold")
++    return runner, emitted, state
++
++
++def _run(monkeypatch, runner, *, loops):
++    """Run exactly ``loops`` iterations of the outer loop (one symbol per iteration)."""
++    seen = {"n": 0}
++    if runner.STOP_FILE.exists():
++        runner.STOP_FILE.unlink()
++    monkeypatch.setattr(runner.time, "sleep", lambda _s: None)
++    real_get = runner.StrategyStateSQLite.get
++
++    def counting_get(self, key):
++        # Every turn reads its symbol's "warmed" flag once; the stop file is
++        # honoured at the top of the following iteration.
++        if str(key).startswith("warmed:"):
++            seen["n"] += 1
++            if seen["n"] >= loops:
++                runner.STOP_FILE.parent.mkdir(parents=True, exist_ok=True)
++                runner.STOP_FILE.write_text("stop")
++        return real_get(self, key)
++
++    monkeypatch.setattr(runner.StrategyStateSQLite, "get", counting_get)
++    runner.run_forever()
++    monkeypatch.setattr(runner.StrategyStateSQLite, "get", real_get)
++    assert seen["n"] == loops
++
++
++def test_every_symbol_gets_its_entry(monkeypatch, tmp_path):
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": BUY}, mids={"BTC/USD": 100.0, "ETH/USD": 10.0},
++    )
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert sorted((row["symbol"], row["side"]) for row in emitted) == [("BTC/USD", "buy"), ("ETH/USD", "buy")]
++
++
++def test_first_symbol_is_acted_on_when_only_it_signals(monkeypatch, tmp_path):
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": HOLD}, mids={"BTC/USD": 100.0, "ETH/USD": 10.0},
++    )
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert [(row["symbol"], row["side"]) for row in emitted] == [("BTC/USD", "buy")]
++
++
++def test_each_symbol_counts_down_its_own_cooldown(monkeypatch, tmp_path):
++    runner, emitted, state = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": BUY}, mids={"BTC/USD": 100.0, "ETH/USD": 10.0},
++    )
++    state.set(f"kill_remaining:{_key('BTC/USD')}", "10")
++    state.set(f"kill_remaining:{_key('ETH/USD')}", "3")
++
++    _run(monkeypatch, runner, loops=8)  # four turns each
++
++    assert state.get(f"kill_remaining:{_key('BTC/USD')}") == "6"
++    assert state.get(f"kill_remaining:{_key('ETH/USD')}") == "0"
++    assert emitted == []  # both entry changes arrived inside their cooldowns
++
++
++def test_symbol_is_not_managed_with_another_symbols_price(monkeypatch, tmp_path):
++    # BTC long at 100 with a 3% stop. BTC quotes once, then its feed goes quiet;
++    # ETH keeps quoting 10. BTC must not be stopped out at ETH's price, and its
++    # own earlier quote must not be reused either.
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": HOLD},
++        mids={"BTC/USD": lambda n: 100.0 if n == 1 else None, "ETH/USD": 10.0},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++
++    _run(monkeypatch, runner, loops=8)
++
++    assert emitted == []
++
++
++def test_stop_loss_fires_for_the_first_symbol_at_its_own_price(monkeypatch, tmp_path):
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": HOLD},
++        mids={"BTC/USD": lambda n: 100.0 if n == 1 else 90.0, "ETH/USD": 10.0},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++
++    _run(monkeypatch, runner, loops=8)
++
++    assert [(row["symbol"], row["side"], row["qty"]) for row in emitted] == [("BTC/USD", "sell", 1.0)]
++
++
++def test_symbol_without_any_price_is_skipped_and_others_still_trade(monkeypatch, tmp_path):
++    runner, emitted, state = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": BUY}, mids={"BTC/USD": None, "ETH/USD": 10.0},
++    )
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert [(row["symbol"], row["side"]) for row in emitted] == [("ETH/USD", "buy")]
++    assert state.get(f"last_action:{_key('BTC/USD')}") == "hold"
++
++
++def test_open_position_without_any_price_is_not_exited_on_another_symbols_price(monkeypatch, tmp_path):
++    # BTC is long at 100 with a 3% stop but has produced no price in this
++    # process. ETH quotes 10. BTC must be left alone, not stopped out at 10.
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": HOLD}, mids={"BTC/USD": None, "ETH/USD": 10.0},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"stop_loss_pct": 0.03, "symbols": ["ETH/USD", "BTC/USD"]},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++
++    _run(monkeypatch, runner, loops=8)
++
++    assert emitted == []
++
++
++def test_position_is_still_exited_while_its_signal_is_warming_up(monkeypatch, tmp_path):
++    # ETH is long at 10 with a 3% stop and quotes 5, but has too few bars for a
++    # signal. The fresh price must still reach the exit stack.
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": HOLD, "ETH/USD": HOLD}, mids={"BTC/USD": 100.0, "ETH/USD": 5.0},
++        positions={"ETH/USD": (2.0, 10.0)},
++        cfg_extra={"stop_loss_pct": 0.03, "min_bars": 50},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_emitted_action:{_key('ETH/USD')}", "buy")
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert [(row["symbol"], row["side"], row["qty"]) for row in emitted] == [("ETH/USD", "sell", 2.0)]
++
++
++def test_quiet_second_symbol_is_not_managed_on_any_other_price(monkeypatch, tmp_path):
++    # ETH (second) is long at 10 with a 3% stop, quotes 10 once and then goes
++    # quiet. BTC (first) keeps quoting 5. ETH must not be stopped out at 5.
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": HOLD, "ETH/USD": BUY},
++        mids={"BTC/USD": 5.0, "ETH/USD": lambda n: 10.0 if n == 1 else None},
++        positions={"ETH/USD": (2.0, 10.0)},
++        cfg_extra={"stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('ETH/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('ETH/USD')}", "buy")
++
++    _run(monkeypatch, runner, loops=10)
++
++    assert emitted == []
++
++
++def _use_public_ohlcv(monkeypatch, runner, *, candles, signals):
++    """Daily public-OHLCV mode (the production signal source), per symbol."""
++    monkeypatch.setattr(runner, "load_user_yaml", lambda **kwargs: {"strategy_runner": {"strategy": {"name": "sma_200_trend"}}})
++    monkeypatch.setattr(
++        runner, "_fetch_public_ohlcv",
++        lambda sym_cfg, **kwargs: (
++            [list(row) for row in candles[sym_cfg["symbol"]]],
++            {"source": "public_ohlcv", "sample_path": None, "sample_fallback": False,
++             "row_count": len(candles[sym_cfg["symbol"]]), "env_sample_mode": False},
++        ),
++    )
++    monkeypatch.setattr(runner, "_market_quality_evidence_extra", lambda venue, symbol: {})
++    monkeypatch.setattr(
++        runner, "_registry_signal_with_context",
++        lambda *, cfg, strategy_block, symbol, venue, ohlcv: dict(signals[symbol]),
++    )
++
++
++def _candles(close, *, n=3):
++    day = 86_400_000
++    return [[(i + 1) * day, close, close, close, close, 1.0] for i in range(n)]
++
++
++def test_public_ohlcv_mode_enters_every_symbol(monkeypatch, tmp_path):
++    signals = {"BTC/USD": BUY, "ETH/USD": BUY}
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path, signals=signals, mids={"BTC/USD": None, "ETH/USD": None},
++        cfg_extra={"signal_source": "public_ohlcv_1d"},
++    )
++    _use_public_ohlcv(monkeypatch, runner, candles={"BTC/USD": _candles(100.0), "ETH/USD": _candles(10.0)}, signals=signals)
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert sorted((row["symbol"], row["side"]) for row in emitted) == [("BTC/USD", "buy"), ("ETH/USD", "buy")]
++
++
++def test_public_ohlcv_mode_stops_out_first_symbol_at_its_own_close(monkeypatch, tmp_path):
++    signals = {"BTC/USD": BUY, "ETH/USD": HOLD}
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path, signals=signals, mids={"BTC/USD": None, "ETH/USD": None},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"signal_source": "public_ohlcv_1d", "stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++    _use_public_ohlcv(monkeypatch, runner, candles={"BTC/USD": _candles(90.0), "ETH/USD": _candles(200.0)}, signals=signals)
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert [(row["symbol"], row["side"], row["qty"]) for row in emitted] == [("BTC/USD", "sell", 1.0)]
++
++
++def test_public_ohlcv_mode_does_not_stop_out_at_another_symbols_close(monkeypatch, tmp_path):
++    signals = {"BTC/USD": BUY, "ETH/USD": HOLD}
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path, signals=signals, mids={"BTC/USD": None, "ETH/USD": None},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"signal_source": "public_ohlcv_1d", "stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++    _use_public_ohlcv(monkeypatch, runner, candles={"BTC/USD": _candles(100.0), "ETH/USD": _candles(10.0)}, signals=signals)
++
++    _run(monkeypatch, runner, loops=6)
++
++    assert emitted == []
++
++
++def test_exit_under_cooldown_works_for_a_symbol_that_is_not_last(monkeypatch, tmp_path):
++    runner, emitted, state = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": HOLD, "ETH/USD": HOLD}, mids={"BTC/USD": 100.0, "ETH/USD": 10.0},
++        positions={"BTC/USD": (1.0, 100.0)},
++    )
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++    state.set(f"kill_remaining:{_key('BTC/USD')}", "20")
++
++    _run(monkeypatch, runner, loops=4)
++
++    assert [(row["symbol"], row["side"]) for row in emitted] == [("BTC/USD", "sell")]
++
++
++def test_three_symbols_each_enter_once(monkeypatch, tmp_path):
++    three = ["BTC/USD", "ETH/USD", "SOL/USD"]
++    runner, emitted, state = _setup(
++        monkeypatch, tmp_path,
++        signals={s: BUY for s in three}, mids={"BTC/USD": 100.0, "ETH/USD": 10.0, "SOL/USD": 1.0},
++        cfg_extra={"symbols": three},
++    )
++    state.set(f"warmed:{_key('SOL/USD')}", "1")
++    state.set(f"last_action:{_key('SOL/USD')}", "hold")
++
++    _run(monkeypatch, runner, loops=9)
++
++    assert sorted(row["symbol"] for row in emitted) == three
++    assert all(row["side"] == "buy" for row in emitted)
++
++
++def _count_exit_evaluations(monkeypatch, runner):
++    calls: list[float] = []
++    real = runner.evaluate_strategy_exit_stack
++
++    def counting(**kwargs):
++        calls.append(float(kwargs["current_price"]))
++        return real(**kwargs)
++
++    monkeypatch.setattr(runner, "evaluate_strategy_exit_stack", counting)
++    return calls
++
++
++def test_failed_quote_does_not_reuse_an_earlier_price_for_exits(monkeypatch, tmp_path):
++    # Only BTC's first fetch succeeds. Its exit stack must be evaluated once,
++    # at that price, and never again on the remembered value.
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": HOLD},
++        mids={"BTC/USD": lambda n: 100.0 if n == 1 else None, "ETH/USD": 10.0},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++    calls = _count_exit_evaluations(monkeypatch, runner)
++
++    _run(monkeypatch, runner, loops=10)
++
++    assert calls == [100.0]
++    assert emitted == []
++
++
++def test_exit_resumes_when_the_quote_recovers(monkeypatch, tmp_path):
++    # BTC quotes 100, then nothing for two turns, then 90: the stop must fire
++    # on the recovered quote and only then.
++    quotes = {1: 100.0, 4: 90.0}
++    runner, emitted, _ = _setup(
++        monkeypatch, tmp_path,
++        signals={"BTC/USD": BUY, "ETH/USD": HOLD},
++        mids={"BTC/USD": lambda n: quotes.get(n), "ETH/USD": 10.0},
++        positions={"BTC/USD": (1.0, 100.0)},
++        cfg_extra={"stop_loss_pct": 0.03},
++    )
++    state = runner.StrategyStateSQLite()
++    state.set(f"last_action:{_key('BTC/USD')}", "buy")
++    state.set(f"last_emitted_action:{_key('BTC/USD')}", "buy")
++    calls = _count_exit_evaluations(monkeypatch, runner)
++
++    _run(monkeypatch, runner, loops=6)  # BTC turns 1-3: 100, none, none
++    assert calls == [100.0] and emitted == []
++
++    _run(monkeypatch, runner, loops=2)  # BTC turn 4: 90
++    assert [(row["symbol"], row["side"]) for row in emitted] == [("BTC/USD", "sell")]
++    assert calls[-1] == 90.0
+-- 
+2.43.0
+

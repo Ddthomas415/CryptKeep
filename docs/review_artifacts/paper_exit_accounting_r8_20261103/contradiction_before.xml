@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.498" timestamp="2026-11-03T10:31:06.012750-05:00" hostname="MacBook-Pro"><testcase classname="tests.test_paper_exit_accounting" name="test_queue_authority_conflicting_journal_evidence_cannot_be_silently_accepted[marked_unwritten]" time="0.100"><failure message="AssertionError: queue/journal contradiction must block new entries&#10;assert False is True">/Users/baitus/Downloads/crypto-bot-pro/tests/test_paper_exit_accounting.py:436: in test_queue_authority_conflicting_journal_evidence_cannot_be_silently_accepted
+    assert report["unsettled"] is True, "queue/journal contradiction must block new entries"
+E   AssertionError: queue/journal contradiction must block new entries
+E   assert False is True</failure></testcase></testsuite></testsuites>

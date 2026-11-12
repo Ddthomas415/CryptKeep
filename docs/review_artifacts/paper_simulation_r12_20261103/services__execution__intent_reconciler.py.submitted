@@ -1,0 +1,308 @@
+from __future__ import annotations
+import json
+import os
+import time
+from datetime import datetime, timezone
+from services.admin.config_editor import load_user_yaml
+from services.os.app_paths import runtime_dir, ensure_dirs
+from storage.intent_queue_sqlite import IntentQueueSQLite
+from storage.paper_trading_sqlite import PaperTradingSQLite
+from storage.trade_journal_sqlite import TradeJournalSQLite
+from services.execution.state_authority import LiveStateContext, paper_queue_status
+from services.execution.outcome_logger import log_strategy_outcome
+from services.execution.paper_exit_retry import has_exit_marker
+from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
+
+FLAGS = runtime_dir() / "flags"
+LOCKS = runtime_dir() / "locks"
+STOP_FILE = FLAGS / "intent_reconciler.stop"
+LOCK_FILE = LOCKS / "intent_reconciler.lock"
+STATUS_FILE = FLAGS / "intent_reconciler.status.json"
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def _write_status(obj: dict) -> None:
+    FLAGS.mkdir(parents=True, exist_ok=True)
+    atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
+
+def _acquire_lock() -> bool:
+    LOCKS.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
+    try:
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        if not clean_stale_lock_file(LOCK_FILE):
+            return False
+        try:
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return False
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    except Exception:
+        try:
+            if LOCK_FILE.exists():
+                LOCK_FILE.unlink()
+        except Exception:
+            pass
+        raise
+    return True
+
+def _release_lock() -> None:
+    try:
+        if LOCK_FILE.exists():
+            LOCK_FILE.unlink()
+    except Exception as _err:
+        pass  # suppressed: intent_reconciler.py
+
+def request_stop() -> dict:
+    ensure_dirs()
+    FLAGS.mkdir(parents=True, exist_ok=True)
+    atomic_write(STOP_FILE, _now() + "\n")
+    return {"ok": True, "stop_file": str(STOP_FILE)}
+
+def _cfg() -> dict:
+    cfg = load_user_yaml()
+    r = cfg.get("intent_reconciler") if isinstance(cfg.get("intent_reconciler"), dict) else {}
+    return {
+        "enabled": bool(r.get("enabled", True)),
+        "poll_interval_sec": float(r.get("poll_interval_sec", 0.8) or 0.8),
+        "max_intents_per_loop": int(r.get("max_intents_per_loop", 50) or 50),
+    }
+
+
+_NO_FILL_EVIDENCE = object()
+
+
+def _fill_evidence_verdict(order_evidence: dict, fill_evidence) -> dict:
+    """Upgrade only from evidence the paper engine stored atomically with the fill (never inferred here)."""
+    if fill_evidence is _NO_FILL_EVIDENCE or fill_evidence is None:
+        return {"fill_evidence_status": "missing_fill_evidence"}
+    if type(fill_evidence) is not dict:
+        return {"fill_evidence_status": "invalid_fill_evidence"}
+    status = fill_evidence.get("execution_identity_fill_status")
+    if status == "invalid_storage":
+        return {"fill_evidence_status": "invalid_storage"}
+    if status != "cost_policy_verified":
+        return {"fill_evidence_status": "invalid_fill_evidence"}
+    if (fill_evidence.get("execution_identity_sha256") != order_evidence.get("execution_identity_sha256")
+            or fill_evidence.get("execution_identity") != order_evidence.get("execution_identity")):
+        return {"fill_evidence_status": "fill_evidence_identity_mismatch"}
+    from services.strategies.execution_identity import identity_rejection_reasons
+    if identity_rejection_reasons(
+            fill_evidence, expected_sha256=order_evidence["execution_identity_sha256"]):
+        return {"fill_evidence_status": "invalid_fill_evidence"}
+    return {"fill_evidence_status": "cost_policy_verified",
+            "journal_identity_status": "fill_cost_policy_verified",
+            "fill_cost_policy_verified": True}
+
+
+def _journal_identity_extra(order: dict, fill_evidence=_NO_FILL_EVIDENCE) -> dict:
+    """Carry order policy; mark cost-verified only from stored fill-time evidence that matches the order."""
+    meta = order.get("meta")
+    if not isinstance(meta, dict) or not any(key in meta for key in (
+        "execution_identity", "execution_identity_sha256", "execution_identity_capture_status")):
+        return {}
+    try:
+        from services.strategies.execution_identity import identity_evidence, identity_rejection_reasons
+        reasons = identity_rejection_reasons(meta, expected_sha256=meta.get("execution_identity_sha256"))
+        if reasons:
+            raise ValueError("invalid_order_identity")
+        evidence = identity_evidence(meta["execution_identity"])
+        market = evidence["execution_identity"]["market"]
+        if market["venue"] != order.get("venue") or market["symbol"] != order.get("symbol"):
+            raise ValueError("identity_order_market_mismatch")
+        return {"execution_identity_evidence": {
+            **evidence, "journal_identity_status": "order_policy_only",
+            "fill_cost_policy_verified": False,
+            **_fill_evidence_verdict(evidence, fill_evidence),
+        }}
+    except Exception as exc:
+        return {"execution_identity_evidence": {
+            "journal_identity_status": "invalid", "error_type": type(exc).__name__,
+            "fill_cost_policy_verified": False,
+        }}
+
+
+def _stored_fill_evidence(pdb, fill_id):
+    getter = getattr(pdb, "get_fill_execution_identity", None)
+    if getter is None:
+        return _NO_FILL_EVIDENCE
+    try:
+        return getter(fill_id)
+    except Exception:
+        return {"execution_identity_fill_status": "invalid_storage"}
+
+
+def reconcile_once(
+    *,
+    qdb: IntentQueueSQLite | None = None,
+    pdb: PaperTradingSQLite | None = None,
+    jdb: TradeJournalSQLite | None = None,
+    max_intents: int = 50,
+) -> dict:
+    qdb = qdb or IntentQueueSQLite()
+    pdb = pdb or PaperTradingSQLite()
+    jdb = jdb or TradeJournalSQLite()
+    submitted = qdb.list_intents(limit=int(max_intents), status="submitted")
+    intents_updated = 0
+    ctx = LiveStateContext(authority="RECONCILER", origin="intent_reconciler")
+    fills_journaled = 0
+
+    for it in submitted:
+        order_id = (it.get("linked_order_id") or "").strip()
+        if not order_id:
+            continue
+        order = pdb.get_order_by_order_id(order_id)
+        if not order:
+            continue
+        st = str(order.get("status") or "").lower().strip()
+        if st in ("new",):
+            continue
+        if st in ("rejected", "canceled"):
+            if has_exit_marker(it):
+                qdb.paper_exit_transition(it["intent_id"], "held", event="refused",
+                                          reason=order.get("reject_reason") or st,
+                                          linked_order_id=order_id)
+                intents_updated += 1
+                continue
+            paper_queue_status(
+                qdb,
+                it,
+                st,
+                ctx=ctx,
+                last_error=order.get("reject_reason"),
+                client_order_id=it.get("client_order_id"),
+                linked_order_id=order_id,
+            )
+            intents_updated += 1
+            continue
+        if st == "superseded" and has_exit_marker(it):
+            qdb.paper_exit_transition(it["intent_id"], "superseded", event="ledger_recovery",
+                                      reason="superseded", linked_order_id=order_id)
+            intents_updated += 1
+            continue
+        if st == "filled":
+            fills = pdb.list_fills_for_order(order_id, limit=5000)
+            pos = pdb.get_position(order["symbol"]) or {"qty": None, "avg_price": None}
+            meta = dict(it.get("meta") or {})
+            try:
+                cash = float(pdb.get_state("cash_quote") or "0.0")
+            except Exception:
+                cash = None
+            try:
+                realized = float(pdb.get_state("realized_pnl") or "0.0")
+            except Exception:
+                realized = None
+            for f in fills:
+                journal_row = {
+                    "fill_id": f["fill_id"],
+                    "journal_ts": _now(),
+                    "intent_id": it.get("intent_id"),
+                    "source": it.get("source"),
+                    "strategy_id": it.get("strategy_id"),
+                    "client_order_id": it.get("client_order_id"),
+                    "order_id": order_id,
+                    "fill_ts": f["ts"],
+                    "venue": order["venue"],
+                    "symbol": order["symbol"],
+                    "side": order["side"],
+                    "qty": f["qty"],
+                    "price": f["price"],
+                    "fee": f["fee"],
+                    "fee_currency": f["fee_currency"],
+                    "cash_quote": cash,
+                    "pos_qty": pos.get("qty"),
+                    "pos_avg_price": pos.get("avg_price"),
+                    "realized_pnl_total": realized,
+                    **_journal_identity_extra(order, _stored_fill_evidence(pdb, f["fill_id"])),
+                }
+                jdb.insert_fill(journal_row)
+                log_strategy_outcome({
+                    "selected_strategy": meta.get("selected_strategy"),
+                    "selected_strategy_reason": meta.get("selected_strategy_reason"),
+                    "regime": meta.get("regime"),
+                    "volume_surge": meta.get("volume_surge"),
+                    "volume_ratio": meta.get("volume_ratio"),
+                    "signal_reason": meta.get("signal_reason"),
+                    "exit_reason": meta.get("exit_reason"),
+                    "exit_stack_rule": meta.get("exit_stack_rule"),
+                    "intent_strategy_id": it.get("strategy_id"),
+                    "intent_id": it.get("intent_id"),
+                    **journal_row,
+                })
+                fills_journaled += 1
+            paper_queue_status(
+                qdb,
+                it,
+                "filled",
+                ctx=ctx,
+                last_error=None,
+                client_order_id=it.get("client_order_id"),
+                linked_order_id=order_id,
+            )
+            intents_updated += 1
+
+    return {
+        "submitted_checked": int(len(submitted)),
+        "intents_updated": int(intents_updated),
+        "fills_journaled": int(fills_journaled),
+        "journal_count": int(jdb.count()),
+    }
+
+def run_forever() -> None:
+    ensure_dirs()
+    cfg = _cfg()
+    if not bool(cfg["enabled"]):
+        _write_status({"ok": False, "reason": "disabled", "ts": _now()})
+        return
+    try:
+        if STOP_FILE.exists():
+            STOP_FILE.unlink()
+    except Exception as _err:
+        pass  # suppressed: intent_reconciler.py
+    if not _acquire_lock():
+        _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
+        return
+    qdb = IntentQueueSQLite()
+    pdb = PaperTradingSQLite()
+    jdb = TradeJournalSQLite()
+    loops = 0
+    intents_seen = 0
+    intents_updated = 0
+    fills_journaled = 0
+    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "cfg": cfg, "ts": _now(), "journal_count": jdb.count()})
+    try:
+        while True:
+            loops += 1
+            if STOP_FILE.exists():
+                _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now(), "loops": loops})
+                break
+            cycle = reconcile_once(
+                qdb=qdb,
+                pdb=pdb,
+                jdb=jdb,
+                max_intents=int(cfg["max_intents_per_loop"]),
+            )
+            intents_seen += int(cycle.get("submitted_checked") or 0)
+            intents_updated += int(cycle.get("intents_updated") or 0)
+            fills_journaled += int(cycle.get("fills_journaled") or 0)
+            _write_status({
+                "ok": True,
+                "status": "running",
+                "pid": os.getpid(),
+                "ts": _now(),
+                "loops": loops,
+                "submitted_checked": int(cycle.get("submitted_checked") or 0),
+                "intents_seen_total": intents_seen,
+                "intents_updated_total": intents_updated,
+                "fills_journaled_total": fills_journaled,
+                "journal_count": int(cycle.get("journal_count") or 0),
+            })
+            time.sleep(max(0.2, float(cfg["poll_interval_sec"])))
+    finally:
+        _release_lock()
+        _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now(), "loops": loops})

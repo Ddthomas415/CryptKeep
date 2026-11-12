@@ -1,0 +1,133 @@
+"""Paper-only pending-exit recovery; no exchange or live execution authority."""
+from datetime import datetime, timezone
+import logging
+
+POLICY = "retry_until_filled_v1"
+_LOG = logging.getLogger(__name__)
+
+
+def has_exit_marker(row):
+    meta = row.get("meta")
+    return isinstance(meta, dict) and any(k in meta for k in ("paper_exit_policy", "paper_exit_id"))
+
+
+def exit_identity(row):
+    meta = row.get("meta") or {}
+    identity = row.get("intent_id") or meta.get("paper_exit_id")
+    if (not isinstance(identity, str) or not identity.strip()
+            or meta.get("paper_exit_id") != identity
+            or meta.get("paper_exit_policy") != POLICY
+            or row.get("side") != "sell"):
+        raise ValueError("invalid_pending_paper_exit")
+    client = "paper_intent_" + identity
+    if row.get("client_order_id") not in (None, "", client):
+        raise ValueError("pending_exit_client_identity_mismatch")
+    return identity, client
+
+
+def _prepare(pdb, row, *, activate=False):
+    identity, client = exit_identity(row)
+    return pdb.prepare_paper_exit(
+        client_order_id=client, exit_id=identity, venue=row["venue"], symbol=row["symbol"],
+        order_type=row["order_type"], qty=row["qty"], limit_price=row.get("limit_price"),
+        strategy_id=row.get("strategy_id"), meta=row["meta"], activate=activate,
+    )
+
+
+def record_pending_exit_alert(qdb, row, *, now=None):
+    """Record dispatch evidence, never equate a skipped alert with delivery."""
+    try:
+        now = now or datetime.now(timezone.utc)
+        created = datetime.fromisoformat(str(row["created_ts"]).replace("Z", "+00:00"))
+        if created.tzinfo is None:
+            raise ValueError("pending_exit_timestamp_timezone_required")
+        if (now - created).total_seconds() < 120:
+            return
+        key = "paper_exit_alert:" + row["intent_id"]
+        if qdb.get_state(key) == "requested":
+            return
+        last = qdb.get_state(key + ":attempt")
+        if last and now.timestamp() - float(last) < 120:
+            return
+        # A failed channel may retry, but never once per fast runner loop.
+        qdb.set_state(key + ":attempt", str(now.timestamp()))
+        from services.admin.config_editor import load_user_yaml
+        from services.alerts.alert_dispatcher import send_alert
+        try:
+            out = send_alert(cfg=load_user_yaml(strict=True), level="error",
+                             message="Paper exit pending over two minutes",
+                             payload={"intent_id": row["intent_id"], "symbol": row["symbol"],
+                                      "venue": row["venue"], "reason": row.get("last_error")})
+            accepted = bool(out.get("ok")) and not out.get("skipped", False)
+            qdb.record_paper_exit_event(row["intent_id"], "alert_result",
+                                       reason="external_channel_accepted" if accepted else "not_delivered")
+            if accepted:
+                qdb.set_state(key, "requested")
+        except Exception as exc:
+            qdb.record_paper_exit_event(row["intent_id"], "alert_error", reason=type(exc).__name__)
+    except Exception as exc:
+        # Alert/evidence failure must not discard or block an already held sell.
+        _LOG.warning("pending_exit_alert_failed error_type=%s", type(exc).__name__)
+
+
+def service_pending_paper_exits(qdb, pdb, *, symbol):
+    """At a decision, replay receipts or release the same durable exit for retry."""
+    rows = qdb.list_paper_exits(symbol=symbol)
+    if not rows:
+        return False
+    for row in rows:
+        state = _prepare(pdb, row)
+        if state["state"] == "filled":
+            # Preserve the normal reconciler's journal-before-terminal boundary.
+            qdb.paper_exit_transition(row["intent_id"], "submitted", event="ledger_recovery",
+                                     reason="ledger_filled", linked_order_id=state["order"]["order_id"])
+        elif state["state"] == "superseded":
+            qdb.paper_exit_transition(row["intent_id"], "superseded",
+                                     event="ledger_recovery", reason="superseded")
+        elif state["state"] == "ready":
+            qdb.paper_exit_transition(row["intent_id"], "queued", event="retry", reason="decision_retry")
+            record_pending_exit_alert(qdb, row)
+        else:
+            qdb.paper_exit_transition(row["intent_id"], "held", event="deferred",
+                                     reason=state.get("reason") or "ledger_unknown")
+            record_pending_exit_alert(qdb, row)
+    return True
+
+
+def consume_pending_paper_exit(qdb, eng, row, decision):
+    """One paper attempt: refusals stay held; only ledger evidence is terminal."""
+    identity, client = exit_identity(row)
+    prepared = _prepare(eng.db, row)
+    state = prepared["state"]
+    if state in ("filled", "superseded"):
+        qdb.paper_exit_transition(identity, "submitted" if state == "filled" else "superseded",
+                                 event="ledger_recovery", reason=state,
+                                 linked_order_id=(prepared.get("order") or {}).get("order_id"))
+        return {"submitted": 0, "idempotent": int(state == "filled")}
+    reason = prepared.get("reason") if state != "ready" else None
+    if isinstance(decision, Exception):
+        reason = "router_error:" + type(decision).__name__
+    elif not bool(getattr(decision, "allowed", False)):
+        reason = "router_refused"
+    if reason:
+        qdb.paper_exit_transition(identity, "held", event="refused", reason=reason)
+        record_pending_exit_alert(qdb, row)
+        return {"submitted": 0, "idempotent": 0}
+    try:
+        resp = eng.submit_order(
+            client_order_id=client, venue=row["venue"], symbol=row["symbol"], side="sell",
+            order_type=row["order_type"], qty=float(prepared["qty"]),
+            limit_price=row.get("limit_price"), strategy_id=row.get("strategy_id"), meta=row["meta"],
+        )
+    except Exception as exc:
+        qdb.paper_exit_transition(identity, "held", event="submit_unknown", reason=type(exc).__name__)
+        record_pending_exit_alert(qdb, row)
+        return {"submitted": 0, "idempotent": 0}
+    if not resp.get("ok"):
+        qdb.paper_exit_transition(identity, "held", event="refused", reason=str(resp.get("reason") or "paper_refused"))
+        record_pending_exit_alert(qdb, row)
+        return {"submitted": 0, "idempotent": 0}
+    order = resp.get("order") or {}
+    qdb.paper_exit_transition(identity, "submitted", event="submitted",
+                             linked_order_id=order.get("order_id"))
+    return {"submitted": 1, "idempotent": int(bool(resp.get("idempotent")))}

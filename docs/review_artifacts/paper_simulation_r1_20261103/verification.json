@@ -1,0 +1,35 @@
+{
+  "source_hashes": {
+    "services/execution/strategy_runner.py": "0e96ad15bf9033db217bc9a7de64d8f8fc2f353a1d6e4cf6d981c939197dbca3",
+    "storage/intent_queue_sqlite.py": "f3a84b7e208b377ed022b277f63674d3c3e6938a00340c79ca1bdeeb4a2b974a",
+    "tests/test_kill_cooldown_sessions.py": "e723e9f8b27e3ef19226c8f4681561f20c924ce6eb2dd4c79d77904c6d9a3d30",
+    "tests/test_kill_gate_protective_exit.py": "9ffa3ce78e9797270525cf381e9312ff0fc3cfee3c2602c602349712d7a0527f",
+    "tests/test_cooldown_runner_integration.py": "954a18349d472f9660bd1954bdca2cc6ec98118ed6b03223ddaeb6d9444d88eb"
+  },
+  "test_receipts": {
+    "integration.before.xml": {
+      "tests": "37",
+      "failures": "37",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.542"
+    },
+    "focused.final.xml": {
+      "tests": "274",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "14.704"
+    }
+  },
+  "author_state_at_handoff": "READY_FOR_INDEPENDENT_REVIEW",
+  "separate_source_gate": "ACCEPTED_WITH_RISK",
+  "reviewer": "Poincare",
+  "reviewer_independent_cases_passed": 77,
+  "reviewer_independent_additional_probes_passed": 12,
+  "reviewer_before_cases_failed": 37,
+  "reviewer_reran_274": false,
+  "operational_readiness": "INCOMPLETE",
+  "runtime_config_checked": false,
+  "started_or_deployed": false
+}

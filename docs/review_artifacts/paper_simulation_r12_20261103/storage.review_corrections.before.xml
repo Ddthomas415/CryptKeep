@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="60" skipped="0" tests="85" time="0.932" timestamp="2026-11-03T05:04:45.724755-05:00" hostname="MacBook-Pro"><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-unknown-policy]" time="0.013"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-null-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-empty-policy]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-dict-policy]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-list-policy]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-bool-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-number-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-policy-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-id-only]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-null-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-empty-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[database-dict-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-unknown-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-null-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-empty-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-dict-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-list-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-bool-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-number-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-policy-only]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-null-id-only]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-empty-id-only]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[caller-dict-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-unknown-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-null-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-empty-policy]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-dict-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-list-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-bool-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-number-policy]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-policy-only]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-null-id-only]" time="0.007"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-empty-id-only]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_never_uses_ordinary_fill[both-dict-id-only]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[unknown-policy]" time="0.011"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[null-policy]" time="0.011"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[empty-policy]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[dict-policy]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[list-policy]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[bool-policy]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[number-policy]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[policy-only]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[id-only]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[null-id-only]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[empty-id-only]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_exit_marker_cannot_sell_replacement_after_supersession[dict-id-only]" time="0.010"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...ity_mismatch'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[unknown-policy]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[null-policy]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[empty-policy]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[dict-policy]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[list-policy]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[bool-policy]" time="0.008" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[number-policy]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[policy-only]" time="0.008" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[id-only]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[null-id-only]" time="0.008" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[empty-id-only]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[dict-id-only]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[null-meta]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[empty-meta]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[list-meta]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[string-meta]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_malformed_incoming_meta_blocked_when_database_still_tagged[bool-meta]" time="0.009" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[ordinary-None]" time="0.011" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[ordinary-meta1]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[ordinary-meta2]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[ordinary-meta3]" time="0.011" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[paper_intent_exit-1-None]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[paper_intent_exit-1-meta1]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[paper_intent_exit-1-meta2]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_unmarked_orders_keep_ordinary_fill_and_retry_semantics[paper_intent_exit-1-meta3]" time="0.010" /><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[None]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[null]" time="0.009"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[[]]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[&quot;plain&quot;]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[false]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[0]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[{}]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[not-json]" time="0.010"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata[]" time="0.012"><failure message="assert not True">E   assert not True</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_stored_metadata_decode_failure_cannot_authorize_ordinary_accounting[not-json]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...d_order_meta'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...d_order_meta'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_stored_metadata_decode_failure_cannot_authorize_ordinary_accounting[]" time="0.009"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...d_order_meta'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...d_order_meta'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_paper_exit_atomicity" name="test_stored_metadata_decode_failure_cannot_authorize_ordinary_accounting[{]" time="0.008"><failure message="AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...d_order_meta'}&#10;  &#10;  Differing items:&#10;  {'ok': True} != {'ok': False}&#10;  Left contains 5 more items:&#10;  {'fee': 2.0,&#10;   'fill_id': 'paper:order-1:110.000000000000:2.000000000000',&#10;   'idempotent': False,...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">E   AssertionError: assert {'ok': True, ...d': 18.0, ...} == {'ok': False,...d_order_meta'}
+      
+      Differing items:
+      {'ok': True} != {'ok': False}
+      Left contains 5 more items:
+      {'fee': 2.0,
+       'fill_id': 'paper:order-1:110.000000000000:2.000000000000',
+       'idempotent': False,...
+      
+      ...Full output truncated (5 lines hidden), use '-vv' to show</failure></testcase></testsuite></testsuites>

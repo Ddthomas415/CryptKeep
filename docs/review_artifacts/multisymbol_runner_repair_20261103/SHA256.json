@@ -1,0 +1,16 @@
+{
+  "0004.original.patch": "1fab115dcf0bbfb8c8ca1b3fa3a5087f6d9e4d8fbf300a85f3f3269e72ff6348",
+  "README.md": "74e435b4bb4f9b412f82e396b3aa1b1d202a4589fa280ae70912067b305cc284",
+  "baseline.json": "20aced43a5ae68a0a6f241abb6c742d46ef42ba40fafb6f289fcc14d46f3cfaa",
+  "independent_review.md": "ef85a38b59b02fc965180dce7e3a6881cd38bdb8447bb2404a1c422a09253d01",
+  "integration_test.final.snapshot.py": "b1509eead2b0ea315afc17710ad87fc7988cc1878f13ae672b701fd915f1d888",
+  "integration_test.snapshot.py": "da9d67d7d4b4fa2db54dd03ef742008a158d98584c35780186d60c8e4634b572",
+  "runner.diff": "3d50a66154ac198ab22933cffa608e6b5c87fdb65f2c730e7b43c59df0042b3b",
+  "runner.final.diff": "02145a09243a16345870ccfaeebd3df1e5b274d4413f1ea9c1242d866436ab15",
+  "runner.final.semantic.diff": "de06685c42df785233b440e4704588bfa656f24cba72728e6ad4335dbab9516a",
+  "runner.semantic.diff": "dcd3832fae67aff668424c1241ac11d786f2acdf535a64e190f27d062dc9cac9",
+  "strategy_runner.after.py": "0eb457fcf565a8a49b61d7dd89cd6ea1bb44533f25d81afb78ab3647b9fea684",
+  "strategy_runner.before.py": "7006466dcec981e20b853c26314045a7d8b346b80b2559f46d7ad880f47356ba",
+  "strategy_runner.final.py": "9fb545d0a105e25a7d595a3c0518d11084764d4e454d3c80cacc36a0689ff153",
+  "verification.json": "1620c8a899cc0740f257f232ce055fe810d30fb17f952ea7132b4a1a667b8929"
+}

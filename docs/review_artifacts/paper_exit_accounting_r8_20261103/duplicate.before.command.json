@@ -1,0 +1,17 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "-c",
+    "from pathlib import Path\nimport pytest\nclass Before:\n def pytest_runtest_call(self,item):\n  h=item.funcargs.get(\"flow\")\n  if h is None:return\n  queue_ns=dict(h.queue_store.__dict__)\n  p=Path('/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/storage__intent_queue_sqlite.py.submitted')\n  exec(compile(p.read_bytes(),str(p),\"exec\"),queue_ns)\n  h.mp.setattr(h.queue_store.IntentQueueSQLite,\"strategy_sell_intents_after\",queue_ns[\"IntentQueueSQLite\"].strategy_sell_intents_after)\n  accounting_ns=dict(h.accounting_lib.__dict__)\n  p=Path('/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/paper_exit_accounting.py.initial')\n  exec(compile(p.read_bytes(),str(p),\"exec\"),accounting_ns)\n  h.mp.setattr(h.accounting_lib.PaperExitAccounting,\"_recover\",accounting_ns[\"PaperExitAccounting\"]._recover)\nresult=pytest.main([\"-q\",\"-p\",\"no:cacheprovider\",\"tests/test_paper_exit_accounting.py\",\"-k\",\"ambiguous_duplicate_metadata\",\"--tb=short\",\"--junitxml=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_exit_accounting_r8_20261103/duplicate.before.xml\"],plugins=[Before()])\nraise SystemExit(result)\n"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "CBP_STATE_DIR": "/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/cbp-r8-duplicates-before-kjtzjv6n"
+  },
+  "exit_code": 1,
+  "scope": "isolated process method overrides after temporary fixtures; production files unchanged"
+}

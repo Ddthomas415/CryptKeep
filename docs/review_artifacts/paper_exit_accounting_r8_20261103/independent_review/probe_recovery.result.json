@@ -1,0 +1,15 @@
+{
+  "provenance": "Original execution output transcribed from this review chat; not rerun when archived",
+  "exit_code": 1,
+  "chunks": [
+    {
+      "chunk_id": "b9942e",
+      "session_id": 44191,
+      "output": "F.                                                                       [100%]"
+    },
+    {
+      "chunk_id": "b554f5",
+      "output": "\n=================================== FAILURES ===================================\n_____________________ duplicate_event_keys_must_quarantine _____________________\n<string>:16: in duplicate_event_keys_must_quarantine\n    ???\nE   AssertionError: ambiguous metadata accepted: report={'unsettled': False, 'applied': [{'intent_id': 'ambiguous', 'performance_exit': {'basis': 'written_sell_intent_reference_price_v1', 'created_ts': '2026-11-03T00:00:00+00:00', 'current_price': 102.0, 'entry_price': 100.0, 'is_loss': False, 'pnl_pct': 2.0, 'scope': 'coinbase:BTC/USD:breakout_donchian', 'version': 1}, 'performance_state': {'cumulative_pnl_pct': 2.0, 'peak_pnl_pct': 2.0, 'drawdown_pct': 0.0}, 'loss_streak': 0, 'kill': {'triggered': False, 'reason': 'kill:not_triggered', 'kill_until_loop': 0}}], 'basis': 'written_sell_intent_reference_price_v1'}; counters={'cum_pnl': 2.0, 'peak_pnl': 2.0, 'loss_streak': 0.0, 'kill_remaining': 0.0}\n=========================== short test summary info ============================\nFAILED tests/test_paper_exit_accounting.py::duplicate_event_keys_must_quarantine\n1 failed, 1 passed in 1.42s\n"
+    }
+  ]
+}

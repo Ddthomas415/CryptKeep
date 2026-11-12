@@ -1,0 +1,6 @@
+{
+  "runner_sha256": "7006466dcec981e20b853c26314045a7d8b346b80b2559f46d7ad880f47356ba",
+  "bundle_sha256": "b8b49bee6b187f4eb97de55f17789a951354872bae2a499e6510efd1742e9665",
+  "patch_member": "cryptkeep_series_on_be34a18a_rev88/patches/0004-fix-act-on-every-configured-symbol-in-the-strategy-r.patch",
+  "patch_sha256": "1fab115dcf0bbfb8c8ca1b3fa3a5087f6d9e4d8fbf300a85f3f3269e72ff6348"
+}

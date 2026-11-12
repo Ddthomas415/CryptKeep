@@ -1,0 +1,10 @@
+{
+  "observed_date": "2026-11-03",
+  "scope": "sanitized transcription of visible catalogue/capability discovery; not a workspace audit",
+  "superpowers": {"installed": false, "installation_policy": "AVAILABLE"},
+  "composio": {"tool_interface_exposed": true, "slack_has_active_connection": false, "search_only": true},
+  "dashboard_public_retrieval": "not_accessible_via_web_tool",
+  "private_workspace_grants": "UNVERIFIED",
+  "installs_connections_grants_or_app_actions_performed": false,
+  "private_credentials_or_app_contents_accessed": false
+}

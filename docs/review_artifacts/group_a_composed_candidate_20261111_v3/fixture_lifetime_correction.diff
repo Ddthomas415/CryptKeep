@@ -1,0 +1,49 @@
+--- v2/tests/test_paper_account_snapshot.py
++++ v3/tests/test_paper_account_snapshot.py
+@@ -1,4 +1,6 @@
+ from concurrent.futures import ThreadPoolExecutor
++from contextlib import closing
++import gc
+ import json
+ import sqlite3
+ import threading
+@@ -16,7 +18,7 @@
+ 
+ def queue_db():
+     path = store.DB_PATH.parent / "intent_queue.sqlite"
+-    with sqlite3.connect(path) as con:
++    with closing(sqlite3.connect(path)) as con, con:
+         con.execute("PRAGMA journal_mode=WAL")
+         con.executescript("""
+             CREATE TABLE trade_intents (
+@@ -33,6 +35,30 @@
+     db.insert_order(dict(order_id="order", client_order_id="direct", ts="2026-11-03T00:00:00Z",
+                          venue="coinbase", symbol="BTC/USD", side="buy", order_type="market",
+                          qty=1, status="new", strategy_id="test", meta={"omitted": "private"}))
++
++
++def test_queue_fixture_closes_writer_before_byte_preservation_check(db, monkeypatch):
++    original_connect = sqlite3.connect
++    opened = []
++
++    class FixtureConnection(sqlite3.Connection):
++        closed = False
++
++        def close(self):
++            self.closed = True
++            super().close()
++
++    def connect(*args, **kwargs):
++        con = original_connect(*args, factory=FixtureConnection, **kwargs)
++        opened.append(con)
++        return con
++
++    monkeypatch.setattr(sqlite3, "connect", connect)
++    path = queue_db()
++    assert len(opened) == 1 and opened[0].closed
++    before = path.read_bytes()
++    gc.collect()
++    assert path.read_bytes() == before
+ 
+ 
+ def state_rows():

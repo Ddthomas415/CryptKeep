@@ -1,0 +1,7 @@
+{
+  "original_patch_sha256": "2bec0aa1fa88ec79c8e955dc769a778e3921f2841d5e0939e1faeec2f774aec3",
+  "production_hunks_match_original": {
+    "services/market_data/tick_reader.py": true,
+    "services/execution/paper_engine.py": true
+  }
+}

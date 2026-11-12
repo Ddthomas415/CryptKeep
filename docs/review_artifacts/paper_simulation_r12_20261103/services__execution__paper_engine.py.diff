@@ -1,0 +1,85 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__paper_engine.py.before	2026-11-03 00:38:03
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/paper_engine.py	2026-11-03 00:46:03
+@@ -238,8 +238,24 @@
+         strategy_id: str | None = None,
+         meta: dict | None = None,
+     ) -> dict:
++        from services.execution.paper_exit_retry import has_exit_marker
++        pending = has_exit_marker({"meta": meta})
++        prepared = None
++        if pending:
++            if side != "sell":
++                return {"ok": False, "reason": "pending_exit_sell_required"}
++            prepared = self.db.prepare_paper_exit(
++                client_order_id=client_order_id, exit_id=(meta or {}).get("paper_exit_id"),
++                venue=venue, symbol=symbol, order_type=order_type, qty=qty,
++                limit_price=limit_price, strategy_id=strategy_id, meta=meta, activate=False,
++            )
++            if prepared["state"] == "filled":
++                return {"ok": True, "idempotent": True, "order": prepared["order"]}
++            if prepared["state"] != "ready":
++                return {"ok": False, "reason": prepared.get("reason") or prepared["state"]}
++            qty = prepared["qty"]
+         existing = self.db.get_order_by_client_id(client_order_id)
+-        if existing:
++        if existing and not pending:
+             return {"ok": True, "idempotent": True, "order": existing}
+         side = str(side).lower().strip()
+         order_type = str(order_type).lower().strip()
+@@ -268,6 +284,19 @@
+         )
+         if not gate_ok:
+             return {"ok": False, "reason": str(gate_reason or "paper_submit_gate_blocked")}
++        if pending:
++            prepared = self.db.prepare_paper_exit(
++                client_order_id=client_order_id, exit_id=(meta or {}).get("paper_exit_id"),
++                venue=venue, symbol=symbol, order_type=order_type, qty=qty,
++                limit_price=limit_price, strategy_id=strategy_id, meta=meta, activate=True,
++            )
++            if prepared["state"] == "filled":
++                return {"ok": True, "idempotent": True, "order": prepared["order"]}
++            if prepared["state"] != "ready":
++                return {"ok": False, "reason": prepared.get("reason") or prepared["state"]}
++            qty = prepared["qty"]
++            if prepared.get("order"):
++                return {"ok": True, "idempotent": True, "order": prepared["order"]}
+         oid = str(uuid.uuid4())
+         row = {
+             "order_id": oid,
+@@ -342,6 +371,10 @@
+             return result
+         if result.get("idempotent"):
+             return result
++        # Pending exits may be trimmed atomically if holdings changed after
++        # submission; evidence must describe the committed fill, not its plan.
++        qty = float(result.get("qty", qty))
++        fee = float(result.get("fee", fee))
+ 
+         # Evidence logging — strategy-specific, best-effort
+         try:
+@@ -381,14 +414,25 @@
+         return result
+ 
+     def evaluate_open_orders(self) -> dict:
++        from services.execution.paper_exit_retry import has_exit_marker
+         orders = self.db.list_orders(limit=2000, status="new")
+         n_filled = 0
+         n_rejected = 0
+         details = []
+         for o in orders:
++            if has_exit_marker(o) and not is_snapshot_fresh()[0]:
++                continue
+             q = self._price(o["venue"], o["symbol"])
+             if not q:
+                 continue
++            if has_exit_marker(o):
++                try:
++                    quote_ts = float(q.get("ts_ms")) / 1000.0
++                    age = datetime.now(timezone.utc).timestamp() - quote_ts
++                    if not math.isfinite(age) or not 0 <= age <= 5.0:
++                        continue
++                except (TypeError, ValueError, OverflowError):
++                    continue
+             m = mid_price(q)
+             if m is None:
+                 continue

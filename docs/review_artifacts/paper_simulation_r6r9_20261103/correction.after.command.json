@@ -1,0 +1,43 @@
+{
+  "cmd": [
+    "/Users/baitus/Downloads/crypto-bot-pro/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_runner_decision_capture.py",
+    "tests/test_runner_recording_integration.py",
+    "tests/test_runner_decision_kernel.py",
+    "tests/test_signal_input_capture.py",
+    "--tb=short",
+    "--junitxml=/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r6r9_20261103/correction.after.xml"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/private/tmp",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "CBP_STATE_DIR": "/var/folders/5_/yh9bwg0j1cqb4d_mt5j84grc0000gn/T/cbp-r6-corrected-a6vzjt8w",
+    "CBP_CAPTURE_MARKET_CONTEXT": "0",
+    "CBP_CAPTURE_EXECUTION_IDENTITY": "0",
+    "CBP_R6_PROOF_OUTPUT": "/Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r6r9_20261103/corrected_synthetic_hours"
+  },
+  "scope": "focused correction and all affected capture/runner integration paths; not repeat of full 30-file selection",
+  "source_sha256": {
+    "services/execution/runner_decision.py": "1b400cd9feba3f8ccb3f635f25ba76b440c08ad2d394b91eabe990559d90faee",
+    "services/execution/strategy_runner.py": "2bccce94b22cbc6f52692a8c9a2373016f89b0adb8eab7697bfda3d0a4ec3c94",
+    "services/strategies/signal_input_capture.py": "2664bad55b22a20390a8c98b529e94432fe92a712804e6601eac6cec09389ddc",
+    "services/strategies/strategy_registry.py": "db4cc349310eac07ef82d50e6c8c779b39fa788a265fc837681325f797049692",
+    "services/strategies/ema_cross.py": "68b3522c816b94d6e1b864398dbf212558492e2d8143c849f64d17926e5b8a6f",
+    "services/strategies/breakout_donchian.py": "5de5765593c9addc540a4d32da77c8ac879ddb9d7b3697719d970793fa57975a",
+    "services/strategies/mean_reversion_rsi.py": "63d125e3ec914c1118f523ca81337f7647faa14cfba3ad8ce0c2b5956dca37d3",
+    "scripts/replay_runner_decisions.py": "806b3d0fab9d5e312a5abff3fb5598af62d3819aea56c870fc30779333e79624",
+    "tests/test_runner_decision_kernel.py": "9770fa40ab5f64bba5ed57b7cf7a36c17183c1195d077903212eef3f4586f9f9",
+    "tests/test_runner_decision_capture.py": "f8d2e22faa3f5a0f9bcc403e373df1b6c105f0190999eb2d1c92ec99c2b6b6cb",
+    "tests/test_runner_recording_integration.py": "9007bb74bf136703056a692197aa2292ad774c889284f8ceea81cf624c2b26e0"
+  },
+  "exit_code": 1,
+  "elapsed_seconds": 104.215
+}

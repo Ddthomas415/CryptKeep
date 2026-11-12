@@ -1,0 +1,151 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/storage__intent_queue_sqlite.py.before	2026-11-03 00:38:03
++++ /Users/baitus/Downloads/crypto-bot-pro/storage/intent_queue_sqlite.py	2026-11-03 00:46:03
+@@ -41,6 +41,14 @@
+   k TEXT PRIMARY KEY,
+   v TEXT NOT NULL
+ );
++CREATE TABLE IF NOT EXISTS paper_exit_events (
++  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
++  intent_id TEXT NOT NULL,
++  ts TEXT NOT NULL,
++  event TEXT NOT NULL,
++  reason TEXT
++);
++CREATE INDEX IF NOT EXISTS idx_paper_exit_events_intent ON paper_exit_events(intent_id, event_id);
+ """
+ 
+ def _now() -> str:
+@@ -101,6 +109,12 @@
+             con.execute("BEGIN IMMEDIATE")
+             existing_row = _fetch_intent_row(con, intent_id)
+             if existing_row is None:
++                from services.execution.paper_exit_retry import has_exit_marker, exit_identity
++                client_order_id = row.get("client_order_id")
++                if has_exit_marker(row):
++                    if row.get("source") != "strategy":
++                        raise ValueError("pending_exit_strategy_source_required")
++                    _identity, client_order_id = exit_identity(row)
+                 con.execute(
+                     "INSERT INTO trade_intents(intent_id, created_ts, ts, source, strategy_id, action, venue, symbol, side, order_type, qty, limit_price, status, last_error, client_order_id, linked_order_id, meta, updated_ts) "
+                     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+@@ -119,7 +133,7 @@
+                         row.get("limit_price"),
+                         normalize_live_queue_status(row["status"]),
+                         row.get("last_error"),
+-                        row.get("client_order_id"),
++                        client_order_id,
+                         row.get("linked_order_id"),
+                         meta_json,
+                         now,
+@@ -129,10 +143,13 @@
+                 return
+ 
+             existing = _decode_intent_row(existing_row)
++            from services.execution.paper_exit_retry import has_exit_marker
++            frozen_exit = has_exit_marker(existing)
+             current_status = normalize_live_queue_status(existing["status"])
+             next_status = normalize_live_queue_status(row.get("status") or current_status)
+             payload_mutable = (
+                 current_status == "queued"
++                and not frozen_exit
+                 and not existing.get("client_order_id")
+                 and not existing.get("linked_order_id")
+                 and next_status == "queued"
+@@ -165,7 +182,7 @@
+                 "linked_order_id": existing.get("linked_order_id") or row.get("linked_order_id"),
+                 "meta": (
+                     row.get("meta")
+-                    if (payload_mutable or status_mutable)
++                    if (payload_mutable or status_mutable) and not frozen_exit
+                     else existing["meta"]
+                 ),
+                 "updated_ts": now,
+@@ -200,11 +217,88 @@
+             try:
+                 con.execute("ROLLBACK")
+             except Exception:
++                pass
++            raise
++        finally:
++            con.close()
++
++    def list_paper_exits(self, *, symbol: str | None = None) -> List[Dict[str, Any]]:
++        from services.execution.paper_exit_retry import has_exit_marker, exit_identity
++        con = _connect()
++        try:
++            ids = con.execute(
++                "SELECT intent_id FROM trade_intents WHERE source='strategy' AND side='sell' "
++                "AND status IN ('queued','submitting','submitted','held','rejected') "
++                "AND (? IS NULL OR symbol=?) ORDER BY created_ts, intent_id", (symbol, symbol),
++            ).fetchall()
++            rows = [_decode_intent_row(_fetch_intent_row(con, row[0])) for row in ids]
++            marked = [row for row in rows if has_exit_marker(row)]
++            for row in marked:
++                exit_identity(row)
++            return marked
++        finally:
++            con.close()
++
++    def paper_exit_transition(self, intent_id: str, status: str, *, event: str,
++                              reason: str | None = None, linked_order_id: str | None = None) -> bool:
++        from services.execution.paper_exit_retry import exit_identity, has_exit_marker
++        if status not in ("queued", "held", "submitted", "filled", "superseded"):
++            raise ValueError("invalid_paper_exit_transition")
++        con = _connect()
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            stored = _fetch_intent_row(con, str(intent_id))
++            if stored is None:
++                raise ValueError("pending_exit_missing")
++            row = _decode_intent_row(stored)
++            if status == "held" and has_exit_marker(row):
++                # Quarantine malformed evidence without granting submission.
+                 pass
++            else:
++                exit_identity(row)
++            if row["status"] in ("filled", "superseded"):
++                con.execute("COMMIT")
++                return False
++            if row["status"] not in ("queued", "submitting", "submitted", "held", "rejected"):
++                raise ValueError("pending_exit_state_not_retryable")
++            con.execute(
++                "UPDATE trade_intents SET status=?, last_error=?, linked_order_id=COALESCE(?, linked_order_id), "
++                "updated_ts=? WHERE intent_id=?",
++                (status, reason, linked_order_id, _now(), str(intent_id)),
++            )
++            con.execute("INSERT INTO paper_exit_events(intent_id,ts,event,reason) VALUES(?,?,?,?)",
++                        (str(intent_id), _now(), str(event), reason))
++            con.execute("COMMIT")
++            return True
++        except Exception:
++            if con.in_transaction:
++                con.execute("ROLLBACK")
+             raise
+         finally:
+             con.close()
+ 
++    def record_paper_exit_event(self, intent_id: str, event: str, *, reason: str | None = None) -> None:
++        from services.execution.paper_exit_retry import exit_identity
++        con = _connect()
++        try:
++            stored = _fetch_intent_row(con, str(intent_id))
++            if stored is None:
++                raise ValueError("pending_exit_missing")
++            exit_identity(_decode_intent_row(stored))
++            con.execute("INSERT INTO paper_exit_events(intent_id,ts,event,reason) VALUES(?,?,?,?)",
++                        (str(intent_id), _now(), str(event), reason))
++        finally:
++            con.close()
++
++    def list_paper_exit_events(self, intent_id: str) -> List[Dict[str, Any]]:
++        con = _connect()
++        try:
++            return [dict(zip(("event_id","ts","event","reason"), r)) for r in con.execute(
++                "SELECT event_id,ts,event,reason FROM paper_exit_events WHERE intent_id=? ORDER BY event_id",
++                (str(intent_id),)).fetchall()]
++        finally:
++            con.close()
++
+     def has_open_strategy_intent(self, symbol: str) -> bool:
+         con = _connect()
+         try:

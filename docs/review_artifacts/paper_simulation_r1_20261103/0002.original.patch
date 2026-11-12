@@ -1,0 +1,363 @@
+From 31897238ac867955a4fae3b9b33d003c70a9e3a7 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 18:16:17 +0000
+Subject: [PATCH] fix: let closing sells through the kill cooldown
+
+During a cooldown the kill gate blocked every action, including sells that
+close an existing long. Let such a sell through when it can be emitted:
+position > 0, not a repeat of the last emitted action, and no open strategy
+intent on the symbol. The open-intent lookup is Codex's human-accepted
+IntentQueueSQLite.has_open_strategy_intent SQL query. Entries, adds and sells
+without a position stay blocked; the cooldown keeps counting.
+
+Review: bounded re-review and human acceptance recorded in the work log.
+Does not fix the multi-symbol loop. Not deployed.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011p3WBrLHso7qjbJYsguxAY
+---
+ docs/work_log/review_stabilized_work_log.md |  36 ++++
+ services/execution/strategy_runner.py       |  49 +++--
+ storage/intent_queue_sqlite.py              |  11 ++
+ tests/test_kill_gate_protective_exit.py     | 193 ++++++++++++++++++++
+ 4 files changed, 274 insertions(+), 15 deletions(-)
+ create mode 100644 tests/test_kill_gate_protective_exit.py
+
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index 29df12a9..2aa7b365 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,41 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-02 - Let closing sells through the kill cooldown
++
++- ENGINEER (Claude, separate thread). Builds on the kill-cooldown expiry change
++  (entry below); separate change, separate review. Codex's local review showed
++  the kill gate also suppresses protective exits, on base and patched code.
++- Change: when the kill gate blocks a loop, a sell that closes an existing long
++  is let through, but only if it can actually be emitted: position > 0, not the
++  same action as the last emitted one, and no queued/submitted strategy intent
++  for the symbol (an unreadable intent queue counts as blocked). Entries, adds
++  to a position and sells without a position stay blocked. The cooldown still
++  counts down on every blocked or pass-through loop. No behaviour change when
++  no cooldown is active.
++- Reviewer subagent returned ACCEPT_WITH_RISK on the first draft and reproduced
++  that exit bookkeeping (loss streak, cumulative PnL, kill re-arm) runs before
++  the open-intent check, so a pass-through sell blocked by an open intent
++  repeated it every loop. The open-intent and last-emitted conditions were
++  added for that and are pinned by tests; they have not been re-reviewed.
++- Codex's local review reproduced that the open-intent check read only the
++  newest 200 intents. Codex's correction, human-accepted on 2026-10-02
++  (`docs/review_artifacts/20261002_intent_lookup/accepted_lookup_correction.patch`,
++  SHA256 prefix 051e9aa861010d35), is applied here unchanged:
++  `IntentQueueSQLite.has_open_strategy_intent`, a SQL existence query on
++  source, symbol and open status. Claude's alternative paginated helper
++  (bundle rev7) is withdrawn and not included. The inherited open-intent check
++  on the normal emission path still reads the newest 200 and is not changed.
++- Known limits, all inherited and not changed here: a long whose earlier exit
++  was emitted but never closed stays deduplicated (no second sell) for the
++  cooldown; a losing exit during a cooldown re-arms it to full, as it does
++  outside a cooldown; exit bookkeeping still precedes the open-intent check
++  when no cooldown is active; decision and kill logic remain outside the
++  per-symbol loop.
++- VERIFIED_ENV (cloud clone, Python 3.11.15): see commit message.
++- UNVERIFIED: Python 3.12, CI, hosts, intent consumer and fill behaviour,
++  partial fills. HIGH risk. Not pushed, not deployed.
++  READY_FOR_INDEPENDENT_REVIEW.
++
+ ## 2026-10-02 - Kill cooldown persisted across sessions blocks ES entries
+ 
+ - AUDITOR (Claude, separate thread from the Codex sessions): operator asked why
+diff --git a/services/execution/strategy_runner.py b/services/execution/strategy_runner.py
+index 58b53f87..14ce5be1 100644
+--- a/services/execution/strategy_runner.py
++++ b/services/execution/strategy_runner.py
+@@ -302,6 +302,14 @@ def _position_aware_signal_action(signal: dict, *, strategy_id: str, position_qt
+     return action
+ 
+ 
++def _open_strategy_intent_state(qdb, symbol: str) -> str:
++    """"open", "none", or "unknown" for queued/submitted strategy intents on a symbol."""
++    try:
++        return "open" if qdb.has_open_strategy_intent(symbol) else "none"
++    except Exception:
++        return "unknown"
++
++
+ def _kill_remaining_loops(sdb, k_kill_remaining: str, k_kill_until: str, *, max_cooldown_loops: int) -> int:
+     """Blocked loops still owed for a symbol, counted across runner processes.
+ 
+@@ -1470,22 +1478,33 @@ def run_forever() -> None:
+             if not bool(kill_gate.get("ok")):
+                 if kill_remaining > 0:
+                     sdb.set(k_kill_remaining, str(kill_remaining - 1))
+-                _write_status(
+-                    {
+-                        "ok": True,
+-                        "status": "running",
+-                        "pid": os.getpid(),
+-                        "ts": _now(),
+-                        "venue": selected_venue,
+-                        "symbol": symbol,
+-                        "symbols": symbols,
+-                        "strategy_id": cfg.get("strategy_id"),
+-                        "note": "kill_cooldown",
+-                        "kill_reason": kill_gate.get("reason"),
+-                        "kill_remaining_loops": kill_gate.get("remaining_loops"),
+-                    }
++                # The cooldown stops new exposure. A sell that closes an
++                # existing long is let through so the position stays managed,
++                # but only when it can actually be emitted: exit bookkeeping
++                # below runs before the open-intent check and must not repeat.
++                protective_exit = (
++                    action == "sell"
++                    and pos_qty > 0.0
++                    and action != last_emitted_action
++                    and _open_strategy_intent_state(qdb, symbol) == "none"
+                 )
+-                continue
++                if not protective_exit:
++                    _write_status(
++                        {
++                            "ok": True,
++                            "status": "running",
++                            "pid": os.getpid(),
++                            "ts": _now(),
++                            "venue": selected_venue,
++                            "symbol": symbol,
++                            "symbols": symbols,
++                            "strategy_id": cfg.get("strategy_id"),
++                            "note": "kill_cooldown",
++                            "kill_reason": kill_gate.get("reason"),
++                            "kill_remaining_loops": kill_gate.get("remaining_loops"),
++                        }
++                    )
++                    continue
+ 
+             if action and action == last_emitted_action:
+                 action = None
+diff --git a/storage/intent_queue_sqlite.py b/storage/intent_queue_sqlite.py
+index cac47ecc..edbdbefe 100644
+--- a/storage/intent_queue_sqlite.py
++++ b/storage/intent_queue_sqlite.py
+@@ -218,6 +218,17 @@ class IntentQueueSQLite:
+         finally:
+             con.close()
+ 
++    def has_open_strategy_intent(self, symbol: str) -> bool:
++        con = _connect()
++        try:
++            return con.execute(
++                "SELECT 1 FROM trade_intents WHERE source='strategy' AND symbol=? "
++                "AND status IN ('queued', 'submitted') LIMIT 1",
++                (str(symbol),),
++            ).fetchone() is not None
++        finally:
++            con.close()
++
+     def list_intents(self, limit: int = 500, status: str | None = None) -> List[Dict[str, Any]]:
+         con = _connect()
+         try:
+diff --git a/tests/test_kill_gate_protective_exit.py b/tests/test_kill_gate_protective_exit.py
+new file mode 100644
+index 00000000..ae2c902e
+--- /dev/null
++++ b/tests/test_kill_gate_protective_exit.py
+@@ -0,0 +1,193 @@
++"""A kill cooldown blocks new exposure; it must not block closing a long."""
++from __future__ import annotations
++
++import pytest
++import sqlite3
++
++from tests.test_kill_cooldown_sessions import BUY, HOLD, KEY, _run_session, _setup
++
++
++@pytest.mark.parametrize("status", ["queued", "submitted"])
++def test_pending_intent_beyond_recent_history_is_found(monkeypatch, tmp_path, status):
++    from storage import intent_queue_sqlite as queue_module
++
++    path = tmp_path / "queue.sqlite"
++    with sqlite3.connect(path) as con:
++        con.execute("CREATE TABLE trade_intents (source TEXT, symbol TEXT, status TEXT, created_ts TEXT)")
++    # Minimal schema isolates the existence query from queue lifecycle writes.
++    with sqlite3.connect(path) as con:
++        con.executemany(
++            "INSERT INTO trade_intents(source, symbol, status, created_ts) VALUES (?, ?, ?, ?)",
++            [("strategy", "ETH/USD", "filled", "2026-10-02")] * 250
++            + [("strategy", "BTC/USD", status, "2026-10-01")],
++        )
++    monkeypatch.setattr(queue_module, "_connect", lambda: sqlite3.connect(path))
++    queue = object.__new__(queue_module.IntentQueueSQLite)
++    assert queue.has_open_strategy_intent("BTC/USD")
++    assert not queue.has_open_strategy_intent("ETH/USD")
++
++
++def _hold_long(monkeypatch, runner, emitted, *, qty=1.0, fills=True):
++    position = {"qty": qty}
++
++    class Paper:
++        def get_position(self, symbol):
++            return {"qty": position["qty"], "avg_price": 100.0, "symbol": symbol}
++
++    class Queue:
++        def has_open_strategy_intent(self, symbol):
++            return False
++
++        def list_intents(self, **kwargs):
++            return []
++
++        def upsert_intent(self, row):
++            emitted.append(dict(row))
++            if fills and row["side"] == "sell":
++                position["qty"] = 0.0
++
++    monkeypatch.setattr(runner, "PaperTradingSQLite", Paper)
++    monkeypatch.setattr(runner, "IntentQueueSQLite", Queue)
++    return position
++
++
++def _cooldown(runner, *, last_action, remaining="30"):
++    state = runner.StrategyStateSQLite()
++    state.set(f"warmed:{KEY}", "1")
++    state.set(f"last_action:{KEY}", last_action)
++    state.set(f"last_emitted_action:{KEY}", "buy")
++    state.set(f"entry_price:{KEY}", "100.0")
++    state.set(f"kill_remaining:{KEY}", remaining)
++    return state
++
++
++def test_flat_signal_closes_long_during_cooldown(monkeypatch, tmp_path):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=HOLD)
++    _hold_long(monkeypatch, runner, emitted, qty=0.75)
++    state = _cooldown(runner, last_action="buy")
++
++    _run_session(monkeypatch, runner, loops=5)
++
++    assert [(row["side"], row["qty"]) for row in emitted] == [("sell", 0.75)]
++    assert int(state.get(f"kill_remaining:{KEY}")) > 0
++
++
++def test_exit_stack_closes_long_during_cooldown(monkeypatch, tmp_path):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=BUY)
++    _hold_long(monkeypatch, runner, emitted)
++    _cooldown(runner, last_action="buy")
++    monkeypatch.setattr(
++        runner,
++        "evaluate_strategy_exit_stack",
++        lambda **kw: {"action": "exit", "reason": "strategy_exit:sma_200_trend:stop_loss", "stack_rule": "stop_loss"},
++    )
++
++    _run_session(monkeypatch, runner, loops=5)
++
++    assert [row["side"] for row in emitted] == ["sell"]
++
++
++def test_unfilled_exit_is_not_repeated_during_cooldown(monkeypatch, tmp_path):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=HOLD)
++    _hold_long(monkeypatch, runner, emitted, fills=False)
++    _cooldown(runner, last_action="buy")
++
++    _run_session(monkeypatch, runner, loops=12)
++
++    assert [row["side"] for row in emitted] == ["sell"]
++
++
++def test_cooldown_still_counts_down_on_exit_loops(monkeypatch, tmp_path):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=HOLD)
++    _hold_long(monkeypatch, runner, emitted, fills=False)
++    state = _cooldown(runner, last_action="sell", remaining="4")
++    state.set(f"last_emitted_action:{KEY}", "sell")
++
++    _run_session(monkeypatch, runner, loops=3)
++
++    assert emitted == []
++    assert state.get(f"kill_remaining:{KEY}") == "1"
++    assert state.get(f"loss_streak:{KEY}") in (None, "0")
++
++
++def test_entry_is_still_blocked_while_flat_during_cooldown(monkeypatch, tmp_path):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=BUY)
++    state = _cooldown(runner, last_action="hold", remaining="30")
++    state.set(f"last_emitted_action:{KEY}", "hold")
++
++    _run_session(monkeypatch, runner, loops=20)
++
++    assert emitted == []
++    assert state.get(f"kill_remaining:{KEY}") == "10"
++
++
++def test_sell_without_a_position_is_still_blocked_during_cooldown(monkeypatch, tmp_path):
++    sell = {"ok": True, "action": "sell", "signal": "flat", "reason": "test:sell"}
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=sell)
++    cfg = runner._cfg()
++    cfg["position_aware"] = False
++    monkeypatch.setattr(runner, "_cfg", lambda: dict(cfg))
++    state = _cooldown(runner, last_action="hold", remaining="30")
++    state.set(f"last_emitted_action:{KEY}", "hold")
++
++    _run_session(monkeypatch, runner, loops=10)
++
++    assert emitted == []
++
++
++def test_adding_to_a_long_is_still_blocked_during_cooldown(monkeypatch, tmp_path):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=BUY)
++    _hold_long(monkeypatch, runner, emitted)
++    cfg = runner._cfg()
++    cfg["position_aware"] = False
++    monkeypatch.setattr(runner, "_cfg", lambda: dict(cfg))
++    # Scaling and risk checks would allow the add, so only the kill gate stops it.
++    monkeypatch.setattr(runner, "evaluate_scale_in", lambda **kw: {"is_scale": True, "ok": True})
++    monkeypatch.setattr(runner, "evaluate_entry", lambda **kw: {"ok": True})
++    state = _cooldown(runner, last_action="hold", remaining="30")
++    state.set(f"last_emitted_action:{KEY}", "hold")
++
++    _run_session(monkeypatch, runner, loops=10)
++
++    assert emitted == []
++    assert state.get(f"kill_remaining:{KEY}") == "20"
++
++
++@pytest.mark.parametrize("intent_listing", ["open", "error"])
++def test_exit_blocked_by_open_or_unknown_intent_does_not_repeat_bookkeeping(monkeypatch, tmp_path, intent_listing):
++    runner, emitted = _setup(monkeypatch, tmp_path, signal=BUY)
++
++    class Paper:
++        def get_position(self, symbol):
++            return {"qty": 1.0, "avg_price": 100.0, "symbol": symbol}
++
++    class Queue:
++        def has_open_strategy_intent(self, symbol):
++            if intent_listing == "error":
++                raise RuntimeError("queue unavailable")
++            return True
++
++        def list_intents(self, **kwargs):
++            if intent_listing == "error":
++                raise RuntimeError("queue unavailable")
++            return [{"source": "strategy", "symbol": "BTC/USD", "status": "queued"}]
++
++        def upsert_intent(self, row):
++            emitted.append(dict(row))
++
++    monkeypatch.setattr(runner, "PaperTradingSQLite", Paper)
++    monkeypatch.setattr(runner, "IntentQueueSQLite", Queue)
++    monkeypatch.setattr(runner, "_fetch_mid", lambda cfg: (90.0, 1))
++    monkeypatch.setattr(
++        runner,
++        "evaluate_strategy_exit_stack",
++        lambda **kw: {"action": "exit", "reason": "strategy_exit:sma_200_trend:stop_loss", "stack_rule": "stop_loss"},
++    )
++    state = _cooldown(runner, last_action="buy", remaining="10")
++
++    _run_session(monkeypatch, runner, loops=6)
++
++    assert emitted == []
++    assert state.get(f"loss_streak:{KEY}") in (None, "0")
++    assert state.get(f"cum_pnl:{KEY}") in (None, "0", "0.0")
++    assert state.get(f"kill_remaining:{KEY}") == "4"
+-- 
+2.43.0
+

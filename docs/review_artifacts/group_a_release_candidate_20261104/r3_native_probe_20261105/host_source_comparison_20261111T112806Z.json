@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "checked_utc": "2026-11-11T11:28:06Z",
+  "remote_sample_utc": "2026-11-11T11:27:17.881543+00:00",
+  "local_head": "82b5f216e",
+  "remote_checkout_head": "580ca31ea983af6452a1e02ab8d4b51645e9b43c",
+  "receipt": "instrumented_attempt_20261111T112512Z.json",
+  "receipt_sha256": "d6afffc54c319a767019b3654f5f00dae984638482003072131b45cee70901a6",
+  "remote_missing": [
+    "scripts/run_group_a_alert.py",
+    "services/alerts/group_a_summary_delivery.py",
+    "services/alerts/group_a_summary_protocol.py",
+    "services/alerts/group_a_summary_transport.py",
+    "services/alerts/group_a_supervisor.py",
+    "services/control/group_a_account_units.py",
+    "services/control/group_a_systemd_policy.py",
+    "services/market_data/paper_snapshot_quote.py"
+  ],
+  "current_local_missing": [],
+  "present_file_comparison": [
+    {
+      "path": "services/execution/paper_engine.py",
+      "local_sha256": "7523800c8f8217c0732e45beaa605dd598fc6a6bd2fab9a70bee6d4f02238407",
+      "remote_sha256": "245a41752c993213359447d071674bcdfd0a658134bac5da010dda97284a4c59",
+      "equal": false
+    },
+    {
+      "path": "services/execution/strategy_runner.py",
+      "local_sha256": "08660e17c36c36ebab78b5f4c6e78632f43828c91a179429d6af090777353da9",
+      "remote_sha256": "3ef9a8f161a5f639d68e1eaad6fcfac2b6cf46ff7e5bd3da373be9057e776208",
+      "equal": false
+    },
+    {
+      "path": "services/market_data/system_status_publisher.py",
+      "local_sha256": "1d32bfede5852a6fb6a2165b69eb55d629686ae332ca1a115e361697fa5843cc",
+      "remote_sha256": "6dd2fd9b010d97c46feaefe0041bcce453156b893d350a404b83f52b05a721a5",
+      "equal": false
+    }
+  ],
+  "limits": "Source at the inspected checkout only; not loaded-service identity, trading configuration, unit policy or operational health."
+}

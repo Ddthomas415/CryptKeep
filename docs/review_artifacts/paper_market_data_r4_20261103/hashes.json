@@ -1,0 +1,14 @@
+{
+  "before": {
+    "services/execution/paper_engine.py": "2043b2739c2b561927787b1fb63937e31ad97a11f568185534b7ea409121e7dc",
+    "services/market_data/tick_reader.py": "3e51e7f7e033cff855e8b8fc588304f338745c25473aa18781aeb9f84cb88440",
+    "tests/test_market_snapshot_readers.py": "30e49e9c1bf5d572798c1e05d0b08e6f6089e7c53a28de06040749bdc7a7d1d2",
+    "tests/test_tick_reader_exact_symbol.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "current": {
+    "services/execution/paper_engine.py": "7bbda088af6d2285386d4551b86e6df77a6d19e683867d7d6cb408da116f875a",
+    "services/market_data/tick_reader.py": "79a7eba28305006ba17765463b9a294a5fbc00dcf2980df4c67770b5651f5d22",
+    "tests/test_market_snapshot_readers.py": "46f439eaa675d58aadec9ec1f093577c456ae394734dbdae8ea502e5515ada8f",
+    "tests/test_tick_reader_exact_symbol.py": "1c108fc74aad7ae4fd3d1ec7b04ef731c8833a9beae187b9ba87fe5f51e6836f"
+  }
+}

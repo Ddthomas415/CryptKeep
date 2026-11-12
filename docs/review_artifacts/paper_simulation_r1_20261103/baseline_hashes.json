@@ -1,0 +1,7 @@
+{
+  "0001.original.patch": "4f13c2d7c1b494b8620dec8e94caf4de2133ed4c244abdf3a7a6c99734f7d221",
+  "0002.original.patch": "df9edaeaa0d72b9947001ad2db178dce0fccc4373344921ca5b40f4b5e61274b",
+  "0006.original.patch": "4cc5b8fbaa1274f092469eb27116a91e9d189717f70c7be3a0d22e9930d1e4cd",
+  "intent_queue.before.py": "5b999000f5b5d8745e59dcee4cebe9cd922531c68c88240b72a78019ec84ea20",
+  "strategy_runner.before.py": "9fb545d0a105e25a7d595a3c0518d11084764d4e454d3c80cacc36a0689ff153"
+}

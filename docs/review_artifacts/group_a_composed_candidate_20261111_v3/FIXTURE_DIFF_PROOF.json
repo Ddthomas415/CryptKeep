@@ -1,0 +1,11 @@
+{
+  "changed_shared_files": [
+    "tests/test_paper_account_snapshot.py"
+  ],
+  "unchanged_existing_functions": 24,
+  "new_functions": [
+    "test_queue_fixture_closes_writer_before_byte_preservation_check"
+  ],
+  "production_source_changes": [],
+  "frozen_test_files_unchanged": true
+}

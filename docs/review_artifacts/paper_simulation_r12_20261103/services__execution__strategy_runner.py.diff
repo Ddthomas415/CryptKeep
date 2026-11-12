@@ -1,0 +1,51 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__strategy_runner.py.before	2026-11-03 00:38:03
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/strategy_runner.py	2026-11-03 00:40:11
+@@ -36,6 +36,7 @@
+ from storage.paper_trading_sqlite import PaperTradingSQLite
+ from storage.strategy_state_sqlite import StrategyStateSQLite
+ from services.execution.startup_guard import StartupGuardError, require_known_flat_or_override
++from services.execution.paper_exit_retry import POLICY as PAPER_EXIT_POLICY, service_pending_paper_exits
+ from services.strategies.crypto_edge_context import (
+     DEFAULT_CONTEXT_SOURCE,
+     DEFAULT_FUNDING_MAX_AGE_SEC,
+@@ -1189,6 +1190,7 @@
+ 
+             turn_state_ready = False
+             prices_loaded = False
++            pending_exit_serviced = False
+             try:
+                 for symbol in symbols[symbol_turn:symbol_turn + 1]:
+                     fresh_market = None
+@@ -1244,6 +1246,14 @@
+                     sym_cfg["symbol"] = symbol
+                     sym_cfg["venue"] = selected_venue
+                     evidence_extra: dict[str, object] = {}
++
++                    if service_pending_paper_exits(qdb, pdb, symbol=symbol):
++                        pending_exit_serviced = True
++                        _write_status({"ok": True, "status": "running", "ts": _now(),
++                                       "note": "pending_paper_exit", "symbol": symbol,
++                                       "venue": selected_venue, "loops": loops})
++                        time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
++                        continue
+ 
+                     timeframe = _public_ohlcv_timeframe(sym_cfg)
+                     _LOG.debug(
+@@ -1397,6 +1407,8 @@
+                             continue
+                         signal = _strategy_signal(sym_cfg, prices, ts_ms=ts_ms)
+                         bars = len(prices)
++                if pending_exit_serviced:
++                    continue
+                 if len(symbols) > 1:
+                     if fresh_market is None:
+                         continue
+@@ -1813,6 +1825,8 @@
+                             "client_order_id": None,
+                             "linked_order_id": None,
+                             "meta": {
++                                **({"paper_exit_policy": PAPER_EXIT_POLICY,
++                                    "paper_exit_id": intent_id} if action == "sell" else {}),
+                                 "selected_strategy": selected_strategy if 'selected_strategy' in locals() else cfg["strategy_id"],
+                                 "strategy_preset": cfg.get("strategy_preset"),
+                                 "selected_strategy_reason": selection.get("selected_strategy_reason") if 'selection' in locals() and isinstance(selection, dict) else None,

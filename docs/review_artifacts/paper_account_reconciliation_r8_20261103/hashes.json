@@ -1,0 +1,20 @@
+{
+  "before": {
+    "scripts/run_paper_sim_monitor.py": "c73c11b547b521fa5d5019a434a1182116f8103c6599003278e4c4873c82d9be",
+    "services/analytics/paper_sim_monitor.py": "ac0b86950a705540525e29fb25004907773995e358c1551e0cb3f97895061f64",
+    "services/execution/paper_account_reconciliation.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "services/execution/paper_engine.py": "1d6baf67195f55498cfb4669ad2e28581464b915a6ec135aebb55f3491428f6a",
+    "storage/paper_trading_sqlite.py": "120ede081fea34f0b47f4e93a935ef4563f96ad40208ebff02ac35f4108388c2",
+    "tests/test_paper_account_reconciliation.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/test_paper_account_snapshot.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "current": {
+    "scripts/run_paper_sim_monitor.py": "4069c02d09085af102e8e3a98dc03fc2c0e89ca5042e35954f4eed72f07f6422",
+    "services/analytics/paper_sim_monitor.py": "4de35e093f4ae849ed9e2657f036cfad7813b33f3a7584a25cb39b048c9ad9b6",
+    "services/execution/paper_account_reconciliation.py": "80c225851ca0a8b6aa7dff00535cc2f4221a2416e982dbc8e3236670edc85018",
+    "services/execution/paper_engine.py": "2043b2739c2b561927787b1fb63937e31ad97a11f568185534b7ea409121e7dc",
+    "storage/paper_trading_sqlite.py": "f45e3d0add56302beb5668277f861a253af15a8d228fa137f6c686c1ad024d7e",
+    "tests/test_paper_account_reconciliation.py": "45ed3804dd8c48c7db5e6567346f94cb7ccb8ed2de313253302904c7b0dd38fb",
+    "tests/test_paper_account_snapshot.py": "1da55171656bd3879473e7ac8209c73be480c312a5037139e16f3029bb4f07fe"
+  }
+}

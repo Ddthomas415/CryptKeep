@@ -1,0 +1,26 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/storage__paper_trading_sqlite.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/storage/paper_trading_sqlite.py	2026-11-03 01:06:13
+@@ -477,11 +477,19 @@
+             side = str(order_row[2]).strip().lower()
+             status = str(order_row[3]).strip().lower()
+             try:
+-                stored_meta = json.loads(order_row[6] or "null")
++                stored_meta = json.loads(order_row[6] if order_row[6] is not None else "null")
+             except (TypeError, ValueError):
+-                stored_meta = None
+-            tagged_exit = any(isinstance(meta, dict) and meta.get("paper_exit_policy") == PAPER_EXIT_POLICY
+-                              for meta in (stored_meta, order.get("meta")))
++                con.execute("ROLLBACK")
++                return {"ok": False, "reason": "invalid_stored_order_meta"}
++            client_id = str(order_row[5])
++            canonical_terminal = (
++                client_id.startswith("paper_intent_") and client_id != "paper_intent_"
++                and self._get_state_conn(con, "paper_exit_terminal:" + client_id[len("paper_intent_"):]) is not None
++            )
++            # A malformed marker must fail strict validation, never opt into legacy accounting.
++            tagged_exit = any(isinstance(meta, dict) and (
++                "paper_exit_policy" in meta or "paper_exit_id" in meta
++            ) for meta in (stored_meta, order.get("meta"))) or canonical_terminal
+             exit_identity = None
+             if tagged_exit:
+                 existing = self._exit_order_conn(con, client_order_id=order_row[5])

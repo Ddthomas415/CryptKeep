@@ -1,0 +1,47 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/services__execution__paper_exit_retry.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/paper_exit_retry.py	2026-11-03 01:01:39
+@@ -1,6 +1,7 @@
+ """Paper-only pending-exit recovery; no exchange or live execution authority."""
+ from datetime import datetime, timezone
+ import logging
++import math
+ 
+ POLICY = "retry_until_filled_v1"
+ _LOG = logging.getLogger(__name__)
+@@ -94,7 +95,7 @@
+     return True
+ 
+ 
+-def consume_pending_paper_exit(qdb, eng, row, decision):
++def consume_pending_paper_exit(qdb, eng, row, decision, *, routed_qty=None):
+     """One paper attempt: refusals stay held; only ledger evidence is terminal."""
+     identity, client = exit_identity(row)
+     prepared = _prepare(eng.db, row)
+@@ -105,18 +106,24 @@
+                                  linked_order_id=(prepared.get("order") or {}).get("order_id"))
+         return {"submitted": 0, "idempotent": int(state == "filled")}
+     reason = prepared.get("reason") if state != "ready" else None
+-    if isinstance(decision, Exception):
++    if reason is None and isinstance(decision, Exception):
+         reason = "router_error:" + type(decision).__name__
+-    elif not bool(getattr(decision, "allowed", False)):
++    elif reason is None and not bool(getattr(decision, "allowed", False)):
+         reason = "router_refused"
+     if reason:
+         qdb.paper_exit_transition(identity, "held", event="refused", reason=reason)
+         record_pending_exit_alert(qdb, row)
+         return {"submitted": 0, "idempotent": 0}
++    qty = prepared["qty"]
++    if routed_qty is not None:
++        if (isinstance(routed_qty, bool) or not isinstance(routed_qty, (int, float))
++                or not math.isfinite(routed_qty) or routed_qty <= 0):
++            raise ValueError("invalid_routed_exit_quantity")
++        qty = min(qty, routed_qty)
+     try:
+         resp = eng.submit_order(
+             client_order_id=client, venue=row["venue"], symbol=row["symbol"], side="sell",
+-            order_type=row["order_type"], qty=float(prepared["qty"]),
++            order_type=row["order_type"], qty=float(qty),
+             limit_price=row.get("limit_price"), strategy_id=row.get("strategy_id"), meta=row["meta"],
+         )
+     except Exception as exc:

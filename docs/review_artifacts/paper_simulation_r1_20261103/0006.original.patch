@@ -1,0 +1,97 @@
+From 650631f373bae19d751f76df0e6c45786cd19642 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 22:56:41 +0000
+Subject: [PATCH] fix: open-intent lookup also matches submitting and held
+
+has_open_strategy_intent matched queued and submitted only, so an intent the
+consumer had claimed (submitting) or paused (held) was not seen as open by the
+protective-exit check during a kill cooldown. Match every in-flight status.
+
+Verified (Python 3.11.15, cloud clone): tests/test_kill_gate_protective_exit.py
+=> 19 passed; the submitting and held cases fail before the change.
+
+HIGH risk: READY_FOR_INDEPENDENT_REVIEW. Not pushed, not deployed.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011p3WBrLHso7qjbJYsguxAY
+---
+ docs/work_log/review_stabilized_work_log.md | 20 ++++++++++++++++++++
+ storage/intent_queue_sqlite.py              |  2 +-
+ tests/test_kill_gate_protective_exit.py     | 21 +++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 1 deletion(-)
+
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index ac4ae043..c7c936ea 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,25 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-02 - Open-intent lookup covers submitting and held
++
++- ENGINEER (Claude, separate thread), chosen by the operator from the open
++  findings. Separate change, separate review.
++- Defect: the accepted `IntentQueueSQLite.has_open_strategy_intent` lookup
++  matched `queued` and `submitted` only. The paper queue also moves an intent
++  through `submitting` (claimed, not yet submitted) and `held`; in those states
++  the protective-exit check during a kill cooldown saw no open intent.
++- Change: the query matches queued, submitting, submitted and held. One line
++  of SQL. Its only caller is the protective-exit check, which becomes more
++  conservative: an exit is not let through the cooldown while an order for the
++  symbol is in any in-flight state.
++- Not changed: the inherited open-intent check on the normal emission path,
++  which reads the newest 200 intents and matches queued and submitted only.
++- VERIFIED_ENV (cloud clone, Python 3.11.15): tests/test_kill_gate_protective_
++  exit.py => 19 passed; the submitting and held cases fail before the change.
++- UNVERIFIED: Python 3.12, CI, two-process timing with the intent consumer.
++  HIGH risk (changes human-accepted code). Not pushed, not deployed.
++  READY_FOR_INDEPENDENT_REVIEW.
++
+ ## 2026-10-02 - Count pending entries toward the concurrent-position limit
+ 
+ - ENGINEER (Claude, separate thread). Follows the pending-order exposure probe
+diff --git a/storage/intent_queue_sqlite.py b/storage/intent_queue_sqlite.py
+index c126f117..f223cc3b 100644
+--- a/storage/intent_queue_sqlite.py
++++ b/storage/intent_queue_sqlite.py
+@@ -223,7 +223,7 @@ class IntentQueueSQLite:
+         try:
+             return con.execute(
+                 "SELECT 1 FROM trade_intents WHERE source='strategy' AND symbol=? "
+-                "AND status IN ('queued', 'submitted') LIMIT 1",
++                "AND status IN ('queued', 'submitting', 'submitted', 'held') LIMIT 1",
+                 (str(symbol),),
+             ).fetchone() is not None
+         finally:
+diff --git a/tests/test_kill_gate_protective_exit.py b/tests/test_kill_gate_protective_exit.py
+index ae2c902e..c4b628aa 100644
+--- a/tests/test_kill_gate_protective_exit.py
++++ b/tests/test_kill_gate_protective_exit.py
+@@ -191,3 +191,24 @@ def test_exit_blocked_by_open_or_unknown_intent_does_not_repeat_bookkeeping(monk
+     assert state.get(f"loss_streak:{KEY}") in (None, "0")
+     assert state.get(f"cum_pnl:{KEY}") in (None, "0", "0.0")
+     assert state.get(f"kill_remaining:{KEY}") == "4"
++
++
++@pytest.mark.parametrize(
++    "status, is_open",
++    [("queued", True), ("submitting", True), ("submitted", True), ("held", True),
++     ("filled", False), ("canceled", False), ("rejected", False), ("error", False)],
++)
++def test_open_intent_lookup_covers_every_in_flight_status(monkeypatch, tmp_path, status, is_open):
++    from storage import intent_queue_sqlite as queue_module
++
++    path = tmp_path / "queue.sqlite"
++    with sqlite3.connect(path) as con:
++        con.execute("CREATE TABLE trade_intents (source TEXT, symbol TEXT, status TEXT, created_ts TEXT)")
++        con.execute(
++            "INSERT INTO trade_intents(source, symbol, status, created_ts) VALUES (?, ?, ?, ?)",
++            ("strategy", "BTC/USD", status, "2026-10-01"),
++        )
++    monkeypatch.setattr(queue_module, "_connect", lambda: sqlite3.connect(path))
++    queue = object.__new__(queue_module.IntentQueueSQLite)
++
++    assert queue.has_open_strategy_intent("BTC/USD") is is_open
+-- 
+2.43.0
+

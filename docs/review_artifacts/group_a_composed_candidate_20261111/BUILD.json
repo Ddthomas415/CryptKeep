@@ -1,0 +1,10 @@
+{
+  "archive_sha256": "dbe3e05d1c3c3ae1037b0eef0f5df517d8b6f4304a001e9d3d936099725af7e1",
+  "base_files": 1843,
+  "delta_files": 120,
+  "host_actions": false,
+  "scratch_tree": "/private/tmp/cryptkeep-composed-20261111-p8st_15d/tree",
+  "source_files_total": 1929,
+  "status": "READY_FOR_INDEPENDENT_REVIEW",
+  "tests_run": false
+}

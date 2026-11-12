@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.882" timestamp="2026-11-03T10:31:04.612266-05:00" hostname="MacBook-Pro"><testcase classname="tests.test_paper_exit_accounting" name="test_real_runner_does_not_count_an_unwritten_or_blocked_sell[queue_write]" time="0.251"><failure message="AssertionError: assert {'cum_pnl': -...maining': 0.0} == {'cum_pnl': 0...remaining': 0}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'loss_streak': 1.0} != {'loss_streak': 0}&#10;  {'cum_pnl': -4.0} != {'cum_pnl': 0}&#10;  Use -v to get more diff">/Users/baitus/Downloads/crypto-bot-pro/tests/test_paper_exit_accounting.py:132: in test_real_runner_does_not_count_an_unwritten_or_blocked_sell
+    assert _counts(h) == {"cum_pnl": 0, "peak_pnl": 0, "loss_streak": 0, "kill_remaining": 0}
+E   AssertionError: assert {'cum_pnl': -...maining': 0.0} == {'cum_pnl': 0...remaining': 0}
+E     
+E     Omitting 2 identical items, use -vv to show
+E     Differing items:
+E     {'loss_streak': 1.0} != {'loss_streak': 0}
+E     {'cum_pnl': -4.0} != {'cum_pnl': 0}
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.test_paper_exit_accounting" name="test_real_runner_does_not_count_an_unwritten_or_blocked_sell[open_intent]" time="0.213"><failure message="AssertionError: assert {'cum_pnl': -...maining': 0.0} == {'cum_pnl': 0...remaining': 0}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'loss_streak': 1.0} != {'loss_streak': 0}&#10;  {'cum_pnl': -4.0} != {'cum_pnl': 0}&#10;  Use -v to get more diff">/Users/baitus/Downloads/crypto-bot-pro/tests/test_paper_exit_accounting.py:132: in test_real_runner_does_not_count_an_unwritten_or_blocked_sell
+    assert _counts(h) == {"cum_pnl": 0, "peak_pnl": 0, "loss_streak": 0, "kill_remaining": 0}
+E   AssertionError: assert {'cum_pnl': -...maining': 0.0} == {'cum_pnl': 0...remaining': 0}
+E     
+E     Omitting 2 identical items, use -vv to show
+E     Differing items:
+E     {'loss_streak': 1.0} != {'loss_streak': 0}
+E     {'cum_pnl': -4.0} != {'cum_pnl': 0}
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

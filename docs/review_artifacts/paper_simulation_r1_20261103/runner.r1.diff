@@ -1,0 +1,152 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r1_20261103/strategy_runner.before.py	2026-11-03 00:16:21
++++ /Users/baitus/Downloads/crypto-bot-pro/services/execution/strategy_runner.py	2026-11-03 00:17:27
+@@ -302,7 +302,49 @@
+         return "sell"
+     return action
+ 
++
++def _kill_remaining_loops(sdb, k_kill_remaining: str, k_kill_until: str, *, max_cooldown_loops: int) -> int:
++    """Persist blocked evaluations, not a process-local absolute loop number.
+ 
++    Reuse patch 0001's capped legacy conversion. Save the count before clearing
++    the old key so an interrupted conversion repeats rather than loses a block.
++    """
++    longest = max(1, int(max_cooldown_loops)) - 1
++    stored = max(0, int(str(sdb.get(k_kill_remaining) or "0").strip() or 0))
++    remaining = min(stored, longest)
++    legacy = int(str(sdb.get(k_kill_until) or "0").strip() or 0)
++    if legacy > 0:
++        remaining = max(remaining, min(legacy - 1, longest))
++    if remaining != stored:
++        sdb.set(k_kill_remaining, str(remaining))
++    if legacy > 0:
++        sdb.set(k_kill_until, "0")
++    return remaining
++
++
++def _open_strategy_intent_state(qdb, symbol: str) -> str:
++    """Return open/none/unknown without a newest-row window."""
++    try:
++        return "open" if qdb.has_open_strategy_intent(symbol) else "none"
++    except Exception:
++        return "unknown"
++
++
++def _cooldown_exit_quantity(cfg: dict, held: object) -> float | None:
++    """Authorize only a finite, positive position-reducing cooldown exception."""
++    proposed = held if bool(cfg.get("sell_full_position")) else cfg.get("qty")
++    if isinstance(held, bool) or isinstance(proposed, bool):
++        return None
++    try:
++        held_qty, qty = float(held), float(proposed)
++    except (TypeError, ValueError, OverflowError):
++        return None
++    if not (math.isfinite(held_qty) and math.isfinite(qty)
++            and 0.0 < qty <= held_qty):
++        return None
++    return qty
++
++
+ def _safe_positive_float(value: object, *, default: float) -> float:
+     try:
+         out = float(value)
+@@ -1172,6 +1214,7 @@
+                     k_bars_held = f"bars_held:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                     k_last_held_bar_ts = f"last_held_bar_ts:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                     k_kill_until = f"kill_until:{selected_venue}:{symbol}:{cfg['strategy_id']}"
++                    k_kill_remaining = f"kill_remaining:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                     k_risk_block_count = f"risk_block_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                     k_scale_count = f"scale_count:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+                     k_loss_streak = f"loss_streak:{selected_venue}:{symbol}:{cfg['strategy_id']}"
+@@ -1519,31 +1562,47 @@
+                     elif decision == "sell":
+                         if (not cfg["position_aware"]) or (pos_qty > 0.0):
+                             action = "sell"
+-                kill_until_loop = int(str(sdb.get(k_kill_until) or "0").strip() or 0)
+-                kill_gate = should_block_symbol(loops=loops, kill_until_loop=kill_until_loop)
++                kill_remaining = _kill_remaining_loops(
++                    sdb, k_kill_remaining, k_kill_until,
++                    max_cooldown_loops=max(
++                        int(kill_limits.get("kill_cooldown_loops", 0) or 0),
++                        int(performance_limits.get("performance_kill_cooldown_loops", 0) or 0),
++                    ),
++                )
++                kill_gate = should_block_symbol(loops=0, kill_until_loop=kill_remaining)
++                cooldown_exit_qty = None
+                 if not bool(kill_gate.get("ok")):
+-                    _write_status(
+-                        {
+-                            "ok": True,
+-                            "status": "running",
+-                            "pid": os.getpid(),
+-                            "ts": _now(),
+-                            "venue": selected_venue,
+-                            "symbol": symbol,
+-                            "symbols": symbols,
+-                            "strategy_id": cfg.get("strategy_id"),
+-                            "note": "kill_cooldown",
+-                            "kill_reason": kill_gate.get("reason"),
+-                            "kill_remaining_loops": kill_gate.get("remaining_loops"),
+-                        }
++                    sdb.set(k_kill_remaining, str(kill_remaining - 1))
++                    cooldown_exit_qty = _cooldown_exit_quantity(cfg, pos.get("qty"))
++                    protective_exit = (
++                        action == "sell" and pos_qty > 0.0
++                        and cooldown_exit_qty is not None
++                        and action != last_emitted_action
++                        and _open_strategy_intent_state(qdb, symbol) == "none"
+                     )
+-                    continue
++                    if not protective_exit:
++                        _write_status(
++                            {
++                                "ok": True,
++                                "status": "running",
++                                "pid": os.getpid(),
++                                "ts": _now(),
++                                "venue": selected_venue,
++                                "symbol": symbol,
++                                "symbols": symbols,
++                                "strategy_id": cfg.get("strategy_id"),
++                                "note": "kill_cooldown",
++                                "kill_reason": kill_gate.get("reason"),
++                                "kill_remaining_loops": kill_gate.get("remaining_loops"),
++                            }
++                        )
++                        continue
+ 
+                 if action and action == last_emitted_action:
+                     action = None
+                 if action:
+                     intent_id = str(uuid.uuid4())
+-                    qty = float(cfg["qty"])
++                    qty = cooldown_exit_qty if cooldown_exit_qty is not None else float(cfg["qty"])
+                     if action == "sell" and bool(cfg["sell_full_position"]) and pos_qty > 0.0:
+                         qty = pos_qty
+ 
+@@ -1593,7 +1652,7 @@
+                                 limits=kill_limits,
+                             )
+                             if bool(kill_eval.get("triggered")):
+-                                sdb.set(k_kill_until, str(int(kill_eval.get("kill_until_loop", 0))))
++                                sdb.set(k_kill_remaining, str(max(0, int(kill_eval.get("kill_until_loop", 0)) - loops - 1)))
+                                 _write_status(
+                                     {
+                                         "ok": True,
+@@ -1639,6 +1698,7 @@
+ 
+                         sdb.set(k_risk_block_count, "0")
+                         sdb.set(k_kill_until, "0")
++                        sdb.set(k_kill_remaining, "0")
+                         if bool(position_summary.get("has_position")):
+                             sdb.set(k_scale_count, str(scale_count + 1))
+                         sdb.set(k_entry_price, str(float(m)))
+@@ -1673,7 +1733,7 @@
+                                 limits=performance_limits,
+                             )
+                             if bool(perf_kill.get("triggered")):
+-                                sdb.set(k_kill_until, str(int(perf_kill.get("kill_until_loop", 0))))
++                                sdb.set(k_kill_remaining, str(max(0, int(perf_kill.get("kill_until_loop", 0)) - loops - 1)))
+                                 _write_status(
+                                     {
+                                         "ok": True,

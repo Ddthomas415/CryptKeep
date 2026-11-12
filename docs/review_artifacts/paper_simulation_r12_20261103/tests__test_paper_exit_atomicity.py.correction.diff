@@ -1,0 +1,128 @@
+--- /Users/baitus/Downloads/crypto-bot-pro/docs/review_artifacts/paper_simulation_r12_20261103/tests__test_paper_exit_atomicity.py.submitted	2026-11-03 00:48:35
++++ /Users/baitus/Downloads/crypto-bot-pro/tests/test_paper_exit_atomicity.py	2026-11-03 01:06:06
+@@ -326,4 +326,125 @@
+     db.upsert_position("BTC/USD", 1.0, 100.0, 0.0)
+     assert fill(db, order)["reason"] == "insufficient_position"
+     assert db.get_order_by_order_id(order["order_id"])["status"] == "rejected"
++    assert terminal(db) is None
++
++
++MALFORMED_EXIT_MARKERS = [
++    pytest.param({"paper_exit_policy": "unknown", "paper_exit_id": "exit-1"}, id="unknown-policy"),
++    pytest.param({"paper_exit_policy": None, "paper_exit_id": "exit-1"}, id="null-policy"),
++    pytest.param({"paper_exit_policy": "", "paper_exit_id": "exit-1"}, id="empty-policy"),
++    pytest.param({"paper_exit_policy": {}, "paper_exit_id": "exit-1"}, id="dict-policy"),
++    pytest.param({"paper_exit_policy": [], "paper_exit_id": "exit-1"}, id="list-policy"),
++    pytest.param({"paper_exit_policy": False, "paper_exit_id": "exit-1"}, id="bool-policy"),
++    pytest.param({"paper_exit_policy": 1, "paper_exit_id": "exit-1"}, id="number-policy"),
++    pytest.param({"paper_exit_policy": None}, id="policy-only"),
++    pytest.param({"paper_exit_id": "exit-1"}, id="id-only"),
++    pytest.param({"paper_exit_id": None}, id="null-id-only"),
++    pytest.param({"paper_exit_id": ""}, id="empty-id-only"),
++    pytest.param({"paper_exit_id": {}}, id="dict-id-only"),
++]
++
++
++@pytest.mark.parametrize("malformed_meta", MALFORMED_EXIT_MARKERS)
++@pytest.mark.parametrize("marker_location", ["database", "caller", "both"])
++def test_malformed_exit_marker_never_uses_ordinary_fill(db, malformed_meta, marker_location):
++    stored_meta = malformed_meta if marker_location in {"database", "both"} else None
++    incoming_meta = malformed_meta if marker_location in {"caller", "both"} else None
++    order = insert(db, meta=stored_meta)
++    incoming = {**order, "meta": copy.deepcopy(incoming_meta)}
++    result = fill(db, incoming)
++    assert result == {"ok": False, "reason": "exit_identity_mismatch"}
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    assert db.get_position("BTC/USD")["qty"] == 2.0
++    assert float(db.get_state("cash_quote")) == 1000.0
++    assert float(db.get_state("realized_pnl")) == 0.0
+     assert terminal(db) is None
++    assert db.list_fills() == []
++
++
++@pytest.mark.parametrize("malformed_meta", MALFORMED_EXIT_MARKERS)
++def test_malformed_exit_marker_cannot_sell_replacement_after_supersession(db, malformed_meta):
++    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
++    assert db.prepare_paper_exit(**request())["state"] == "superseded"
++    fenced = terminal(db)
++    db.upsert_position("BTC/USD", 5.0, 100.0, 0.0)
++    order = insert(db, meta=malformed_meta)
++    assert fill(db, order) == {"ok": False, "reason": "exit_identity_mismatch"}
++    assert db.get_position("BTC/USD")["qty"] == 5.0
++    assert float(db.get_state("cash_quote")) == 1000.0
++    assert float(db.get_state("realized_pnl")) == 0.0
++    assert db.get_order_by_order_id(order["order_id"])["status"] == "new"
++    assert terminal(db) == fenced
++    assert db.list_fills() == []
++
++
++@pytest.mark.parametrize("malformed_meta", [
++    *MALFORMED_EXIT_MARKERS,
++    pytest.param(None, id="null-meta"), pytest.param({}, id="empty-meta"),
++    pytest.param([], id="list-meta"), pytest.param("bad-meta", id="string-meta"),
++    pytest.param(False, id="bool-meta"),
++])
++def test_malformed_incoming_meta_blocked_when_database_still_tagged(db, malformed_meta):
++    order = insert(db)
++    incoming = {**order, "meta": copy.deepcopy(malformed_meta)}
++    assert fill(db, incoming) == {"ok": False, "reason": "exit_identity_mismatch"}
++    assert db.get_position("BTC/USD")["qty"] == 2.0
++    assert float(db.get_state("cash_quote")) == 1000.0
++    assert db.get_order_by_order_id(order["order_id"]) == order
++    assert terminal(db) is None
++    assert db.list_fills() == []
++
++
++@pytest.mark.parametrize("meta", [None, {}, {"note": "ordinary"}, {"other": {"paper_exit_id": "nested"}}])
++@pytest.mark.parametrize("client_order_id", ["ordinary", "paper_intent_exit-1"])
++def test_unmarked_orders_keep_ordinary_fill_and_retry_semantics(db, meta, client_order_id):
++    order = insert(db, meta=meta, client_order_id=client_order_id)
++    result = fill(db, order, qty=1.0, fee=1.0)
++    assert result["ok"] and not result["idempotent"]
++    assert "qty" not in result
++    assert db.get_position("BTC/USD")["qty"] == 1.0
++    assert float(db.get_state("cash_quote")) == 1109.0
++    retry = fill(db, order, price=999.0, qty=1.0, fee=999.0)
++    assert retry["ok"] and retry["idempotent"] and retry["fee"] == 999.0
++    assert "qty" not in retry
++    assert len(db.list_fills()) == 1
++    assert db.get_position("BTC/USD")["qty"] == 1.0
++    assert float(db.get_state("cash_quote")) == 1109.0
++    assert terminal(db) is None
++
++
++@pytest.mark.parametrize("raw_meta", [None, "null", "[]", '"plain"', "false", "0", "{}", "not-json", ""])
++def test_canonical_tombstone_blocks_missing_or_malformed_stored_metadata(db, raw_meta):
++    db.upsert_position("BTC/USD", 0.0, 0.0, 0.0)
++    assert db.prepare_paper_exit(**request())["state"] == "superseded"
++    fenced = terminal(db)
++    db.upsert_position("BTC/USD", 5.0, 100.0, 0.0)
++    order = insert(db, meta=None)
++    con = store._connect()
++    try:
++        con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?", (raw_meta, order["order_id"]))
++    finally:
++        con.close()
++    result = fill(db, order)
++    assert not result["ok"]
++    assert result["reason"] in {"exit_identity_mismatch", "invalid_stored_order_meta"}
++    assert db.get_position("BTC/USD")["qty"] == 5.0
++    assert float(db.get_state("cash_quote")) == 1000.0
++    assert float(db.get_state("realized_pnl")) == 0.0
++    assert terminal(db) == fenced
++    assert db.list_fills() == []
++
++
++@pytest.mark.parametrize("raw_meta", ["not-json", "", "{"])
++def test_stored_metadata_decode_failure_cannot_authorize_ordinary_accounting(db, raw_meta):
++    order = insert(db, meta=None, client_order_id="ordinary")
++    con = store._connect()
++    try:
++        con.execute("UPDATE paper_orders SET meta_json=? WHERE order_id=?", (raw_meta, order["order_id"]))
++    finally:
++        con.close()
++    assert fill(db, order) == {"ok": False, "reason": "invalid_stored_order_meta"}
++    assert db.get_position("BTC/USD")["qty"] == 2.0
++    assert float(db.get_state("cash_quote")) == 1000.0
++    assert db.list_fills() == []
++    assert terminal(db) is None

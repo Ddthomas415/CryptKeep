@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.827" timestamp="2026-11-03T05:50:36.744744-05:00" hostname="MacBook-Pro"><testcase classname="tests.test_runner_recording_integration" name="test_zero_tick_timestamp_captures_exact_actual_synthetic_rows" time="1.319"><failure message="ValueError: zip() argument 2 is longer than argument 1">tests/test_runner_recording_integration.py:599: in test_zero_tick_timestamp_captures_exact_actual_synthetic_rows
+    for envelope, rows in zip(records, supplied_rows, strict=True):
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: zip() argument 2 is longer than argument 1</failure></testcase></testsuite></testsuites>

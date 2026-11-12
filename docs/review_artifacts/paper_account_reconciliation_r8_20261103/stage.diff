@@ -1,0 +1,1184 @@
+--- before/storage/paper_trading_sqlite.py
++++ after/storage/paper_trading_sqlite.py
+@@ -3,6 +3,7 @@
+ import json
+ import math
+ from datetime import datetime, timezone
++from decimal import Decimal, InvalidOperation
+ from pathlib import Path
+ from typing import Optional, List, Dict, Any, Callable
+ from urllib.parse import quote
+@@ -174,6 +175,120 @@
+ 
+     def _set_state_conn(self, con: sqlite3.Connection, k: str, v: str) -> None:
+         con.execute("INSERT OR REPLACE INTO paper_state(k,v) VALUES(?,?)", (str(k), str(v)))
++
++    def initialize_account(self, starting_cash_quote: Any, quote_currency: str) -> dict:
++        """Initialize defaults atomically; certify an origin only for a fresh ledger."""
++        con = _connect()
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            cash = self._get_state_conn(con, "cash_quote")
++            realized = self._get_state_conn(con, "realized_pnl")
++            try:
++                realized_zero = realized is None or Decimal(realized).is_zero()
++            except InvalidOperation:
++                realized_zero = False
++            fresh = (cash is None and realized_zero
++                     and self._get_state_conn(con, "paper_account_origin_v1") is None
++                     and not any(con.execute("SELECT 1 FROM " + table + " LIMIT 1").fetchone()
++                                 for table in ("paper_orders", "paper_fills", "paper_positions")))
++            if cash is None:
++                try:
++                    starting_cash = float(starting_cash_quote)
++                except (TypeError, ValueError, OverflowError) as exc:
++                    raise ValueError("invalid_starting_cash_quote") from exc
++                if isinstance(starting_cash_quote, bool) or not math.isfinite(starting_cash) or starting_cash <= 0:
++                    raise ValueError("invalid_starting_cash_quote")
++            if fresh:
++                if (not isinstance(quote_currency, str) or not quote_currency.strip().isascii()
++                        or not quote_currency.strip().isalnum()):
++                    raise ValueError("invalid_quote_currency")
++                currency = quote_currency.strip().upper()
++            if cash is None:
++                self._set_state_conn(con, "cash_quote", str(starting_cash))
++            if realized is None:
++                self._set_state_conn(con, "realized_pnl", "0.0")
++            if fresh:
++                self._set_state_conn(con, "paper_account_origin_v1", json.dumps({
++                    "schema": 1, "cash_quote": starting_cash, "quote_currency": currency,
++                }, sort_keys=True, allow_nan=False))
++            con.execute("COMMIT")
++            return {"baseline_created": fresh}
++        except Exception:
++            con.rollback()
++            raise
++        finally:
++            con.close()
++
++    def account_reconciliation_snapshot(self) -> dict:
++        """Read whitelisted account evidence while ledger writes are frozen."""
++        con = _connect()
++        queue = None
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            uri = "file:" + quote(str((DB_PATH.parent / "intent_queue.sqlite").absolute()), safe="/") + "?mode=ro"
++            queue = sqlite3.connect(uri, uri=True, timeout=0.25, isolation_level=None)
++            con.row_factory = sqlite3.Row
++            queue.row_factory = sqlite3.Row
++            queue.execute("BEGIN")
++            intents = [dict(row) for row in queue.execute(
++                "SELECT intent_id,created_ts,updated_ts,source,venue,symbol,side,order_type,qty,status,"
++                "client_order_id,linked_order_id FROM trade_intents ORDER BY intent_id")]
++            event_ids = [row[0] for row in queue.execute(
++                "SELECT intent_id FROM paper_buy_events UNION SELECT intent_id FROM paper_exit_events "
++                "ORDER BY intent_id")]
++            orders = [dict(row) for row in con.execute(
++                "SELECT order_id,client_order_id,created_ts,ts,venue,symbol,side,order_type,qty,limit_price,"
++                "status,reject_reason,strategy_id FROM paper_orders ORDER BY rowid")]
++            fills = [dict(row) for row in con.execute("SELECT rowid AS sequence,* FROM paper_fills ORDER BY rowid")]
++            positions = [dict(row) for row in con.execute("SELECT * FROM paper_positions ORDER BY symbol")]
++            state = {row[0]: row[1] for row in con.execute(
++                "SELECT k,v FROM paper_state WHERE k IN "
++                "('cash_quote','realized_pnl','paper_account_origin_v1','paper_watchdog_seen_v1')")}
++            queue.execute("COMMIT")
++            con.execute("COMMIT")
++            return dict(orders=orders, fills=fills, positions=positions, intents=intents,
++                        event_intent_ids=event_ids, state=state)
++        except Exception:
++            try:
++                if queue is not None:
++                    queue.rollback()
++            finally:
++                con.rollback()
++            raise
++        finally:
++            try:
++                if queue is not None:
++                    queue.close()
++            finally:
++                con.close()
++
++    def record_account_reconciliation_seen(self, intent_ids: list[str]) -> list[str]:
++        """Atomically retain the union; damaged prior evidence is never replaced."""
++        def valid_ids(value):
++            return isinstance(value, list) and all(
++                isinstance(item, str) and item and item == item.strip() for item in value)
++
++        if not valid_ids(intent_ids):
++            raise ValueError("invalid_account_reconciliation_intent_ids")
++        con = _connect()
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            raw = self._get_state_conn(con, "paper_watchdog_seen_v1")
++            try:
++                previous = [] if raw is None else json.loads(raw)
++            except (TypeError, ValueError) as exc:
++                raise ValueError("invalid_paper_watchdog_seen") from exc
++            if not valid_ids(previous):
++                raise ValueError("invalid_paper_watchdog_seen")
++            merged = sorted(set(previous).union(intent_ids))
++            self._set_state_conn(con, "paper_watchdog_seen_v1", json.dumps(merged))
++            con.execute("COMMIT")
++            return merged
++        except Exception:
++            con.rollback()
++            raise
++        finally:
++            con.close()
+ 
+     @staticmethod
+     def _exit_number(value: Any, *, positive: bool = True) -> bool:
+--- before/services/execution/paper_engine.py
++++ after/services/execution/paper_engine.py
+@@ -111,11 +111,7 @@
+         self._ensure_cash_initialized()
+ 
+     def _ensure_cash_initialized(self) -> None:
+-        v = self.db.get_state("cash_quote")
+-        if v is None:
+-            self.db.set_state("cash_quote", str(self.cfg["starting_cash_quote"]))
+-        if self.db.get_state("realized_pnl") is None:
+-            self.db.set_state("realized_pnl", "0.0")
++        self.db.initialize_account(self.cfg["starting_cash_quote"], self.cfg["quote_currency"])
+ 
+     def cash_quote(self) -> float:
+         v = self.db.get_state("cash_quote") or "0"
+--- before/services/analytics/paper_sim_monitor.py
++++ after/services/analytics/paper_sim_monitor.py
+@@ -2,6 +2,7 @@
+ 
+ import json
+ import logging
++import math
+ import os
+ import shutil
+ import subprocess
+@@ -524,6 +525,12 @@
+     poll_interval_sec: float = 300.0
+     min_closed_trades_for_enough_evidence: int = 1
+     desktop_notify: bool = True
++    account_reconciliation: bool = False
++
++    def __post_init__(self):
++        if self.account_reconciliation and (not math.isfinite(self.poll_interval_sec)
++                                           or not 0 < self.poll_interval_sec <= 300):
++            raise ValueError("account_reconciliation_requires_interval_at_most_300s")
+ 
+ 
+ def _cfg_from_runtime_payload(payload: dict[str, Any]) -> PaperSimMonitorCfg:
+@@ -536,6 +543,14 @@
+ 
+ def collect_once(cfg: PaperSimMonitorCfg) -> dict[str, Any]:
+     ts = _now_iso()
++    if cfg.account_reconciliation:
++        from services.execution.paper_account_reconciliation import reconcile_account_once
++        result = reconcile_account_once(now=ts)
++        return {"ok": result["ok"], "ts": ts, "monitor_name": MONITOR_NAME,
++                "account_reconciliation_enabled": True, "account_reconciliation": result,
++                "recommendation": "continue" if result["ok"] else "investigate",
++                "recommendation_reason": "account_consistent" if result["ok"] else "account_reconciliation_fault",
++                "summary_text": f"Paper account check: {len(result['issues'])} issue(s); not a profitability assessment."}
+     configured = _configured_strategy_runner()
+     campaign = dict(load_campaign_runtime_status() or {})
+     runner = _strategy_runner_status()
+@@ -936,6 +951,9 @@
+ 
+ 
+ def _reconcile_stopped_runtime_payload(payload: dict[str, Any]) -> dict[str, Any]:
++    if payload.get("account_reconciliation_enabled"):
++        # A status read must not run another reconciliation or dispatch alerts.
++        return payload
+     if str(payload.get("status") or "").strip().lower() != "stopped" or bool(payload.get("pid_alive")):
+         return payload
+ 
+@@ -1072,6 +1090,7 @@
+             "poll_interval_sec": float(cfg.poll_interval_sec),
+             "min_closed_trades_for_enough_evidence": int(cfg.min_closed_trades_for_enough_evidence),
+             "desktop_notify": bool(cfg.desktop_notify),
++            "account_reconciliation_enabled": cfg.account_reconciliation,
+         }
+     )
+ 
+@@ -1103,6 +1122,7 @@
+     )
+ 
+     while True:
++        cycle_started = time.monotonic()
+         if stop_file().exists():
+             final_watch_reports: list[dict[str, Any]] = []
+             final_trigger_reasons = ["stop_requested"]
+@@ -1240,4 +1260,5 @@
+             _clear_pid_state()
+             return out
+ 
+-        time.sleep(max(0.1, float(cfg.poll_interval_sec)))
++        elapsed = time.monotonic() - cycle_started if cfg.account_reconciliation else 0
++        time.sleep(max(0.1, float(cfg.poll_interval_sec) - elapsed))
+--- before/scripts/run_paper_sim_monitor.py
++++ after/scripts/run_paper_sim_monitor.py
+@@ -31,6 +31,8 @@
+     ap.add_argument("--status", action="store_true", help="Show paper sim monitor runtime status")
+     ap.add_argument("--stop", action="store_true", help="Request stop for the running paper sim monitor")
+     ap.add_argument("--once", action="store_true", help="Collect one paper sim snapshot without starting the loop")
++    ap.add_argument("--account-reconcile", action="store_true",
++                    help="Audit one isolated paper account instead of campaign analytics; interval must be <=300s")
+     ap.add_argument("--list-watches", action="store_true", help="List persisted paper sim watches")
+     ap.add_argument("--register-watch", default="", help="Persist a named watch")
+     ap.add_argument("--watch-trigger", default="", help="Watch trigger for --register-watch")
+@@ -76,6 +78,7 @@
+         poll_interval_sec=float(args.interval_sec or 300.0),
+         min_closed_trades_for_enough_evidence=int(args.min_closed_trades or 1),
+         desktop_notify=not bool(args.no_desktop_notify),
++        account_reconciliation=bool(args.account_reconcile),
+     )
+     if args.once:
+         print(json.dumps(collect_once(cfg), indent=2, default=str))
+--- before/services/execution/paper_account_reconciliation.py
++++ after/services/execution/paper_account_reconciliation.py
+@@ -0,0 +1,235 @@
++"""Observe one isolated paper account; never repair balances or queue states."""
++from __future__ import annotations
++
++import json
++import os
++from datetime import datetime, timezone
++from decimal import Decimal, InvalidOperation, localcontext
++from pathlib import Path
++
++from services.execution.intent_ttl import _parse_created_epoch
++from storage.exit_event_journal import _decode_payload
++
++
++def _number(value):
++    if isinstance(value, bool) or value is None or len(str(value)) > 128:
++        raise ValueError("invalid_number")
++    try:
++        number = Decimal(str(value))
++    except InvalidOperation as exc:
++        raise ValueError("invalid_number") from exc
++    if not number.is_finite() or abs(number) > Decimal("1e300"):
++        raise ValueError("nonfinite_or_oversized_number")
++    return number
++
++
++def _same(left, right):
++    return abs(left - right) <= Decimal("1e-8") + max(abs(left), abs(right)) * Decimal("1e-9")
++
++
++def check_snapshot(snapshot: dict, *, now: str) -> dict:
++    """Replay durable insertion order, not timestamps which can tie or move back."""
++    issues = []
++
++    def fault(kind, identity="account"):
++        issues.append({"kind": kind, "identity": str(identity)})
++
++    state = snapshot["state"]
++    orders = {row["order_id"]: row for row in snapshot["orders"]}
++    intents = {row["intent_id"]: row for row in snapshot["intents"]}
++    origin = _decode_payload(state.get("paper_account_origin_v1"))
++    cash = realized = None
++    positions = {}
++    quote = None
++    try:
++        if not origin or type(origin.get("schema")) is not int or origin["schema"] != 1:
++            raise ValueError("missing_origin")
++        cash = _number(origin["cash_quote"])
++        quote = origin["quote_currency"]
++        if cash <= 0 or not isinstance(quote, str) or not quote.strip():
++            raise ValueError("invalid_origin")
++        realized = Decimal(0)
++    except (KeyError, TypeError, ValueError):
++        fault("opening_balance_unverified")
++    fills_by_order = {}
++    with localcontext() as context:
++        context.prec = 50
++        for fill in snapshot["fills"]:
++            identity = fill["fill_id"]
++            order = orders.get(fill["order_id"])
++            fills_by_order.setdefault(fill["order_id"], []).append(fill)
++            if order is None:
++                fault("fill_without_order", identity)
++                cash = None
++                continue
++            try:
++                price, qty, fee = (_number(fill[key]) for key in ("price", "qty", "fee"))
++                if price <= 0 or qty <= 0 or fee < 0:
++                    raise ValueError("invalid_fill")
++                if not _same(qty, _number(order["qty"])):
++                    fault("fill_order_quantity_mismatch", identity)
++                if not _same(fee, price * qty * Decimal("0.005")):
++                    fault("fee_not_50bps", identity)
++                symbol = order["symbol"]
++                if (not quote or fill["fee_currency"] != quote
++                        or not symbol.endswith("/" + quote)):
++                    fault("quote_currency_unverified", identity)
++                    cash = None
++                    continue
++                if order["side"] not in {"buy", "sell"}:
++                    raise ValueError("invalid_side")
++                held, average, pnl = positions.get(symbol, (Decimal(0), Decimal(0), Decimal(0)))
++                if order["side"] == "buy":
++                    average = (held * average + price * qty + fee) / (held + qty)
++                    held += qty
++                    if cash is not None:
++                        cash -= price * qty + fee
++                else:
++                    if qty > held:
++                        raise ValueError("sell_exceeds_recorded_holdings")
++                    gain = price * qty - fee - average * qty
++                    held -= qty
++                    average = average if held else Decimal(0)
++                    pnl += gain
++                    if realized is not None:
++                        realized += gain
++                    if cash is not None:
++                        cash += price * qty - fee
++                positions[symbol] = (held, average, pnl)
++            except (KeyError, TypeError, ValueError, InvalidOperation, OverflowError, ArithmeticError):
++                fault("invalid_fill_accounting", identity)
++                cash = realized = None
++        if cash is not None:
++            try:
++                if not _same(cash, _number(state.get("cash_quote"))):
++                    fault("cash_mismatch")
++                if not _same(realized, _number(state.get("realized_pnl"))):
++                    fault("realized_pnl_mismatch")
++                actual = {row["symbol"]: row for row in snapshot["positions"]}
++                for symbol in positions.keys() | actual.keys():
++                    expected = positions.get(symbol, (Decimal(0), Decimal(0), Decimal(0)))
++                    row = actual.get(symbol)
++                    if row is None or any(not _same(expected[index], _number(row[key]))
++                                          for index, key in enumerate(("qty", "avg_price", "realized_pnl"))):
++                        fault("position_mismatch", symbol)
++            except (KeyError, TypeError, ValueError, InvalidOperation):
++                fault("invalid_account_state")
++    now_epoch = _parse_created_epoch(now)
++    for intent_id, row in intents.items():
++        status, side = row["status"], row["side"]
++        linked = orders.get(row.get("linked_order_id"))
++        if linked and (linked["symbol"] != row["symbol"] or linked["venue"] != row["venue"]
++                       or linked["side"] != side or linked["qty"] != row["qty"]
++                       or linked["client_order_id"] != (row.get("client_order_id") or "paper_intent_" + intent_id)):
++            fault("intent_order_identity_mismatch", intent_id)
++        if side not in {"buy", "sell"}:
++            fault("invalid_intent_side", intent_id)
++        if (status not in {"queued", "submitting", "submitted", "held", "filled"}
++                and linked and fills_by_order.get(linked["order_id"])):
++            fault("final_intent_disagrees_with_fill", intent_id)
++        if status in {"queued", "submitting", "submitted", "held"}:
++            created = _parse_created_epoch(row["created_ts"])
++            if now_epoch is None or created is None or created > now_epoch:
++                fault("invalid_order_age", intent_id)
++            elif now_epoch - created >= 120:
++                fault("buy_overdue" if side == "buy" else "sell_waiting_over_120s", intent_id)
++            if row.get("linked_order_id") and row["linked_order_id"] not in orders:
++                fault("linked_order_missing", intent_id)
++        elif (side == "buy" and status not in {"filled", "rejected", "expired", "canceled", "cancelled"}
++              or side == "sell" and status not in {"filled", "superseded"}):
++            fault("unexpected_order_state", intent_id)
++        if status == "filled":
++            order = orders.get(row.get("linked_order_id"))
++            if not order or order["status"] != "filled" or not fills_by_order.get(order["order_id"]):
++                fault("final_intent_without_fill", intent_id)
++            else:
++                created = _parse_created_epoch(row["created_ts"])
++                for fill in fills_by_order[order["order_id"]]:
++                    filled = _parse_created_epoch(fill["ts"])
++                    if created is None or filled is None or filled < created:
++                        fault("invalid_fill_age", intent_id)
++                    elif filled - created >= 120:
++                        fault("buy_filled_after_deadline" if side == "buy" else "sell_filled_after_120s", intent_id)
++    for order_id, order in orders.items():
++        fills = fills_by_order.get(order_id, [])
++        if len(fills) > 1:
++            fault("multiple_fills_for_full_fill_order", order_id)
++        if (order["status"] == "filled") != bool(fills):
++            fault("order_fill_state_mismatch", order_id)
++        client = order["client_order_id"]
++        if client.startswith("paper_intent_") and client[len("paper_intent_"):] not in intents:
++            fault("queue_intent_missing", client[len("paper_intent_"):])
++        if order["status"] in {"new", "open"}:
++            created = _parse_created_epoch(order["created_ts"])
++            if created is None or now_epoch is None or created > now_epoch:
++                fault("invalid_ledger_order_age", order_id)
++            elif now_epoch - created >= 120:
++                fault("ledger_buy_overdue" if order["side"] == "buy" else "ledger_sell_waiting_over_120s", order_id)
++    seen_raw = state.get("paper_watchdog_seen_v1")
++    try:
++        seen = json.loads(seen_raw) if seen_raw is not None else []
++        if not isinstance(seen, list) or any(not isinstance(item, str) for item in seen):
++            raise ValueError("invalid_seen_receipt")
++        missing = (set(seen) | set(snapshot["event_intent_ids"])) - intents.keys()
++        for intent_id in sorted(missing):
++            fault("observed_queue_intent_deleted", intent_id)
++    except (TypeError, ValueError):
++        fault("invalid_seen_receipt")
++    return {"ok": not issues, "ts": now, "issues": issues,
++            "orders_checked": len(orders), "intents_checked": len(intents),
++            "fills_checked": len(snapshot["fills"]), "opening_balance_verified": origin is not None and cash is not None}
++
++
++def reconcile_account_once(*, pdb=None, now=None, report_dir: Path | None = None, dispatch=None) -> dict:
++    """Append a dated receipt; unavailable evidence never becomes a healthy result."""
++    now = now or datetime.now(timezone.utc).isoformat()
++    result = None
++    try:
++        if pdb is None:
++            from storage.paper_trading_sqlite import DB_PATH, PaperTradingSQLite
++            if not DB_PATH.is_file():
++                raise FileNotFoundError("paper_ledger_missing")
++            pdb = PaperTradingSQLite()
++        snapshot = pdb.account_reconciliation_snapshot()
++        result = check_snapshot(snapshot, now=now)
++        pdb.record_account_reconciliation_seen([row["intent_id"] for row in snapshot["intents"]])
++    except Exception as exc:
++        if result is None:
++            result = {"ok": False, "ts": now, "issues": []}
++        result["ok"] = False
++        result["issues"].append({"kind": "reconciliation_unavailable", "identity": type(exc).__name__})
++    result["alert"] = {"attempted": False, "delivered": False}
++
++    def alert():
++        nonlocal dispatch
++        try:
++            if dispatch is None:
++                from services.admin.config_editor import load_user_yaml
++                from services.alerts.alert_dispatcher import send_alert
++                dispatch = lambda payload: send_alert(cfg=load_user_yaml(strict=True), level="error",
++                    message="Paper account reconciliation requires attention", payload=payload)
++            receipt = dispatch({"ts": now, "issues": result["issues"][:50], "total_issues": len(result["issues"])})
++            result["alert"] = {"attempted": True, "delivered": bool(receipt.get("ok")) and not receipt.get("skipped", False)}
++        except Exception as exc:
++            result["alert"] = {"attempted": True, "delivered": False, "error_type": type(exc).__name__}
++    if not result["ok"]:
++        alert()
++    try:
++        if report_dir is None:
++            from services.os.app_paths import runtime_dir
++            report_dir = runtime_dir() / "logs" / "paper_account_reconciliation"
++        # Parse rather than splice caller text into a filename.
++        day = datetime.fromtimestamp(_parse_created_epoch(now), timezone.utc).date().isoformat()
++        report_dir.mkdir(parents=True, exist_ok=True)
++        path = report_dir / (day + ".jsonl")
++        with path.open("a", encoding="utf-8") as stream:
++            stream.write(json.dumps(result, sort_keys=True, allow_nan=False) + "\n")
++            stream.flush()
++            os.fsync(stream.fileno())
++        result["report_path"] = str(path)
++    except Exception as exc:
++        result["ok"] = False
++        result["issues"].append({"kind": "daily_report_failed", "identity": type(exc).__name__})
++        if not result["alert"]["attempted"]:
++            alert()
++    return result
+--- before/tests/test_paper_account_snapshot.py
++++ after/tests/test_paper_account_snapshot.py
+@@ -0,0 +1,382 @@
++from concurrent.futures import ThreadPoolExecutor
++import json
++import sqlite3
++import threading
++
++import pytest
++
++from storage import paper_trading_sqlite as store
++
++
++@pytest.fixture
++def db(monkeypatch, tmp_path):
++    monkeypatch.setattr(store, "DB_PATH", tmp_path / "paper.sqlite")
++    return store.PaperTradingSQLite()
++
++
++def queue_db():
++    path = store.DB_PATH.parent / "intent_queue.sqlite"
++    with sqlite3.connect(path) as con:
++        con.execute("PRAGMA journal_mode=WAL")
++        con.executescript("""
++            CREATE TABLE trade_intents (
++                intent_id TEXT PRIMARY KEY, created_ts TEXT, updated_ts TEXT, source TEXT,
++                venue TEXT, symbol TEXT, side TEXT, order_type TEXT, qty REAL, status TEXT,
++                client_order_id TEXT, linked_order_id TEXT, meta TEXT, last_error TEXT);
++            CREATE TABLE paper_buy_events (intent_id TEXT, reason TEXT);
++            CREATE TABLE paper_exit_events (intent_id TEXT, reason TEXT);
++        """)
++    return path
++
++
++def seed_order(db):
++    db.insert_order(dict(order_id="order", client_order_id="direct", ts="2026-11-03T00:00:00Z",
++                         venue="coinbase", symbol="BTC/USD", side="buy", order_type="market",
++                         qty=1, status="new", strategy_id="test", meta={"omitted": "private"}))
++
++
++def state_rows():
++    with sqlite3.connect(store.DB_PATH) as con:
++        return dict(con.execute("SELECT k,v FROM paper_state"))
++
++
++def test_initialize_fresh_origin_and_defaults_are_atomic_and_not_rebased(db):
++    assert db.initialize_account(1000, " usd ") == {"baseline_created": True}
++    origin = json.loads(db.get_state("paper_account_origin_v1"))
++    assert origin == {"schema": 1, "cash_quote": 1000.0, "quote_currency": "USD"}
++    assert db.get_state("cash_quote") == "1000.0"
++    assert db.get_state("realized_pnl") == "0.0"
++    before = state_rows()
++    assert db.initialize_account(5000, "EUR") == {"baseline_created": False}
++    assert state_rows() == before
++
++
++@pytest.mark.parametrize("cash", [True, None, "bad", 0, -1, float("nan"), float("inf"), 10 ** 1000])
++def test_invalid_initial_cash_writes_nothing(db, cash):
++    with pytest.raises(ValueError, match="invalid_starting_cash_quote"):
++        db.initialize_account(cash, "USD")
++    assert state_rows() == {}
++
++
++@pytest.mark.parametrize("currency", [None, 42, "", " ", "USD/BTC", "US D", "\u20ac"])
++def test_invalid_initial_quote_writes_nothing(db, currency):
++    with pytest.raises(ValueError, match="invalid_quote_currency"):
++        db.initialize_account(1000, currency)
++    assert state_rows() == {}
++
++
++@pytest.mark.parametrize("cash,realized", [("725.123", "12.5"), ("0", None), ("broken", "bad")])
++def test_existing_cash_never_changes_or_acquires_inferred_origin(db, cash, realized):
++    db.set_state("cash_quote", cash)
++    if realized is not None:
++        db.set_state("realized_pnl", realized)
++    assert not db.initialize_account(1000, "USD")["baseline_created"]
++    assert db.get_state("cash_quote") == cash
++    assert db.get_state("realized_pnl") == (realized if realized is not None else "0.0")
++    assert db.get_state("paper_account_origin_v1") is None
++
++
++@pytest.mark.parametrize("origin", [None, '{"schema":1,"cash_quote":1000,"quote_currency":"USD"}'])
++@pytest.mark.parametrize("unused_cash,unused_quote", [(0, "bad/quote"), ("not-a-number", None)])
++def test_existing_cash_ignores_unused_invalid_defaults_and_still_initializes_realized(db, origin, unused_cash, unused_quote):
++    db.set_state("cash_quote", "725.123")
++    if origin is not None:
++        db.set_state("paper_account_origin_v1", origin)
++    assert db.initialize_account(unused_cash, unused_quote) == {"baseline_created": False}
++    assert db.get_state("cash_quote") == "725.123"
++    assert db.get_state("realized_pnl") == "0.0"
++    assert db.get_state("paper_account_origin_v1") == origin
++
++
++def test_legacy_missing_cash_does_not_validate_unused_quote_or_infer_origin(db):
++    seed_order(db)
++    assert db.initialize_account(1000, None) == {"baseline_created": False}
++    assert db.get_state("cash_quote") == "1000.0"
++    assert db.get_state("realized_pnl") == "0.0"
++    assert db.get_state("paper_account_origin_v1") is None
++
++
++@pytest.mark.parametrize("evidence", ["order", "fill", "zero_position", "realized", "tiny_realized", "bad_realized", "origin"])
++def test_legacy_data_never_gets_a_baseline_but_retains_existing_default_behavior(db, evidence):
++    if evidence == "order":
++        seed_order(db)
++    elif evidence == "fill":
++        db.insert_fill(dict(fill_id="orphan", order_id="missing", ts="old", price=100, qty=1, fee=1, fee_currency="USD"))
++    elif evidence == "zero_position":
++        db.upsert_position("BTC/USD", 0, 0, 0)
++    elif evidence in {"realized", "tiny_realized", "bad_realized"}:
++        db.set_state("realized_pnl", {"realized": "12", "tiny_realized": "1e-9999", "bad_realized": "NaN"}[evidence])
++    else:
++        db.set_state("paper_account_origin_v1", "preserve-old-origin")
++    before = state_rows()
++    assert not db.initialize_account(1000, "USD")["baseline_created"]
++    assert db.get_state("cash_quote") == "1000.0"
++    for key, value in before.items():
++        assert db.get_state(key) == value
++    assert db.get_state("paper_account_origin_v1") == before.get("paper_account_origin_v1")
++
++
++@pytest.mark.parametrize("zero", ["0", "-0.0", "0e9999"])
++def test_exact_existing_realized_zero_allows_fresh_origin(db, zero):
++    db.set_state("realized_pnl", zero)
++    assert db.initialize_account("1000", "USDT")["baseline_created"]
++    assert db.get_state("realized_pnl") == zero
++
++
++def test_initialization_failure_rolls_back_all_defaults_and_origin(db, monkeypatch):
++    original = db._set_state_conn
++
++    def fail(con, key, value):
++        original(con, key, value)
++        if key == "paper_account_origin_v1":
++            raise RuntimeError("origin write failed")
++
++    monkeypatch.setattr(db, "_set_state_conn", fail)
++    with pytest.raises(RuntimeError, match="origin write failed"):
++        db.initialize_account(1000, "USD")
++    assert state_rows() == {}
++
++
++def test_concurrent_initialization_has_one_origin_and_matching_cash(db):
++    barrier = threading.Barrier(3)
++
++    def initialize(cash):
++        barrier.wait(timeout=3)
++        return db.initialize_account(cash, "USD")
++
++    with ThreadPoolExecutor(max_workers=3) as pool:
++        receipts = list(pool.map(initialize, [1000, 2000, 3000]))
++    assert sum(row["baseline_created"] for row in receipts) == 1
++    origin = json.loads(db.get_state("paper_account_origin_v1"))
++    assert origin["cash_quote"] == float(db.get_state("cash_quote"))
++
++
++def test_snapshot_whitelists_all_rows_raw_state_and_fill_sequence(db):
++    path = queue_db()
++    with sqlite3.connect(path) as con:
++        con.execute("INSERT INTO trade_intents VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
++                    ("intent", "created", "updated", "strategy", "coinbase", "BTC/USD", "buy", "market",
++                     1, "submitted", "direct", "order", "do-not-copy-meta", "do-not-copy-error"))
++        con.executemany("INSERT INTO paper_buy_events VALUES(?,?)", [("deleted-buy", "private"), ("intent", "private")])
++        con.executemany("INSERT INTO paper_exit_events VALUES(?,?)", [("deleted-sell", "private"), ("intent", "private")])
++    db.initialize_account(1000, "USD")
++    db.record_account_reconciliation_seen(["previous"])
++    db.set_state("not_whitelisted", "do-not-copy-state")
++    seed_order(db)
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.execute("UPDATE paper_orders SET meta_json='not-json'")
++    for fid, ts in [("z-first", "later"), ("a-second", "earlier")]:
++        db.insert_fill(dict(fill_id=fid, order_id="order", ts=ts, price=100, qty=0.5, fee=1, fee_currency="USD"))
++    db.upsert_position("BTC/USD", 1, 102, 0)
++    db.upsert_position("ETH/USD", 0, 0, 3)
++    before = state_rows()
++    snapshot = db.account_reconciliation_snapshot()
++    assert set(snapshot) == {"orders", "fills", "positions", "intents", "event_intent_ids", "state"}
++    assert len(snapshot["orders"]) == 1 and "meta_json" not in snapshot["orders"][0]
++    assert len(snapshot["orders"][0]) == 13
++    assert [(row["sequence"], row["fill_id"]) for row in snapshot["fills"]] == [(1, "z-first"), (2, "a-second")]
++    assert all(set(row) == {"sequence", "fill_id", "order_id", "ts", "price", "qty", "fee", "fee_currency"}
++               for row in snapshot["fills"])
++    assert len(snapshot["positions"]) == 2
++    assert set(snapshot["intents"][0]) == {"intent_id", "created_ts", "updated_ts", "source", "venue", "symbol",
++                                           "side", "order_type", "qty", "status", "client_order_id", "linked_order_id"}
++    assert snapshot["event_intent_ids"] == ["deleted-buy", "deleted-sell", "intent"]
++    assert set(snapshot["state"]) == {"cash_quote", "realized_pnl", "paper_account_origin_v1", "paper_watchdog_seen_v1"}
++    assert all(isinstance(value, str) for value in snapshot["state"].values())
++    assert state_rows() == before
++
++
++@pytest.mark.parametrize("damage", ["missing", "events_missing", "corrupt"])
++def test_snapshot_queue_errors_raise_without_creation_or_ledger_change(db, damage):
++    path = store.DB_PATH.parent / "intent_queue.sqlite"
++    if damage != "missing":
++        queue_db()
++        with sqlite3.connect(path) as con:
++            if damage == "events_missing":
++                con.execute("DROP TABLE paper_exit_events")
++            else:
++                con.execute("PRAGMA writable_schema=ON")
++                con.execute("UPDATE sqlite_master SET sql='not sql' WHERE name='trade_intents'")
++    db.initialize_account(1000, "USD")
++    before = state_rows()
++    with pytest.raises(sqlite3.Error):
++        db.account_reconciliation_snapshot()
++    assert path.exists() is (damage != "missing")
++    assert state_rows() == before
++    db.set_state("lock_released", "yes")
++
++
++def test_snapshot_readonly_quoted_queue_opens_after_ledger_lock_and_closes_connections(db, monkeypatch):
++    parent = store.DB_PATH.parent / "quoted #?% path"
++    parent.mkdir()
++    monkeypatch.setattr(store, "DB_PATH", parent / "paper.sqlite")
++    isolated = store.PaperTradingSQLite()
++    path = queue_db()
++    before = path.read_bytes()
++    original_connect = sqlite3.connect
++    connections = []
++    queue_queries = []
++
++    class TrackedConnection(sqlite3.Connection):
++        closed = False
++
++        def close(self):
++            self.closed = True
++            super().close()
++
++    def connect(database, *args, **kwargs):
++        kwargs["factory"] = TrackedConnection
++        if kwargs.get("uri"):
++            assert str(database).endswith("?mode=ro") and "%23%3F%25" in str(database)
++            assert kwargs["timeout"] == 0.25
++            with original_connect(store.DB_PATH, timeout=0) as writer:
++                with pytest.raises(sqlite3.OperationalError, match="locked"):
++                    writer.execute("BEGIN IMMEDIATE")
++        con = original_connect(database, *args, **kwargs)
++        connections.append(con)
++        if kwargs.get("uri"):
++            with pytest.raises(sqlite3.OperationalError, match="readonly"):
++                con.execute("DELETE FROM trade_intents")
++            con.set_trace_callback(queue_queries.append)
++        return con
++
++    monkeypatch.setattr(sqlite3, "connect", connect)
++    assert isolated.account_reconciliation_snapshot() == dict(
++        orders=[], fills=[], positions=[], intents=[], event_intent_ids=[], state={})
++    assert queue_queries[0] == "BEGIN" and queue_queries[-1] == "COMMIT"
++    assert len(connections) == 2 and all(con.closed for con in connections)
++    assert path.read_bytes() == before
++
++
++def test_queue_inventory_and_event_ids_share_one_read_snapshot(db, monkeypatch):
++    path = queue_db()
++    original_connect = sqlite3.connect
++    wrote = []
++
++    def connect(database, *args, **kwargs):
++        con = original_connect(database, *args, **kwargs)
++        if kwargs.get("uri"):
++            def trace(sql):
++                if sql.startswith("SELECT intent_id FROM paper_buy_events") and not wrote:
++                    with original_connect(path) as writer:
++                        writer.execute("INSERT INTO trade_intents(intent_id) VALUES('later')")
++                        writer.execute("INSERT INTO paper_buy_events(intent_id) VALUES('later')")
++                    wrote.append(True)
++            con.set_trace_callback(trace)
++        return con
++
++    monkeypatch.setattr(sqlite3, "connect", connect)
++    first = db.account_reconciliation_snapshot()
++    assert wrote and first["intents"] == [] and first["event_intent_ids"] == []
++    second = db.account_reconciliation_snapshot()
++    assert second["intents"][0]["intent_id"] == "later" and second["event_intent_ids"] == ["later"]
++
++
++def test_snapshot_has_no_inventory_limits(db):
++    path = queue_db()
++    count = 2001
++    with sqlite3.connect(path) as con:
++        con.executemany("INSERT INTO trade_intents(intent_id) VALUES(?)", ((str(i),) for i in range(count)))
++        con.executemany("INSERT INTO paper_buy_events(intent_id) VALUES(?)", ((str(i),) for i in range(count)))
++    with sqlite3.connect(store.DB_PATH) as con:
++        con.executemany("INSERT INTO paper_orders(order_id,client_order_id,created_ts,ts,venue,symbol,side,"
++                        "order_type,qty,status) VALUES(?,?,'created','ts','venue','BTC/USD','buy','market',1,'new')",
++                        ((str(i), str(i)) for i in range(count)))
++        con.executemany("INSERT INTO paper_fills(fill_id,order_id,ts,price,qty,fee,fee_currency) "
++                        "VALUES(?,?,'ts',100,1,1,'USD')", ((str(i), str(i)) for i in range(count)))
++        con.executemany("INSERT INTO paper_positions VALUES(?,1,100,0,'ts')", ((str(i),) for i in range(count)))
++    snapshot = db.account_reconciliation_snapshot()
++    assert all(len(snapshot[key]) == count for key in ("orders", "fills", "positions", "intents", "event_intent_ids"))
++    assert snapshot["fills"][-1]["sequence"] == count
++
++
++@pytest.mark.parametrize("failure", ["queue_select", "queue_commit", "ledger_commit"])
++def test_snapshot_failure_rolls_back_and_closes_both_connections(db, monkeypatch, failure):
++    queue_db()
++    db.initialize_account(1000, "USD")
++    before = state_rows()
++    original_connect = sqlite3.connect
++    connections = []
++
++    class FailingConnection(sqlite3.Connection):
++        closed = False
++        rolled_back = False
++        is_queue = False
++
++        def execute(self, sql, *args, **kwargs):
++            if ((self.is_queue and failure == "queue_select" and sql.startswith("SELECT intent_id,created_ts"))
++                    or (sql == "COMMIT" and ((self.is_queue and failure == "queue_commit")
++                                            or (not self.is_queue and failure == "ledger_commit")))):
++                raise sqlite3.OperationalError("snapshot injected failure")
++            return super().execute(sql, *args, **kwargs)
++
++        def rollback(self):
++            self.rolled_back = True
++            super().rollback()
++
++        def close(self):
++            self.closed = True
++            super().close()
++
++    def connect(database, *args, **kwargs):
++        con = original_connect(database, *args, factory=FailingConnection, **kwargs)
++        con.is_queue = bool(kwargs.get("uri"))
++        connections.append(con)
++        return con
++
++    monkeypatch.setattr(sqlite3, "connect", connect)
++    with pytest.raises(sqlite3.OperationalError, match="snapshot injected failure"):
++        db.account_reconciliation_snapshot()
++    assert len(connections) == 2 and all(con.closed and con.rolled_back for con in connections)
++    assert state_rows() == before
++    db.set_state("lock_released", "yes")
++
++
++def test_seen_union_is_durable_deduplicated_and_changes_no_financial_state(db):
++    db.initialize_account(1000, "USD")
++    before = state_rows()
++    assert db.record_account_reconciliation_seen(["b", "a", "a"]) == ["a", "b"]
++    assert store.PaperTradingSQLite().record_account_reconciliation_seen(["c", "a"]) == ["a", "b", "c"]
++    assert json.loads(db.get_state("paper_watchdog_seen_v1")) == ["a", "b", "c"]
++    assert {key: value for key, value in state_rows().items() if key != "paper_watchdog_seen_v1"} == before
++
++
++@pytest.mark.parametrize("raw", ["{", "null", "{}", '"id"', '[1]', '[""]', '[" id "]', '[NaN]'])
++def test_malformed_prior_seen_is_never_replaced(db, raw):
++    db.set_state("paper_watchdog_seen_v1", raw)
++    with pytest.raises(ValueError, match="invalid_paper_watchdog_seen"):
++        db.record_account_reconciliation_seen(["new"])
++    assert db.get_state("paper_watchdog_seen_v1") == raw
++
++
++@pytest.mark.parametrize("value", [None, "id", [1], [""], [" id "]])
++def test_invalid_seen_input_writes_nothing(db, value):
++    with pytest.raises(ValueError, match="invalid_account_reconciliation_intent_ids"):
++        db.record_account_reconciliation_seen(value)
++    assert state_rows() == {}
++
++
++def test_seen_union_serializes_concurrent_updates(db):
++    barrier = threading.Barrier(4)
++
++    def record(index):
++        barrier.wait(timeout=3)
++        return db.record_account_reconciliation_seen(["intent-" + str(index)])
++
++    with ThreadPoolExecutor(max_workers=4) as pool:
++        list(pool.map(record, range(4)))
++    assert json.loads(db.get_state("paper_watchdog_seen_v1")) == ["intent-" + str(i) for i in range(4)]
++
++
++def test_seen_write_failure_rolls_back_union(db, monkeypatch):
++    db.record_account_reconciliation_seen(["existing"])
++    original = db._set_state_conn
++
++    def fail(*args):
++        original(*args)
++        raise RuntimeError("seen write failed")
++
++    monkeypatch.setattr(db, "_set_state_conn", fail)
++    with pytest.raises(RuntimeError, match="seen write failed"):
++        db.record_account_reconciliation_seen(["new"])
++    assert json.loads(db.get_state("paper_watchdog_seen_v1")) == ["existing"]
+--- before/tests/test_paper_account_reconciliation.py
++++ after/tests/test_paper_account_reconciliation.py
+@@ -0,0 +1,322 @@
++import copy
++import ast
++import importlib
++import json
++import os
++from pathlib import Path
++from datetime import datetime, timedelta, timezone
++
++import pytest
++
++from services.execution.paper_account_reconciliation import check_snapshot, reconcile_account_once
++
++
++NOW = datetime(2026, 11, 3, tzinfo=timezone.utc)
++
++
++def empty():
++    return {"orders": [], "intents": [], "fills": [], "positions": [], "event_intent_ids": [],
++            "state": {"cash_quote": "1000", "realized_pnl": "0",
++                      "paper_account_origin_v1": json.dumps({"schema": 1, "cash_quote": 1000, "quote_currency": "USD"})}}
++
++
++def bought():
++    snapshot = empty()
++    snapshot["orders"] = [{"order_id": "o", "client_order_id": "paper_intent_i", "created_ts": NOW.isoformat(),
++                           "status": "filled", "symbol": "ADA/USD", "venue": "coinbase", "side": "buy", "qty": 1}]
++    snapshot["intents"] = [{"intent_id": "i", "client_order_id": "paper_intent_i", "created_ts": NOW.isoformat(),
++                            "updated_ts": NOW.isoformat(), "linked_order_id": "o", "status": "filled",
++                            "symbol": "ADA/USD", "venue": "coinbase", "side": "buy", "qty": 1}]
++    snapshot["fills"] = [{"fill_id": "f", "order_id": "o", "ts": NOW.isoformat(),
++                          "price": 100, "qty": 1, "fee": .5, "fee_currency": "USD"}]
++    snapshot["positions"] = [{"symbol": "ADA/USD", "qty": 1, "avg_price": 100.5, "realized_pnl": 0}]
++    snapshot["state"]["cash_quote"] = "899.5"
++    return snapshot
++
++
++def kinds(snapshot, now=NOW):
++    return {row["kind"] for row in check_snapshot(snapshot, now=now.isoformat())["issues"]}
++
++
++@pytest.mark.parametrize("factory", [empty, bought])
++def test_consistent_account(factory):
++    result = check_snapshot(factory(), now=NOW.isoformat())
++    assert result["ok"] and result["opening_balance_verified"]
++
++
++@pytest.mark.parametrize("qty,cash,remaining,pnl", [(.5, "954.225", .5, 4.475), (1, "1008.95", 0, 8.95)])
++def test_partial_and_full_sell_replay_fee_inclusive_basis(qty, cash, remaining, pnl):
++    snapshot = bought()
++    order = dict(snapshot["orders"][0], order_id="sell", client_order_id="paper_intent_s", side="sell", qty=qty)
++    snapshot["orders"].append(order)
++    snapshot["intents"].append(dict(snapshot["intents"][0], intent_id="s", client_order_id="paper_intent_s",
++                                     linked_order_id="sell", side="sell", qty=qty))
++    snapshot["fills"].append(dict(snapshot["fills"][0], fill_id="sf", order_id="sell", price=110, qty=qty, fee=110 * qty * .005))
++    snapshot["positions"][0].update(qty=remaining, avg_price=100.5 if remaining else 0, realized_pnl=pnl)
++    snapshot["state"].update(cash_quote=cash, realized_pnl=str(pnl))
++    assert not kinds(snapshot)
++
++
++@pytest.mark.parametrize("key,value,expected", [("cash_quote", "900", "cash_mismatch"),
++    ("realized_pnl", "1", "realized_pnl_mismatch"), ("cash_quote", "NaN", "invalid_account_state"),
++    ("cash_quote", "1e999999", "invalid_account_state")])
++def test_account_mismatches_are_not_healthy(key, value, expected):
++    snapshot = bought()
++    snapshot["state"][key] = value
++    assert expected in kinds(snapshot)
++
++
++@pytest.mark.parametrize("value", [None, "", "{}", '{"schema":1,"schema":1}',
++                                    '{"schema":true,"cash_quote":1000,"quote_currency":"USD"}'])
++def test_unknown_or_corrupt_origin_is_not_inferred(value):
++    snapshot = bought()
++    snapshot["state"]["paper_account_origin_v1"] = value
++    assert "opening_balance_unverified" in kinds(snapshot)
++
++
++@pytest.mark.parametrize("field,value", [("qty", 2), ("avg_price", 99), ("realized_pnl", 1)])
++def test_all_position_fields_are_checked(field, value):
++    snapshot = bought()
++    snapshot["positions"][0][field] = value
++    assert "position_mismatch" in kinds(snapshot)
++
++
++@pytest.mark.parametrize("field,value,expected", [("fee", .075, "fee_not_50bps"),
++    ("qty", 2, "fill_order_quantity_mismatch"), ("price", float("inf"), "invalid_fill_accounting"),
++    ("qty", 0, "invalid_fill_accounting"), ("fee", -1, "invalid_fill_accounting"),
++    ("fee_currency", "EUR", "quote_currency_unverified")])
++def test_actual_fill_values_are_checked(field, value, expected):
++    snapshot = bought()
++    snapshot["fills"][0][field] = value
++    assert expected in kinds(snapshot)
++
++
++@pytest.mark.parametrize("status", ["queued", "submitting", "submitted", "held"])
++@pytest.mark.parametrize("side,expected", [("buy", "buy_overdue"), ("sell", "sell_waiting_over_120s")])
++def test_every_pending_status_has_an_age_check(status, side, expected):
++    snapshot = bought()
++    snapshot["intents"][0].update(status=status, side=side)
++    assert expected in kinds(snapshot, NOW + timedelta(seconds=120))
++    assert expected not in kinds(snapshot, NOW + timedelta(seconds=119))
++
++
++@pytest.mark.parametrize("damage,expected", [("orders", "fill_without_order"),
++    ("fills", "order_fill_state_mismatch"), ("positions", "position_mismatch"),
++    ("intents", "queue_intent_missing")])
++def test_missing_rows_are_reported(damage, expected):
++    snapshot = bought()
++    snapshot[damage] = []
++    assert expected in kinds(snapshot)
++
++
++def test_deleted_unwritten_intent_survives_as_seen_or_event_evidence():
++    snapshot = empty()
++    snapshot["state"]["paper_watchdog_seen_v1"] = '["old-queued"]'
++    snapshot["event_intent_ids"] = ["other-deleted"]
++    result = check_snapshot(snapshot, now=NOW.isoformat())
++    assert {(row["kind"], row["identity"]) for row in result["issues"]} == {
++        ("observed_queue_intent_deleted", "old-queued"), ("observed_queue_intent_deleted", "other-deleted")}
++
++
++def test_duplicate_fill_and_late_buy_cannot_pass():
++    snapshot = bought()
++    snapshot["fills"].append(dict(snapshot["fills"][0], fill_id="duplicate", ts=(NOW + timedelta(seconds=120)).isoformat()))
++    assert {"multiple_fills_for_full_fill_order", "buy_filled_after_deadline"} <= kinds(snapshot)
++
++
++@pytest.mark.parametrize("field,value", [("qty", 2), ("symbol", "BTC/USD"),
++                                         ("venue", "kraken"), ("client_order_id", "wrong")])
++def test_intent_and_order_identity_are_checked(field, value):
++    snapshot = bought()
++    snapshot["intents"][0][field] = value
++    assert "intent_order_identity_mismatch" in kinds(snapshot)
++
++
++def test_terminal_refusal_cannot_conceal_a_real_fill():
++    snapshot = bought()
++    snapshot["intents"][0]["status"] = "rejected"
++    assert "final_intent_disagrees_with_fill" in kinds(snapshot)
++
++
++def test_all_twenty_five_symbols_are_replayed_not_just_primary_symbol():
++    snapshot = empty()
++    for index in range(25):
++        item = bought()
++        symbol, intent, order = f"S{index}/USD", f"i{index}", f"o{index}"
++        item["orders"][0].update(symbol=symbol, order_id=order, client_order_id="paper_intent_" + intent)
++        item["intents"][0].update(symbol=symbol, intent_id=intent, linked_order_id=order, client_order_id="paper_intent_" + intent)
++        item["fills"][0].update(fill_id=f"f{index}", order_id=order, price=10, fee=.05)
++        item["positions"][0].update(symbol=symbol, avg_price=10.05)
++        for key in ("orders", "intents", "fills", "positions"):
++            snapshot[key].extend(item[key])
++    snapshot["state"]["cash_quote"] = "748.75"
++    assert not kinds(snapshot)
++
++
++class FakeStore:
++    def __init__(self, snapshot):
++        self.snapshot = snapshot
++        self.seen = []
++
++    def account_reconciliation_snapshot(self):
++        return copy.deepcopy(self.snapshot)
++
++    def record_account_reconciliation_seen(self, ids):
++        self.seen.extend(ids)
++
++
++def test_report_is_append_only_and_skipped_alert_is_not_delivery(tmp_path):
++    snapshot = bought()
++    snapshot["state"]["cash_quote"] = "900"
++    store, attempts = FakeStore(snapshot), []
++    dispatch = lambda payload: attempts.append(payload) or {"ok": True, "skipped": True}
++    for _ in range(2):
++        result = reconcile_account_once(pdb=store, now=NOW.isoformat(), report_dir=tmp_path, dispatch=dispatch)
++        assert not result["ok"] and result["alert"] == {"attempted": True, "delivered": False}
++    rows = [json.loads(line) for line in (tmp_path / "2026-11-03.jsonl").read_text().splitlines()]
++    assert len(rows) == len(attempts) == 2
++    assert store.seen == ["i", "i"]
++
++
++@pytest.mark.parametrize("failure", ["snapshot", "seen", "dispatch", "report"])
++def test_evidence_failures_are_not_reported_healthy(tmp_path, monkeypatch, failure):
++    snapshot = bought()
++    snapshot["state"]["cash_quote"] = "900"
++    store = FakeStore(snapshot)
++    def broken(*args, **kwargs):
++        raise OSError("synthetic")
++    dispatch = lambda payload: {"ok": True}
++    if failure in {"snapshot", "seen"}:
++        monkeypatch.setattr(store, "account_reconciliation_snapshot" if failure == "snapshot"
++                            else "record_account_reconciliation_seen", broken)
++    elif failure == "dispatch":
++        dispatch = broken
++    else:
++        tmp_path = tmp_path / "not-a-directory"
++        tmp_path.write_text("preserve")
++    result = reconcile_account_once(pdb=store, now=NOW.isoformat(), report_dir=tmp_path, dispatch=dispatch)
++    assert not result["ok"]
++    if failure == "seen":
++        assert "cash_mismatch" in {row["kind"] for row in result["issues"]}
++    if failure == "report":
++        assert tmp_path.read_text() == "preserve"
++
++
++def test_report_failure_on_otherwise_good_account_dispatches(tmp_path):
++    target = tmp_path / "existing"
++    target.write_text("untouched")
++    attempts = []
++    result = reconcile_account_once(pdb=FakeStore(empty()), now=NOW.isoformat(), report_dir=target,
++                                    dispatch=lambda payload: attempts.append(payload) or {"ok": True})
++    assert not result["ok"] and attempts and result["alert"]["delivered"]
++
++
++def test_monitor_mode_is_explicit_and_status_read_does_not_repeat_audit(monkeypatch):
++    from services.analytics import paper_sim_monitor as monitor
++    from services.execution import paper_account_reconciliation as account
++    calls = []
++    monkeypatch.setattr(account, "reconcile_account_once", lambda **kw: calls.append(kw) or {"ok": False, "issues": []})
++    result = monitor.collect_once(monitor.PaperSimMonitorCfg(account_reconciliation=True))
++    assert result["recommendation"] == "investigate" and len(calls) == 1
++    result.update(status="stopped", pid_alive=False)
++    assert monitor._reconcile_stopped_runtime_payload(result) == result
++    assert len(calls) == 1
++    assert not monitor.PaperSimMonitorCfg().account_reconciliation
++
++
++@pytest.mark.parametrize("interval", [0, -1, 301, float("nan"), float("inf")])
++def test_account_monitor_rejects_unbounded_interval(interval):
++    from services.analytics.paper_sim_monitor import PaperSimMonitorCfg
++    with pytest.raises(ValueError, match="at_most_300"):
++        PaperSimMonitorCfg(poll_interval_sec=interval, account_reconciliation=True)
++
++
++@pytest.fixture
++def account(tmp_path, monkeypatch):
++    monkeypatch.setenv("CBP_STATE_DIR", str(tmp_path))
++    import storage.paper_trading_sqlite as ledger
++    import storage.intent_queue_sqlite as queue
++    import services.execution.paper_engine as engine
++    for module in (ledger, queue, engine):
++        importlib.reload(module)
++    if os.getenv("CBP_ACCOUNT_BEFORE_ROOT"):
++        path = Path(os.environ["CBP_ACCOUNT_BEFORE_ROOT"]) / "services/execution/paper_engine.py"
++        tree = ast.parse(path.read_text())
++        cls = next(item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == "PaperEngine")
++        method = next(item for item in cls.body if isinstance(item, ast.FunctionDef) and item.name == "_ensure_cash_initialized")
++        namespace = {}
++        exec(compile(ast.Module(body=[method], type_ignores=[]), str(path), "exec"), engine.__dict__, namespace)
++        monkeypatch.setattr(engine.PaperEngine, "_ensure_cash_initialized", namespace[method.name])
++    monkeypatch.setattr(engine, "_cfg", lambda: {"starting_cash_quote": 1000, "quote_currency": "USD",
++        "fee_bps": 50, "slippage_bps": 0, "use_ccxt_fallback": False, "max_order_qty": 1e9, "enabled": True})
++    monkeypatch.setattr(engine.PaperEngine, "_pre_submit_gate", lambda *a, **kw: (True, None))
++    monkeypatch.setattr(engine.PaperEngine, "_price", lambda *a: {"bid": 100, "ask": 100, "last": 100})
++    qdb = queue.IntentQueueSQLite()
++    eng = engine.PaperEngine(clock=lambda: NOW.isoformat())
++    return eng, qdb
++
++
++def test_pristine_cash_has_durable_origin(account):
++    eng, _ = account
++    origin = eng.db.get_state("paper_account_origin_v1")
++    assert origin is not None, "initialized cash has no evidenced opening-balance receipt"
++    assert json.loads(origin) == {"schema": 1, "cash_quote": 1000, "quote_currency": "USD"}
++    eng.db.initialize_account(100000, "EUR")
++    assert eng.cash_quote() == 1000 and eng.db.get_state("paper_account_origin_v1") == origin
++
++
++def test_account_monitor_loop_subtracts_check_time_from_interval(tmp_path, monkeypatch):
++    from services.analytics import paper_sim_monitor as monitor
++    monkeypatch.setattr(monitor, "ensure_dirs", lambda: None)
++    monkeypatch.setattr(monitor, "_flags_dir", lambda: tmp_path)
++    monkeypatch.setattr(monitor, "stop_file", lambda: tmp_path / "stop")
++    monkeypatch.setattr(monitor, "load_runtime_status", lambda: {})
++    for name in ("_write_pid_state", "_write_status", "_append_history", "_clear_pid_state"):
++        monkeypatch.setattr(monitor, name, lambda *a, **kw: None)
++    monkeypatch.setattr(monitor, "list_watches", lambda: [])
++    monkeypatch.setattr(monitor, "_recent_watch_reports", lambda **kw: [])
++    monkeypatch.setattr(monitor, "collect_once", lambda cfg: {"ok": True, "account_reconciliation_enabled": True})
++    ticks = iter([0, 7, 300])
++    sleeps = []
++    monkeypatch.setattr(monitor.time, "monotonic", lambda: next(ticks))
++    monkeypatch.setattr(monitor.time, "sleep", sleeps.append)
++    monitor.run_forever(monitor.PaperSimMonitorCfg(account_reconciliation=True), max_loops=2)
++    assert sleeps == [293]
++
++
++def test_real_account_replay_and_deleted_row_detection(account, tmp_path):
++    import sqlite3
++    import storage.intent_queue_sqlite as queue
++    eng, qdb = account
++    qdb.upsert_intent({"intent_id": "actual", "created_ts": NOW.isoformat(), "ts": NOW.isoformat(),
++        "source": "strategy", "venue": "coinbase", "symbol": "ADA/USD", "side": "buy", "order_type": "market",
++        "qty": 1, "status": "queued"})
++    order = eng.submit_order(client_order_id="paper_intent_actual", venue="coinbase", symbol="ADA/USD",
++                            side="buy", order_type="market", qty=1, intent_created_ts=NOW.isoformat())["order"]
++    eng.evaluate_open_orders()
++    qdb.update_status("actual", "submitting")
++    qdb.update_status("actual", "submitted", client_order_id="paper_intent_actual", linked_order_id=order["order_id"])
++    qdb.update_status("actual", "filled")
++    before_cash = eng.cash_quote()
++    before_orders = eng.db.list_orders()
++    result = reconcile_account_once(pdb=eng.db, now=NOW.isoformat(), report_dir=tmp_path / "reports",
++                                    dispatch=lambda payload: pytest.fail("healthy account must not alert"))
++    assert result["ok"], result
++    with sqlite3.connect(queue.DB_PATH) as con:
++        con.execute("DELETE FROM trade_intents WHERE intent_id='actual'")
++    alerts = []
++    result = reconcile_account_once(pdb=eng.db, now=NOW.isoformat(), report_dir=tmp_path / "reports",
++                                    dispatch=lambda payload: alerts.append(payload) or {"ok": True})
++    assert not result["ok"] and alerts
++    assert {"queue_intent_missing", "observed_queue_intent_deleted"} <= {row["kind"] for row in result["issues"]}
++    assert eng.cash_quote() == before_cash and eng.db.list_orders() == before_orders
++
++
++def test_real_legacy_account_is_not_rebaselined_from_current_cash(account, tmp_path):
++    eng, _ = account
++    eng.db.set_state("paper_account_origin_v1", "{}")
++    eng.db.set_state("cash_quote", "999")
++    result = reconcile_account_once(pdb=eng.db, now=NOW.isoformat(), report_dir=tmp_path,
++                                    dispatch=lambda payload: {"ok": True, "skipped": True})
++    assert not result["ok"] and not result["opening_balance_verified"]
++    assert eng.db.get_state("paper_account_origin_v1") == "{}" and eng.cash_quote() == 999

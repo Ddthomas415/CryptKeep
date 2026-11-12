@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.530" timestamp="2026-11-03T10:31:06.818060-05:00" hostname="MacBook-Pro"><testcase classname="tests.test_runner_decision_capture" name="test_storage_accounting_method_is_part_of_loaded_decision_identity" time="0.199"><failure message="Failed: DID NOT RAISE ValueError">tests/test_runner_decision_capture.py:314: in test_storage_accounting_method_is_part_of_loaded_decision_identity
+    with pytest.raises(ValueError, match="runner_code_mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError</failure></testcase></testsuite></testsuites>

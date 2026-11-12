@@ -1,0 +1,20 @@
+{
+  "operating_databases_opened": false,
+  "results": [
+    {
+      "explicitly_close_fixture_writer": false,
+      "original_assertions_passed": false,
+      "queue_changed_before_reader": true,
+      "queue_changed_during_reader": false
+    },
+    {
+      "explicitly_close_fixture_writer": true,
+      "original_assertions_passed": true,
+      "queue_changed_before_reader": false,
+      "queue_changed_during_reader": false
+    }
+  ],
+  "scope": "synthetic_fixture_GC_control_only",
+  "sqlite_version": "3.49.1",
+  "unchanged_test_source_sha256": "1da55171656bd3879473e7ac8209c73be480c312a5037139e16f3029bb4f07fe"
+}
