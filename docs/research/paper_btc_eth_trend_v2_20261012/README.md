@@ -1,4 +1,83 @@
-# Forward tracker v2: BTC+ETH 28-day trend (research only). Status: CODEX SCHEDULE ACTIVE; first scheduled delivery unverified
+# Forward tracker v2: BTC+ETH 28-day trend (research only). Status: scheduling restored; next unattended delivery unverified
+
+## Historical diagnosis,2026-11-12T05:01:17Z
+
+Bot relation: STANDALONE; runtime trading configuration not checked.
+The ACTIVE heading above is historical, not verified current status. SHOWN:
+all four state/ledger files remain unchanged since2026-10-26T00:52:27Z;
+decisions exist only for18/25October, not1/8November. The former local
+automation definition for btc-eth-weekly-research-tracker-v2 is absent;
+/Users/baitus/.codex/automations/ contains only .run-jitter-salt. This is not
+proof of deletion or absence from every app-side registry. App automation-view
+tool returned only "Rendered automation card in the app", no readable status
+or run history. Codex UI inspection was denied by the computer-use tool;
+no alternate UI-control method or app-state write attempted. Cause of the
+missing definition and missed dispatches remains UNVERIFIED.
+
+Owner authorized diagnosis/restoration beforeSunday15November after grouped
+commits. Commit step is complete; schedule restoration is INCOMPLETE pending
+whether the displayed original-task card shows a task or not found. Do not
+create a duplicate from the missing folder alone. Original Sunday20:47
+America/New_York timing and frozen code/rules are preserved. No primary-ledger
+catch-up, source change, network candle fetch, task create/update/run or
+unrelated schedule change performed in this diagnosis. Missed weeks cannot
+be presented as contemporaneous forward observations; no profitability claim.
+
+What do I know that could change the owner's decision that I have not yet said?
+The schedule is not repaired yet. Recreating a task without confirming the
+original's app-side status risks a duplicate, and a manual catch-up would not
+restore lost on-time forward evidence.
+
+## Scheduling restoration,2026-11-12T08:43:33Z
+
+Bot relation: STANDALONE; runtime trading configuration not checked.
+SHOWN one valid original-ID management update returned an explicit error:
+the automation does not exist in the app and could not be updated. This
+confirms the missing current registration, not who removed it or the exact
+cause of every earlier missed dispatch. The tool's suggestion of manual user
+deletion is UNVERIFIED and is not adopted. Historical diagnosis above is
+superseded for registration only, not its record of missed output.
+
+Under the owner's existing restoration direction, the separate reviewer
+accepted the minimal create-vs-update correction WITH_RISK. Exactly one
+replacement creation succeeded at2026-11-12T08:43:22.155Z. Returned ID:
+btc-eth-weekly-research-tracker-v2,status ACTIVE. Saved automation.toml was
+read back, with heartbeat kind, original Sunday20:47 recurrence, reviewed
+frozen command/prompt and explicit attachment to this chat
+019d4b0c-59e1-7d21-8fbd-ec12f93a29e7. This is a replacement, not preservation
+of the absent old chat binding. Notification settings use creation defaults,
+not verified preservation of old preferences. Only one local automation
+definition exists; registry-wide uniqueness was not independently inventoried.
+
+Configuration path:/Users/baitus/.codex/automations/btc-eth-weekly-research-tracker-v2/automation.toml
+SHA256:4e79aae512e8a3182b63006fc620a6a697b2d493cb29733fb9955e0666428ba1.
+Expected next slot from the saved recurrence and America/New_York zone:
+Sunday2026-11-15T20:47:00-05:00,Monday2026-11-16T01:47:00Z. This is a computed
+expected slot, not an observed dispatch or a separately returned next-run field.
+The file has no explicit timezone field; effective scheduler timezone is not
+established by this file alone. New York is the intended operator timezone,
+not a separately verified app-side setting.
+
+No source/rule/fee/model change, test round, manual tracker invocation, public
+candle fetch, primary-ledger mutation, v1/unrelated-task change or native client
+execution. All four primary file hashes match the05:01diagnosis; tracker source
+remains572118ad9e829e3df7f508814ee79697d273e3b988e571a33eef87ed9761e0e2.
+The prompt requires persisted-output/expected-decision/timestamp/lag evidence,
+no silent source/history repair and no second invocation on failure. Normal
+future tracker catch-up can append reconstructed rows under frozen rules;
+missed1/8November observations are never converted to on-time evidence.
+
+DONE:missing-registration repair and persistent ACTIVE configuration readback.
+Separate Nash GATE08:44:21UTC ACCEPTED_WITH_RISK for persisted configuration
+only:independently read the exact file and matched tracker/four output hashes.
+NOT DONE:proof of the next unattended dispatch/network/output. No economic
+conclusion follows. Rollback:pause this exact automation through the app tool,
+preserving all v1/v2 files; not performed. R10 remains stopped.
+
+What do I know that could change the owner's decision that I have not yet said?
+The next genuine acceptance evidence is timely persisted output on the scheduled
+run. Configuration restoration cannot recover lost contemporaneous evidence
+or explain how the old registration disappeared.
 
 The original tracker (`../paper_btc_eth_trend_20261009/`) and its Claude weekly task are unchanged. Independent review accepted v2 with risk for research-only use. The operator then authorized activation here in Codex; the separate schedule below supersedes the proposed Claude task switch.
 

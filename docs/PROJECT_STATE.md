@@ -131,6 +131,28 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
   /private/tmp/cryptkeep-backup-native-9brdbcqh retained. Not an encrypted backup.
 - Tracker v2: state files unchanged since 2026-10-26 00:52Z (2026-11-01 and 2026-11-08 decisions missed). Next decision
   Sunday 2026-11-15 20:47 New York (2026-11-16 01:47 UTC).
+- 2026-11-12T05:01:17Z commit step complete:four local commits95f91bec7,
+  aaf7f8d5c,2a6e42526,27cd39cca. Claude pre-push range82b5f216e..27cd39cca;
+  no push/merge. Tracker diagnosis now active:current exact-ledger hash/mtime
+  check confirms no1/8Nov decisions; known local automation definition absent.
+  App view returned a card only, not machine-readable status; Codex UI access
+  denied, not bypassed. Deletion/migration/dispatch cause UNVERIFIED. Asked
+  owner whether displayed original-task card shows an existing task or not
+  found before update/replacement; no duplicate created or state backfill.
+  Restoration INCOMPLETE, not a running schedule claim. R10 remains stopped.
+- 2026-11-12T08:43:33Z superseding registration result:app explicitly rejected
+  original-ID update as nonexistent. One separately reviewed minimal replacement
+  creation succeeded, same IDbtc-eth-weekly-research-tracker-v2, ACTIVE; saved
+  configuration readback SHA4e79aae5... confirms Sunday20:47 recurrence and
+  attachment to this chat. Expected next15Nov20:47NewYork/16Nov01:47UTC.
+  Registration repair DONE; actual next unattended output still UNVERIFIED.
+  No manual tracker run, source/ledger rewrite, tests, second creation or
+  unrelated schedule change. Missing-registration cause/deleter unknown;
+  no historical missed observation repaired. R10 remains stopped, no push.
+  Separate Nash GATE08:44:21UTC independently ACCEPTED_WITH_RISK persisted
+  configuration only; source/four output hashes unchanged. File lacks explicit
+  timezone, so15Nov20:47NewYork is intended, not independently proved effective
+  scheduler timezone. Future delivery remains separate required evidence.
 
 1. [done for source scope 2026-11-03; operations not started] [safety] Multi-coin runner fix (owner, 2026-10-31: highest priority). **A fix already exists: patch 0004
    of the October series (2026-10-02; "current form needs final review"), in
