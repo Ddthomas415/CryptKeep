@@ -153,6 +153,117 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
   configuration only; source/four output hashes unchanged. File lacks explicit
   timezone, so15Nov20:47NewYork is intended, not independently proved effective
   scheduler timezone. Future delivery remains separate required evidence.
+- 2026-11-12T09:29:48Z owner-authorized Claude pre-push review completed in
+  existing handoff chat. ACCEPTED_WITH_RISK for preservation only; no blocking
+  findings in82b5f216e..aad07d655,758unique paths. Material scope correction:
+  cached origin/backup/2026-10-31 tip28f196e6f is19commits behind HEAD, so a
+  normal push may include14earlier local ancestors. Claude scanned those14
+  only for secrets/names/size, not full content. Exact local Git counts checked.
+  Need current privacy/remote-scope check and owner awareness before any push;
+  no force/merge/rebase/deploy or source readiness inferred. Review copy:
+  docs/checkpoints/commit_plan_20261112/CLAUDE_PREPUSH_REVIEW.md. Source tip
+  frozenaad07d655; receipt docs uncommitted, no push. R10 remains stopped.
+- 2026-11-12T09:57:52Z live prerequisite reads COMPLETE:GitHub reports
+  Ddthomas415/CryptKeep PUBLIC/isPrivate=false; remote backup/2026-10-31
+  remains28f196e6f, an ancestor ofaad07d655, so19commits would be outgoing.
+  PUBLIC was already recorded1Nov12:42:48UTC(base82b5f216e); the31Oct-private
+  premise in the review was stale. No new visibility change/actor inferred.
+  No push or setting change. Needed owner choice:authorize public publication
+  of this19commit preservation range, or make private first. Earlier14scanned
+  only, not fully content-reviewed. No force/merge/rebase; R10 stays stopped.
+- 2026-11-12T12:28:35Z owner chose "push" after public/private clarification,
+  authorizing the disclosed19commit public preservation range. Current PUBLIC
+  identity/ref rechecked; one non-force exact-tip push failed HTTP400/sideband
+  disconnect. Actual post-failure remote remains28f196e6f, not aad07d655;
+  publication not applied. GitHub API reports ADMIN for this repository, not
+  proof the git transport works. No login/visibility/source change or retry.
+  Found existing31Oct13:32:43log:the same HTTP400 succeeded using per-command
+  http.version=HTTP/1.1 and http.postBuffer=157286400. Missed prior evidence
+  recorded O133. One-attempt budget reached; next decision is one corrected
+  retry with that documented transport, same reviewed SHA/ref, no force/global
+  config changes. R10 stopped; receipts remain uncommitted outside reviewedtip.
+- 2026-11-12T12:33:22Z owner-approved corrected retry SUCCEEDED, exit0,
+  using command-scoped HTTP/1.1/postBuffer157286400. Exact19commit public
+  preservation push28f196e6f->aad07d655 on backup/2026-10-31, no force/tags/
+  submodules. Fresh actual remote read independently confirms fullSHA
+  aad07d655cc79d30d92fbb9689b59ab5f6b66200. Only that local tracking ref
+  synchronized afterward; no merge/rebase/deploy/source/config setting change.
+  Publication task DONE, conditional preservation acceptance only. Four review/
+  receipt paths remain local/uncommitted and excluded; ignored large data not
+  backed up by Git. R10 remains stopped; tracker unattended output still awaits
+  its intended next slot. No new controller, tests or runtime operation.
+- 2026-11-12T12:45:29Z read-only post-push check follow-through:2existing
+  checks succeeded(script-path-integrity,Governance Smoke),4release/build/
+  signing workflows failed validation with0jobs. Actual GitHub annotations
+  confirm18direct secrets.* references in step if expressions across4files.
+  These workflow files are unchanged by28f196e6f..aad07d655, inherited defects,
+  not demonstrated application-test regressions. No rerun/source/release or
+  signing/credential change. Narrow workflow repair proposed in PARKED only;
+  owner has not ordered it into a queue. Full CI remains NOT GREEN. Evidence
+  and exact run IDs/locations in commit_plan_20261112/README.md. R10 paused.
+- 2026-11-12T13:09:21Z owner-reported laptop restart checked read-only.
+  Host reports lastboot11Nov21:55:15UTC(16:55NewYork), not proof of a later
+  reboot. Local source/tracking refs stillaad07d655 and same4receiptpaths
+  retained. Tracker savedACTIVE config SHA4e79aae5... and all4primary-file
+  hashes unchanged; actual future dispatch still unverified. Neither existing
+  collector script matched in permitted process queries; saved PIDs21851/2737
+  also absent. Context status saysrunningbutdated4Nov02:38UTC; paper status
+  idle29Oct14:33UTC. Stale files are not liveness or proven reboot causation.
+  No restart/source/schedule/account/host/trading action. Existing market-context
+  restart with recorded settings needs owner approval; paper/R10 remain untouched.
+- 2026-11-12T13:29:34Z owner-authorized existing market-context collector
+  restarted once with the actual29Oct paired-raw argv, frozen PLAN/OPTIONS,
+  original archive,live_public,300second post-cycle interval and no loop cap.
+  SHOWN unique surviving PID51426; fresh13:29:05UTC cycle loops1,writes1,
+  errors0,last_oktrue,all6source checks successful. Stored OI1,basis1,quotes2,
+  book1 and raw funding1; normalized funding0 by design. Funding remains
+  raw_okx_pairs_unverified/normalization_eligiblefalse; research_onlytrue,
+  execution_enabledfalse. First-cycle restoration demonstrated, not sustained
+  uptime or boot persistence. Six historically bound runtime sources match;
+  shared app_paths was absent from old bindings, not a changed-file mismatch;
+  current helper matchesHEAD/Marchcommit and explicit local state root retained.
+  Paper/tracker/R10/workflows/trading settings unchanged. Runtime trading config
+  not checked. Evidence:work-log task card/completion, selected fresh status and
+  committed snapshot IDs; no new controller/source/tests/scheduler or push.
+- 2026-11-12T14:42:07Z owner "carry out the next steps" in direct response
+  to the proposed four-workflow repair orders that parked item into the active
+  engineering queue. Scope:18invalid secret-context step conditions only,
+  focused offline verification and one independent review. R10 stays paused;
+  no build/release/signing/deployment, publication, credential or task changes.
+  Preserve triggers, permissions, OS restrictions and step-scoped secret values.
+- 2026-11-12T14:45:46Z four-workflow source repair submitted
+  READY_FOR_INDEPENDENT_REVIEW. All18conditions use job-level boolean
+  availability plus explicit 'true' step comparisons; only12availability
+  expressions added across6jobs. Raw-secret step scope/OS checks preserved.
+  New16focused tests fail on original workflows and pass on correction;
+  parsed comparison confirms all other workflow fields unchanged. No full
+  actionlint/hosted-engine validation available; local tests are not hosted
+  CI/build/signing proof. Exact diff/hashes/limits in existing commit-plan
+  README. One separate GATE requested; no commit/push/workflow execution.
+- 2026-11-12T14:47:54Z separate Darwin GATE ACCEPTED_WITH_RISK for
+  the exact five hashed source/test files, offline scope only. Reviewer
+  independently passed16tests0.34s, expanded all18replacement predicates to
+  their original forms, confirmed41unchanged raw-secret step fields and all
+  other parsed workflow data unchanged; no duplicate YAML keys. Author's
+  before16failures not independently rerun. Five hashes unchanged after
+  review. No actionlint/hosted-engine or actual build/signing/release proof;
+  full CI remains unverified, original published runs still failed. Source
+  repair complete; uncommitted/unpushed. R10 stays paused; no next item started.
+- 2026-11-12T15:07:25Z owner continuation authorizes local preservation
+  follow-through for the reviewed workflow repair and existing local receipts,
+  under the already ordered reviewed-group commit workflow. Two groups only:
+  five unchanged reviewed workflow/test files, then four existing governance/
+  review-receipt files. Separate source acceptance reused; no repeated tests
+  or new implementation. Another agent's CMC snapshot excluded. No push or
+  GitHub execution; Claude review of this new committed range remains required
+  before a separately authorized publication. R10 stays stopped.
+- 2026-11-12T15:08:56Z reviewed workflow source preserved locally in
+  a22fef9c0f07173fa2ed4c838bbddbd1904007fa (exact5paths, staged bytes match
+  separateGATE seal). This receipt's containing governance commit preserves
+  only4existing receipt files; newCMC snapshot excluded. New review range
+  aad07d655..HEAD is ready for Claude pre-push review, not yet reviewed by
+  Claude or published. No tests/source/operational action repeated. Cached
+  remote ref is not a fresh remote check. No push/build/release; R10 stopped.
 
 1. [done for source scope 2026-11-03; operations not started] [safety] Multi-coin runner fix (owner, 2026-10-31: highest priority). **A fix already exists: patch 0004
    of the October series (2026-10-02; "current form needs final review"), in
@@ -1120,6 +1231,8 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
 - [recurring] Weekly status, Mondays 12:31 UTC (scheduled task).
 
 ## Parked (not started until the owner moves it into a queue)
+- Four inherited invalid release/build/signing workflows:owner moved this proposal to active engineering12Nov14:42UTC; separate Darwin GATE ACCEPTED_WITH_RISK14:47UTC closes offline source repair only. Original4published runs still failed/0jobs. Availability-booleans repair preserves raw-secret scope;16focused tests independently pass, hosted/complete-standard validation unverified. Changes uncommitted/unpushed; no builds/releases/reruns/new credentials. Exact evidence:docs/checkpoints/commit_plan_20261112/README.md. This line preserves the parked-proposal history, not a second active item.
+- Local Git executable selection:2026-11-12 env/gh selected Intel-only /usr/local/bin/git and failed bad CPU type, while /usr/bin/git works. Native absolute-path/per-command selection sufficed; no global install/PATH/config repair. Decision served:reliable operator/automation CLI invocation; park any environment-wide repair rather than expand this pre-push check.
 - Earlier companion ProcessExecutor callers:2026-11-12 independent backup-adapter review reproduced spawn-time SIGINT leaving a synthetic child and found signalling after leader reaping. Existing scripts/research/companion_existing_controller.py is unchanged; older callers/acceptance lanes were not re-audited here. Decision served:restore valid cancellation/ownership claims where those callers still operate; propose a scoped follow-up rather than silently certify or modify them during R3 tool preparation.
 - Agent-tooling proposal (owner-requested assessment, Codex 2026-11-03): selective, capped Superpowers
   debugging-method pilot inside an approved task; do not stack Clavix or add Composio grants without a demonstrated
@@ -1792,6 +1905,40 @@ companion caller impact is still UNVERIFIED, not declared unaffected.
 Counts after O-130:130 omissions;0agent-unprompted/122during owner-requested
 work/8owner. Accepted-work rework7 includes native source-readiness correction;
 older companion caller impact remains unresolved. R10 is on hold by owner.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-131 | Five-commit pre-push handoff did not compare the actual branch tracking ref, omitting14older unpublished ancestors | Preservation pre-push scope assessment2026-11-12 | Codex grouping/handoff | Could imply only5commits would leave laptop; cached branch comparison instead shows19, older14not content-reviewed in this pass; no push occurred | verification; reporting | Five-commit preservation review ACCEPTED_WITH_RISK; full outgoing scope/privacy still unverified | R, Claude pre-push review during owner-requested work, then Codex local Git verification | Compare intended review base and actual upstream range/counts before describing push scope; disclose partial older-content review | Current cached ref0behind/19ahead,14older commits/20files independently confirmed; no live remote or push test |
+
+Counts after O-131:131 omissions;0agent-unprompted/123during owner-requested
+work/8owner. Recorded accepted-work rework remains7; this scope correction
+preceded push approval and did not reopen source acceptance. Remote state is
+not inferred from cached refs. Earlier companion caller impact unresolved.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-132 | Privacy framing carried31Oct PRIVATE forward but omitted the1Nov PUBLIC observation already in base commit82b5f216e | Current pre-push evidence reconciliation2026-11-12 | Claude pre-push review; Codex handoff | Could imply current PUBLIC is a new unexplained change or a newly invented requirement; no visibility mutation/push occurred | evidence discovery; reporting | Current GitHub PUBLIC independently shown; historical31Octprivate remains dated; publication intention unresolved, not guessed | R, Codex live prerequisite query followed by targeted work-log search during owner-requested work | Reconcile newest already-recorded visibility with live metadata and owner intent; separate setting observation from authorization/actor attribution | Live GH API PUBLIC and1Nov12:42:48log inspected; no setting changed and no guarantee against future stale reporting |
+
+Counts after O-132:132 omissions;0agent-unprompted/124during owner-requested
+work/8owner. Recorded accepted-work rework remains7; current publication
+decision is pending, no prior source acceptance or live state was changed.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-133 | Authorized push did not reuse the31Oct documented HTTP400 transport correction before invoking default Git HTTP transport | Earlier-work search before12:24UTC push2026-11-12 | Codex | One push failed HTTP400; remote verified unchanged, no publication applied; unnecessary failed attempt and delay | evidence discovery; implementation | Push objective INCOMPLETE, source/review acceptance unchanged | R, Codex targeted work-log search after actual failure during owner-authorized push | Search prior exact publication failures/working command before execution; verify actual remote after disconnect before retry |31Oct successful settings found; current remote unchanged verified; corrected retry not yet run |
+
+Counts after O-133:133 omissions;0agent-unprompted/125during owner-requested
+work/8owner. Recorded accepted-work rework remains7; no source acceptance was
+reopened and no publication succeeded. Corrected transport requires extending
+the recorded one-attempt budget, not new code or authentication changes.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-134 | Four known zero-job Actions failures remained without an exact workflow-validation cause or repair proposal;18invalid secrets-in-if conditions now confirmed | Earlier workflow-validity acceptance/failed-run diagnosis; original introduction date unknown;1NovO24already recorded0jobs | Historical workflow authors/reviewers UNVERIFIED; subsequent diagnostic follow-up gap | Prevents4release/build/signing pipelines from starting; not a new19commit regression or evidence of failing trading tests | implementation; verification; failure diagnosis | Push preservation remains complete; fullCI notgreen; workflow repair unstarted | R, Codex existing-check follow-through during owner-requested next steps | Validate workflow expressions before release acceptance; inspect actual startup annotations and distinguish0jobs from test execution | GitHub annotations for all4and unchanged-file diff confirmed; proposed repair/validator tests not run |
+
+Counts after O-134:134 omissions;0agent-unprompted/126during owner-requested
+work/8owner. Recorded accepted-work rework remains7; no full CI green claim
+was accepted/reopened. Source defect is inherited, not introduced by this push.
 
 O-114/O-115 follow-up2026-11-11T11:21:33Z: corrected offline wrapper
 ACCEPTED_WITH_RISK by separate Rawls GATE after diff-only review. Reviewer
