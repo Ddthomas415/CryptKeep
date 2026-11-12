@@ -109,6 +109,17 @@ current runner; or an equivalent fix that passes the same tests.
 - During a cooldown with an open position, a stop-loss is sent and filled (fails on the current code).
 - The cooldowns' wall-clock length (loops x 15 s) is in the manifest.
 
+**Dated implementation clarification, 2026-11-03 (Codex; separate R1 source GATE ACCEPTED_WITH_RISK):** the reused 0001 fix preserves
+the inherited arming boundary: nominal settings 20/50 block 19/49 subsequent gate evaluations. Counts survive restart;
+missing-price/config/error turns before the gate do not serve them. With round-robin multi-symbol service, each count
+is served on that symbol's visit, not on every global turn. The manifest must record nominal settings, actual owed
+counts and service cadence. **Correction to the earlier timing inference:** cooldown-blocked turns skip the existing
+end-of-turn sleep, so multiplying counts by the configured 15 seconds is not even an established nominal blocked
+pause. Earlier 5/12.5-minute statements are not runtime proof. Measure and resolve the cadence under the approved
+simulation operations requirements before start; R1 does not silently change it. No threshold or campaign setting
+is changed by this clarification. Group A's separate accounts and
+settings remain as frozen. This source work does not complete R12 or authorize commissioning/start.
+
 **R2 Automatic restarts and one stop (BA-19, CP-06).** Every process (each account's runner and paper runner, the
 market-data publisher, the watcher, the backup job) runs under systemd with `Restart=on-failure`, a growing delay
 between restarts and a start limit that ends a crash loop and alerts; enabled at boot. One instance per account (the
@@ -125,6 +136,33 @@ a row, or 5 HTTP 429 replies within 10 minutes; the quote snapshot is stale; an 
 delayed over 2 minutes; an order sits at `submitting` over 1 minute; disk over 80%; memory over 85%; a backup fails.
 - Each condition is triggered once (on a test account where needed) and the owner confirms receipt; date and channel
   recorded.
+
+**R3 source candidate, 2026-11-05 (not commissioned):** the review-only alert
+renderer now names `scripts/run_group_a_alert.py watch <release>` for its existing
+watcher service. Its fragments still contain no executable startup directive;
+do not install or invoke them from this note. The existing `watch-once` and
+`terminal` APIs remain available. The proposed `watch` path uses one foreground
+Linux supervisor, 30-second monotonic slots with no overlap/catch-up, a shared
+40-second cycle budget plus five seconds intended cleanup, and one summary POST
+per cycle to the existing protected Slack recipient. Native Linux timing and
+cleanup are not established by Mac tests. Startup requires the separately
+provisioned protected cursor image and an existing stable `supervisor.lock`
+(service-owned 0600 regular single-link file); it creates neither. Never unlink
+or replace that lock to clear a stuck process. Normal pending alerts are durable;
+health suppression is per-account, volatile and can repeat after restart.
+Capacity faults preserve prior evidence; no pruning/reseed/cutoff advancement is
+performed. Independent source review, Linux namespace/process tests, approved
+provisioning/effective units, and actual owner receipt are still required. The
+original owner-receipt acceptance criterion above is unchanged.
+
+**Dated source-review follow-up, 2026-11-05 11:54 UTC:** separate GATE accepted
+the integrated offline source WITH_RISK after two corrections. Final local
+focused selection is 213 passed/one native-Linux skip; reviewer reproduced
+the earlier 210/1 selection and all corrected regressions/probes, not the final
+213 in one run. Source review is no longer pending for this increment. Linux
+process/namespace behavior, stable-lock provisioning/effective units, sustained
+history capacity and actual owner-received alerts remain unproved. This is not
+installation, service-start or alert-send authorization.
 
 **R4 Market data and freshness (BA-04, BA-10, BA-13).** The snapshot publisher runs (without it the engine refuses all
 orders). At each decision record: the last candle's open time and whether it is complete, missing hours in the window,
@@ -155,6 +193,23 @@ manifest states the expected size for 26 weeks.
 - Replay of a one-hour recording matches 100%. A deliberately altered input is detected by its hash. Recording on and
   off give identical decisions.
 
+**2026-11-03 implementation clarification (self-checked; source review pending):** runner-v2 recording is opt-in via
+`CBP_CAPTURE_RUNNER_DECISIONS=1`; nothing here enables it in a campaign. It extends the existing capture module and
+CAS; ES-v1 APIs/files remain separate and unchanged. Logical account identity is a hash of the state-directory
+location, not independently verified exchange ownership. Per-session append-only journals retain decisions,
+skips and errors; replay distinguishes recomputed decisions from integrity-checked diagnostics. It does not replay
+risk/exchange execution, queue durability, fills or profits. The settings/code objects identify effective whitelisted
+inputs and loaded implementation; a checkout commit alone does not identify dirty source. Hashes detect changes,
+not an authorized writer or missing lines/journals without a separately retained inventory/whole-file hash anchor.
+
+The actual runner tracks **distinct candle observations (`bars_held`)**, not elapsed hours or an entry timestamp.
+The capture preserves that exact clock; it must not label the count as observed hours held. This literal hours-field
+gap remains disclosed rather than adding/changing a holding-time rule. Candle completeness is timestamp/timeframe
+inference, not provider validation; synthetic tick rows are labelled as such. Recording performs synchronous local
+storage work: fixed-input decision parity does not establish unchanged live timing or acceptable disk latency.
+The required observed-hour replay, 26-week capacity check on the intended host and commissioning remain open even
+if the synthetic clock-hour passes. Append failures are reported; no partial journal is silently repaired.
+
 **R7 Fixed-coin evaluation rules approved before the start.** Section 7, including the drawdown limit, approved by the
 owner and recorded in this file before the official start.
 
@@ -182,6 +237,13 @@ the buy decision (`strategy_runner.py` line 1614), not the fill price.
 - A synthetic price path with stop-loss, trailing stop and the sell signal true together: all three recorded, the
   stop-loss acted on. Recording on and off give the same actions.
 
+**Dated correction to the priority description above (2026-11-03):** that is the exit-stack's order, not the entire
+runner's unconditional order. The existing runner first checks enabled EMA low-volatility, chop and cross-gap
+invalidation, then the stack, then signal changes. Those invalidations are inert when their thresholds are zero;
+nonzero effective settings can give them priority. The recorder preserves this existing behavior and observes all
+competing predicates without changing which rule is chosen. The recorded price remains the runner's latest input
+close/tick, not a candle low or a proven executable fill. No current runtime configuration was inspected here.
+
 **R10 Outside monitoring and off-server backups.** Section 8, with its tests.
 
 **R12 Stuck exits retried (owner decision 3, applied to this simulation 2026-10-31).** A sell for a protective or signal
@@ -197,6 +259,15 @@ never fill twice: each send carries the pending exit's identity, and the executi
 - The same three tests for a trailing stop.
 - A position closed by another exit while a sell is pending: the pending sell is superseded; no second sell.
 - The paper runner killed after a retry fills but before it is recorded: on restart no second fill, holding correct.
+
+**Dated implementation record, 2026-11-03:** R12's durable-tagged-intent source dependency has separate GATE
+ACCEPTED_WITH_RISK (`docs/review_artifacts/paper_simulation_r12_20261103/`). New strategy paper sells carry a
+stable root/client identity; ordinary/live orders and untagged historical terminal rows are not revived. Initial
+review found four defects; corrected source passed 487 focused cases, with 183 cases/eight probes independently
+passed. Receipt recovery preserves normal journal-before-terminal ordering. Failed alert dispatch is recorded and
+rate-limited, not called delivered. Actual alert/host/commissioning tests remain unperformed. Before-operation R8
+initial-write/accounting and R4 quote-identity dependencies remain; this record does not alter frozen strategy,
+sizing, price/type or evaluation rules and does not authorize start.
 
 **R11 72-hour commissioning.** Section 9, step 2.
 

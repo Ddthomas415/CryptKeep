@@ -4,6 +4,8 @@ Last updated 2026-10-28: recorded descriptive reporting and receipt-aware input 
 
 **Correction 2026-10-30 (Claude Cowork, operator-approved; Codex to verify):** section 4 gains rows for VOLFC-1, ATTN-1 and ENTR-CB-1, and the tracker v2 row gains a dated status update. No existing text was removed or reworded.
 
+**Cross-review correction 2026-11-03 UTC (Codex):** the October 30 failure diagnosis's cash-timing totals and blocked-exit dollar effects are withdrawn pending correct opening-gap/position-quantity accounting; its 0.35%-per-side cost-survival hypothesis has a round-trip mismatch. Saved trade/net results are unchanged. Repeated chat shorthand that no historical model made money, or entire families are disproven, is not supported; positive modeled outcomes are not forward edge or live profit. See the dated addendum in `failure_diagnosis_20261030/README.md` and `claude_conversation_audit_20261102/`. All 350 captured message blocks were read by the audit team, but missing attachment/code/tool bodies prevent full original-content certification. No new experiment, verdict change or operational acceptance follows.
+
 ### Latest Model Decision And Statistical Warning
 
 Live-cap contract disposition: the separate GATE accepted the exact reviewed

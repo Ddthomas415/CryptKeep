@@ -1,0 +1,12 @@
+{
+  "acceptance_state": "ACCEPTED_WITH_RISK",
+  "scope": "Saved-result reporting only; not simulator correctness, causal proof or trading readiness.",
+  "reviewer": "01a11481-515d-7473-8ee3-7f6864c6d40b",
+  "submission_id": "01a19da2-0886-77a0-9a79-944f76e1896d",
+  "manifest_pins": 11,
+  "underlying_saved_json_sources": 7,
+  "independent_arithmetic_checks": 431,
+  "independent_unit_tests": 2,
+  "new_simulations": 0,
+  "conversation_review": "INCOMPLETE; separate objective"
+}

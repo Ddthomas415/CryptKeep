@@ -3,6 +3,20 @@
 Research item 1 in `docs/PROJECT_STATE.md`, owner-approved 2026-10-30. **Diagnostic, historical and in-sample.**
 No new strategy, no tuning, no new data, no change to any strategy, configuration or the 25-symbol universe.
 
+## Cross-review correction - 2026-11-03 UTC (Codex)
+
+Bot relation: SIGNAL_ONLY - the default-strategy diagnosis does not establish current bot performance; the cross-family rows below include STANDALONE studies. Two permitted local configuration files were inspected through a trading whitelist on November 2; active processes, environment/preset resolution and server configuration were not checked.
+
+Independent source/arithmetic review found three material errors. The original text and results below are retained as a historical record, NOT reaffirmed. The pre-correction README is preserved in `../claude_conversation_audit_20261102/failure_diagnosis_README_before_correction.md`; the original SHA256SUMS remains the seal of the earlier artifact, not this added correction.
+
+- **SHOWN: cost hypothesis 2 has a round-trip mismatch.** A roughly 0.45% before-fee trade does not survive 0.35% cost per side (about 0.70% round trip). The fee-only break-even is approximately 0.22% per side under the saved fixed-notional convention. Its before-fee price return already includes assumed slippage; an all-in budget and a fee-only budget are not interchangeable. E1 remains an unproven measurement hypothesis, not a demonstrated solution.
+- **SHOWN: the in/out-of-market return attribution is invalid at trade boundaries.** `diag_inout.py` lines 16-20 and `diag_trades.py` lines 118-122 classify a close-to-close return using holdings AFTER that bar's open. `next_open_research.py` executes before recording those holdings. Entry opening gaps are incorrectly credited to the new position; exit opening gaps are incorrectly attributed to cash. The rises-missed/falls-avoided totals and the conclusion that this attribution demonstrates informative timing are WITHDRAWN pending corrected gap/intrabar accounting. This does not alter the saved trades or their net cash results. The separate trade-price re-entry statistic is not withdrawn by this specific finding.
+- **SHOWN: the blocked-exit dollar estimates are not established.** `diag_trades.py` lines 113-114 and 145-147 multiply an exit-price ratio by $100, rather than valuing the exit-price difference at the original position quantity with consistent execution adjustments. The -$15/+$28/+$65 counterfactual dollar effects, their percentages and any causal recommendation relying on them are WITHDRAWN. The source-level SELL-filter veto is still shown; its net economic effect requires a correctly specified contrast.
+
+Additional limits: a weak correlation with the preceding 24-hour move cannot rule out all entry-timing problems; costs, fills, sizing and venue conventions vary across the family table, so the blanket "same assumptions everywhere" answer is too broad. No new market run, strategy verdict, statistical qualification or operational acceptance follows from this correction. Three synthetic counterexamples are saved with the conversation audit; they demonstrate the defects, not corrected market outcomes.
+
+What do I know that could change the owner's decision that I have not yet said?
+
 ## Corrections and disclosures (2026-10-31, Claude; self-checked, not independently verified)
 These correct or narrow this report as first written on 2026-10-30. Earlier text is kept; corrected lines are marked [C1]-[C3].
 - **[C1] Prior work not cited.** The breakout exit-filter defect was documented on 2026-09-23

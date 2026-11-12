@@ -2,21 +2,21 @@
   "artifact_type": "research_only_forward_paper_test",
   "places_orders": false,
   "rule": "BTC+ETH 28-day trend, vol-sized, weekly Sunday rebalance (majors.py primary)",
-  "generated_utc": "2026-10-26T00:48:00+00:00",
-  "last_completed_day": "2026-10-25",
+  "generated_utc": "2026-11-09T00:47:29+00:00",
+  "last_completed_day": "2026-11-08",
   "today_signal": {
     "weights_if_rebalanced_now": {},
     "cash_pct": 100,
     "inputs": {
       "BTC": {
-        "close": 80053.16,
-        "return_28d_pct": -5.22,
-        "vol_30d_annual_pct": 24.6
+        "close": 74754.08,
+        "return_28d_pct": -10.66,
+        "vol_30d_annual_pct": 35.0
       },
       "ETH": {
-        "close": 2326.75,
-        "return_28d_pct": -13.45,
-        "vol_30d_annual_pct": 32.4
+        "close": 2125.32,
+        "return_28d_pct": -16.14,
+        "vol_30d_annual_pct": 49.0
       }
     }
   },
@@ -25,14 +25,14 @@
   "paper": {
     "status": "running",
     "started_at_close_of": "2026-10-11",
-    "days": 14,
+    "days": 28,
     "equity_usd": 941.21,
     "total_pct": -5.88,
-    "last_day_pct": -0.76,
-    "last_7d_pct": -1.51,
+    "last_day_pct": 0.0,
+    "last_7d_pct": 0.0,
     "last_30d_pct": null,
     "max_drawdown_pct": 5.88,
-    "btc_hold_usd": 956.68,
+    "btc_hold_usd": 893.35,
     "holding_now": {
       "BTC": 0,
       "ETH": 0

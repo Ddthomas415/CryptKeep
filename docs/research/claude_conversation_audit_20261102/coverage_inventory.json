@@ -1,0 +1,413 @@
+{
+  "capture_sha256": "7faa46d50c46097d57766effb61fc3f94c4fc908d1b64f202b7252cfabbaa909",
+  "readable_sha256": "0dad00c8fb9e73514aa142cc82fcdb5a742220c6c34eadb04d2df3bfd6649d3d",
+  "messages": 350,
+  "missing_message_numbers": [],
+  "flagged_messages": [
+    {
+      "message": 1,
+      "flags": [
+        "132 text Message collapsed",
+        "133 button Show more"
+      ]
+    },
+    {
+      "message": 28,
+      "flags": [
+        "429 text Message collapsed",
+        "430 button Show more"
+      ]
+    },
+    {
+      "message": 42,
+      "flags": [
+        "375 text Compacted conversation",
+        "376 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 64,
+      "flags": [
+        "338 text Message collapsed",
+        "339 button Show more"
+      ]
+    },
+    {
+      "message": 69,
+      "flags": [
+        "835 container (showing 0-100 of 175 items)"
+      ]
+    },
+    {
+      "message": 78,
+      "flags": [
+        "385 text Compacted conversation",
+        "386 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 79,
+      "flags": [
+        "425 text Message collapsed",
+        "426 button Show more"
+      ]
+    },
+    {
+      "message": 84,
+      "flags": [
+        "638 button Pasted text.txt",
+        "641 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 86,
+      "flags": [
+        "418 text Message collapsed",
+        "419 button Show more"
+      ]
+    },
+    {
+      "message": 88,
+      "flags": [
+        "441 button Pasted text.txt",
+        "446 text Message collapsed",
+        "447 button Show more"
+      ]
+    },
+    {
+      "message": 89,
+      "flags": [
+        "456 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 90,
+      "flags": [
+        "390 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 118,
+      "flags": [
+        "414 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 119,
+      "flags": [
+        "326 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 123,
+      "flags": [
+        "410 text Compacted conversation",
+        "411 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 124,
+      "flags": [
+        "420 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 127,
+      "flags": [
+        "415 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 132,
+      "flags": [
+        "353 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 136,
+      "flags": [
+        "311 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 145,
+      "flags": [
+        "438 button View CryptKeep research audit, revised brief and next experiments"
+      ]
+    },
+    {
+      "message": 174,
+      "flags": [
+        "345 text Compacted conversation",
+        "346 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 205,
+      "flags": [
+        "328 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 207,
+      "flags": [
+        "465 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 209,
+      "flags": [
+        "392 text Message collapsed",
+        "393 button Show more"
+      ]
+    },
+    {
+      "message": 210,
+      "flags": [
+        "487 button View Claude cowork pop mandate 20261030",
+        "491 button Download Claude cowork pop mandate 20261030"
+      ]
+    },
+    {
+      "message": 213,
+      "flags": [
+        "286 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 214,
+      "flags": [
+        "387 button View Project state",
+        "391 button Download Project state",
+        "393 button View Agents",
+        "397 button Download Agents",
+        "399 button Download all"
+      ]
+    },
+    {
+      "message": 215,
+      "flags": [
+        "405 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 217,
+      "flags": [
+        "359 text Message collapsed",
+        "360 button Show more"
+      ]
+    },
+    {
+      "message": 218,
+      "flags": [
+        "420 button View Readme",
+        "424 button Download Readme"
+      ]
+    },
+    {
+      "message": 219,
+      "flags": [
+        "431 button Pasted text.txt",
+        "434 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 220,
+      "flags": [
+        "580 button View Readme",
+        "584 button Download Readme"
+      ]
+    },
+    {
+      "message": 221,
+      "flags": [
+        "402 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 223,
+      "flags": [
+        "466 text Message collapsed",
+        "467 button Show more"
+      ]
+    },
+    {
+      "message": 226,
+      "flags": [
+        "497 button View Readme",
+        "501 button Download Readme"
+      ]
+    },
+    {
+      "message": 227,
+      "flags": [
+        "506 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 228,
+      "flags": [
+        "555 button View Readme",
+        "559 button Download Readme"
+      ]
+    },
+    {
+      "message": 229,
+      "flags": [
+        "280 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 230,
+      "flags": [
+        "428 button View Readme",
+        "432 button Download Readme",
+        "434 button View Breakout trades",
+        "438 button Download Breakout trades",
+        "440 button Download all",
+        "441 text Compacted conversation",
+        "442 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 231,
+      "flags": [
+        "446 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 232,
+      "flags": [
+        "612 button View Readme",
+        "616 button Download Readme",
+        "618 button View Readme",
+        "622 button Download Readme",
+        "624 button Download all"
+      ]
+    },
+    {
+      "message": 233,
+      "flags": [
+        "474 button Pasted text.txt",
+        "524 text Message collapsed",
+        "525 button Show more"
+      ]
+    },
+    {
+      "message": 234,
+      "flags": [
+        "704 button View Readme",
+        "708 button Download Readme"
+      ]
+    },
+    {
+      "message": 235,
+      "flags": [
+        "633 text Message collapsed",
+        "634 button Show more"
+      ]
+    },
+    {
+      "message": 238,
+      "flags": [
+        "761 button View Claude cowork review handoff 20261031",
+        "765 button Download Claude cowork review handoff 20261031"
+      ]
+    },
+    {
+      "message": 239,
+      "flags": [
+        "265 text Message collapsed",
+        "266 button Show more"
+      ]
+    },
+    {
+      "message": 243,
+      "flags": [
+        "340 text Message collapsed",
+        "341 button Show more"
+      ]
+    },
+    {
+      "message": 251,
+      "flags": [
+        "279 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 278,
+      "flags": [
+        "359 text Compacted conversation",
+        "360 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 287,
+      "flags": [
+        "255 text Message collapsed",
+        "256 button Show more"
+      ]
+    },
+    {
+      "message": 299,
+      "flags": [
+        "424 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 301,
+      "flags": [
+        "461 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 302,
+      "flags": [
+        "519 button View Readme",
+        "523 button Download Readme"
+      ]
+    },
+    {
+      "message": 303,
+      "flags": [
+        "530 button Pasted text.txt",
+        "533 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 305,
+      "flags": [
+        "546 button Pasted text.txt"
+      ]
+    },
+    {
+      "message": 307,
+      "flags": [
+        "662 text Message collapsed",
+        "663 button Show more"
+      ]
+    },
+    {
+      "message": 308,
+      "flags": [
+        "716 button View Spec v2 changes",
+        "720 button Download Spec v2 changes"
+      ]
+    },
+    {
+      "message": 346,
+      "flags": [
+        "255 text Compacted conversation",
+        "256 text Compacted conversation"
+      ]
+    },
+    {
+      "message": 350,
+      "flags": [
+        "364 button View Cmc trending sorted 20261102",
+        "368 button Download Cmc trending sorted 20261102"
+      ]
+    }
+  ],
+  "note": "Controls/compaction are coverage flags, not proof of absent content. Raw message blocks are preserved."
+}

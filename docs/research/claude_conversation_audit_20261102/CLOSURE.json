@@ -1,0 +1,20 @@
+{
+  "recorded_utc": "2026-11-03T00:15:11.517521+00:00",
+  "active_role": "AUDITOR handoff after separate GATE",
+  "independent_diagnosis": "ACCEPTED_WITH_RISK_saved_result_reporting_only",
+  "captured_message_blocks": 350,
+  "captured_blocks_read_by_audit_team": 350,
+  "numbering_gaps": 0,
+  "pasted_attachment_controls_without_certified_full_bodies": 20,
+  "messages_with_pasted_controls": 17,
+  "original_content_certification": "INCOMPLETE",
+  "report_evidence_gate": "ACCEPTED_WITH_RISK",
+  "gate_reviewer": "01a19eb6-7bc6-7f30-9727-2e7d45bfd57c",
+  "gate_submission": "01a19ebf-f4c9-7eb0-a102-4baa1ec27057",
+  "synthetic_counterexamples_passed": 3,
+  "new_market_runs": 0,
+  "production_code_changes": 0,
+  "operational_or_trading_changes": 0,
+  "next_input": "Complete original chat and attachment export; not inferred authority from paraphrases",
+  "manifest_sha256": "1962f73ff0aeb9acbd267571a70c8874d6c30197445da5324ddd277355ab2da8"
+}

@@ -158,3 +158,26 @@ the replay's entry and exit rules against the runner, and the numbers in tables 
 - C cannot reproduce signals on forming candles or one-second synthetic bars; the intrabar path is assumed.
 - Code-default exits are used; the active config sets none, but a campaign launch could (UNVERIFIED for future runs).
 - Fixed $100 per entry, not the runner's unit quantity; risk and kill switches not modelled.
+
+**Correction (2026-11-05, Claude; bot audit BA-23, omission O-106):** this audit set out to establish what the runner
+actually trades, including entries, but it missed that the runner adds to open winning positions.
+- A buy transition while a position is open and at least 1.5% in profit adds up to 2 more full-size entries. The
+  presets' 0.5 size multiplier is unused.
+- Each add resets the entry price, trailing peak and bars held for the whole position.
+- The replays here, and `scripts/replay_runner_decisions.py`, model one entry per position, so a runner-versus-replay
+  comparison will differ whenever adds occur.
+
+Evidence: `docs/research/bot_audit_20261031/README.md`, BA-23. The text above is kept unchanged.
+
+**Independent correction to that correction (2026-11-05T18:45:50Z, Codex; O-107):**
+the claim above omitted the upstream `position_aware=True` default. The actual
+shared runner decision refuses a buy while held in that mode, before reaching
+scaling. Adds and reset-reference concerns remain conditional when that guard is
+disabled, not proven default behavior. Six synthetic shared-decision cases
+reproduce the distinction. Runtime configuration was not checked; no replay or
+simulation policy was changed. Full evidence and limits:
+`docs/research/claude_handoff_audit_20261105/README.md`.
+
+What do I know that could change the owner's decision that I have not yet said?
+The original missed branch is conditional; do not change simulation entries on
+the basis of the unconditional correction above.

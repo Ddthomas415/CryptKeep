@@ -1,5 +1,9 @@
 # The 25-symbol universe: what the history shows
 
+Bot relation: STANDALONE - historical descriptive universe analysis; runtime configuration was not checked for this wording correction.
+
+**Dated cross-review correction, 2026-11-03 (Codex):** the original wording below is retained, but two interpretations are narrowed. `u25.py` computes `beta_btc` from full-window log-return covariance/variance, separately from worst-decile-day correlations. The finding that 21 of 23 non-BTC betas exceed one does NOT establish that those coins fell further than BTC on its worst days, every down day, or a future decline. The reported worst-day correlations are a different statistic. Likewise, agreement within 0.02 in correlation with BTC over twelve months supports that limited descriptive comparison, not equivalent venue returns, liquidity, fills, costs, historical eligibility or all earlier years. The numeric saved result is unchanged; no new analysis or market run was performed. The pre-correction README is preserved and hashed in `../claude_conversation_audit_20261102/attachment_supplement_20261103/received/extra_delivered_documents/`. These scope corrections do not reduce the 25-symbol mandate or demonstrate that timing will make it profitable.
+
 Research item 1 in `docs/PROJECT_STATE.md`, owner-approved 2026-10-30. **Historical, in-sample and descriptive.**
 It changes no symbol, eligibility, configuration or `research/symbol_coverage.csv` row. Under the POP rules in
 `AGENTS.md`, nothing here is a demonstrated advantage; that needs forward data.
@@ -94,3 +98,7 @@ whether to keep it is the owner's decision.
 
 **Limits:** two windows; survivor-selected list; Binance USDT prices (checked against Coinbase for 12 months only);
 daily data; low test power over 2.6 years in W2; MATIC excluded from both windows.
+
+The original SHA256SUMS seals the historical report, not the dated wording addition; the attachment-audit supplement records the new document hash. No result JSON, strategy or coverage row changed.
+
+What do I know that could change the owner's decision that I have not yet said?

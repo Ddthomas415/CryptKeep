@@ -100,3 +100,9 @@ set to a temporary directory, so nothing touched the real state or the repositor
   signals; P-2 `test_probe_exit_limits_cp09.py` calls the real gate with side buy and sell under two limits.
   To rerun from the repository root: `CBP_STATE_DIR=$(mktemp -d) python -m pytest -p no:cacheprovider -q -s -o addopts=""
   docs/research/capital_protection_audit_20261031/probes/`.
+
+**Correction to CP-14 (2026-11-05, Claude; bot audit BA-24, omission O-105):** CP-14 says "the runner checks exposure
+limits before entries". It checks them, but the per-symbol, total and strategy exposure limits can never block. They
+read `exposure_pct` or `notional_pct` from position rows, and no code sets either field, so every exposure is 0.
+Only the limits of 5 concurrent positions and 1 open intent per symbol can block. Evidence:
+`docs/research/bot_audit_20261031/README.md`, BA-24. The original CP-14 row above is kept unchanged.

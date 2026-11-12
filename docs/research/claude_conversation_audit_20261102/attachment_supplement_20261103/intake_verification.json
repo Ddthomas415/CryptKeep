@@ -1,0 +1,50 @@
+{
+  "archive_sha256": "acd4c9c720788a1e61b1793239d7b05f25a35a45c97aeb02fb11e29c41fbc896",
+  "manifest_rows": 20,
+  "checksum_entries": 20,
+  "all_checksums_match": true,
+  "standalone_combined_matches": true,
+  "attachment_bytes": 239946,
+  "attachment_paths": {
+    "929e45a0-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/929e45a0-attachment.txt",
+    "18651ab0-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/18651ab0-attachment.txt",
+    "f5c30ba9-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/f5c30ba9-attachment.txt",
+    "616f03e4-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/616f03e4-attachment.txt",
+    "776070ef-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/776070ef-attachment.txt",
+    "4f4645f4-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/4f4645f4-attachment.txt",
+    "41108919-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/41108919-attachment.txt",
+    "5496e7d9-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/5496e7d9-attachment.txt",
+    "ea4076ed-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/ea4076ed-attachment.txt",
+    "67743270-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/67743270-attachment.txt",
+    "8935db46-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/8935db46-attachment.txt",
+    "659eb35b-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/659eb35b-attachment.txt",
+    "5588c82a-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/5588c82a-attachment.txt",
+    "3a34150e-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/3a34150e-attachment.txt",
+    "0a4d2e5e-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/0a4d2e5e-attachment.txt",
+    "29b5fd1c-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/29b5fd1c-attachment.txt",
+    "e66c80f4-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/e66c80f4-attachment.txt",
+    "4abc8c7b-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/4abc8c7b-attachment.txt",
+    "90e0c6c7-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/90e0c6c7-attachment.txt",
+    "8a196a12-attachment.txt": "docs/research/claude_conversation_audit_20261102/attachment_supplement_20261103/received/cryptkeep_research_handoff_attachments_20261103/attachments/8a196a12-attachment.txt"
+  },
+  "package_limit": "Attachments only; original-message mapping mostly not established by exporter; not a native conversation export",
+  "combined_exact_body_checks": 20,
+  "newline_only_duplicate_verified": true,
+  "extra_delivered_documents": {
+    "README_3.md": {
+      "bytes": 13805,
+      "sha256": "841cd2e44ce5a6a9778954e07dc6101494ee84141c5e4d8157a2f9de557997af"
+    },
+    "README_4.md": {
+      "bytes": 13982,
+      "sha256": "4c18e5f5785fd1a0ffdef1a4bf5047e4329db37fd72d799eb6e0eccdf0738412"
+    },
+    "spec_v2_changes.md": {
+      "bytes": 9538,
+      "sha256": "43e63e8444b61960bbd5de65e78a430750e4c528120529bfca294b5363bff6bc"
+    }
+  },
+  "universe_report_original_sha256": "7ecfca8c1a2c778359c4a6cb4c0dd0898f6f45a789d6a7e2bdd5dd1c6495cdfd",
+  "universe_report_current_sha256": "7767cd161ebc67a1fa1a71db22e98ae28d8e26f7a9452b92684874a75cd03da3",
+  "gate_nonblocking_record_gap": "Resolved by recording independently matching current README hash; no report/source change after gate"
+}

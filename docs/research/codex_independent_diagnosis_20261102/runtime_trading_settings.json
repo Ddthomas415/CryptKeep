@@ -1,0 +1,43 @@
+{
+  "captured_at": "2026-11-02T18:57:33.057084+00:00",
+  "records": [
+    {
+      "path": "config/user.yaml",
+      "exists": true,
+      "trading_settings": {
+        "preflight": {
+          "symbols": [
+            "BTC/USD"
+          ]
+        }
+      },
+      "runner_risk": {}
+    },
+    {
+      "path": ".cbp_state/runtime/config/user.yaml",
+      "exists": true,
+      "trading_settings": {
+        "strategy_runner": {
+          "venue": "coinbase",
+          "symbols": [
+            "BTC/USD",
+            "ETH/USD",
+            "SOL/USD"
+          ],
+          "min_bars": 80,
+          "signal_source": "synthetic_mid_ohlcv",
+          "loop_interval_sec": 1.0,
+          "strategy.name": "momentum"
+        },
+        "preflight": {
+          "symbols": [
+            "BTC/USDT"
+          ]
+        },
+        "risk": {}
+      },
+      "runner_risk": {}
+    }
+  ],
+  "limitations": "File settings only; process environment, preset resolution, campaign overrides and server runtime unverified. No credentials printed/copied; no configuration changes."
+}
