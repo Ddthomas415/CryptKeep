@@ -313,6 +313,16 @@ class IntentQueueSQLite:
         finally:
             con.close()
 
+    def slot_open_intents(self) -> List[Dict[str, Any]]:
+        """Account-wide, untruncated open rows; durable rejected exits separate."""
+        con = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True, timeout=5)
+        try:
+            return [{"symbol": s, "side": side, "status": status} for s, side, status in con.execute(
+                "SELECT symbol,side,status FROM trade_intents WHERE status IS NULL OR status NOT IN "
+                "('filled','rejected','cancelled','canceled','expired','superseded')")]
+        finally:
+            con.close()
+
     def has_open_strategy_intent(self, symbol: str) -> bool:
         con = _connect()
         try:

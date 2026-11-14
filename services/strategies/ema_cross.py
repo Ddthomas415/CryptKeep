@@ -57,7 +57,7 @@ def _ema_pair_from_closes(closes: list[float], *, ema_fast: int, ema_slow: int) 
     return float(ef[-2]), float(ef[-1]), float(es[-2]), float(es[-1])
 
 
-def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, **kwargs):
+def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, *, filters_apply_to_sell: bool = True, **kwargs):
     closes = [float(r[4]) for r in ohlcv]
     need = max(int(ema_fast), int(ema_slow)) + 2
     if not ohlcv or len(ohlcv) < 5:
@@ -109,6 +109,9 @@ def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, **kwargs):
     }
 
     if action == "hold":
+        return {"ok": True, "action": action, "reason": reason, "ind": ind}
+
+    if action == "sell" and filters_apply_to_sell is False:
         return {"ok": True, "action": action, "reason": reason, "ind": ind}
 
     min_volatility_pct = kwargs.get("min_volatility_pct")

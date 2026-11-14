@@ -10,7 +10,11 @@ except ModuleNotFoundError:
 
 ROOT = add_repo_root_to_syspath(Path(__file__).resolve().parent)
 import argparse
+from datetime import datetime, timezone
 import json
+import os
+import re
+import stat
 from services.markets.rules import fetch_and_cache
 from services.markets.symbols import canonicalize
 from services.markets.cache_sqlite import default_exec_db
@@ -21,17 +25,130 @@ DEFAULT = {
     "coinbase": ["BTC-USD", "ETH-USD"],
 }
 
-def main() -> int:
+
+def _existing_path(path, *, directory=False):
+    """Refuse links (including SQLite sidecars) before any cache side effect."""
+    if not path.is_absolute():
+        raise ValueError("absolute_state_path_required")
+    for part in (path, *path.parents):
+        if part.is_symlink():
+            raise ValueError("symlink_target_refused")
+    if directory:
+        if not path.is_dir():
+            raise ValueError("existing_state_directory_required")
+    elif path.exists():
+        info = path.stat()
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise ValueError("regular_single_link_file_required")
+
+
+def _paper_target(state, venue, raw_symbols):
+    if venue != "coinbase":
+        raise ValueError("explicit_coinbase_venue_required")
+    root = Path(state)
+    _existing_path(root, directory=True)
+    for directory in (root / "runtime", root / "runtime/config", root / "data"):
+        _existing_path(directory, directory=True)
+    config = root / "runtime/config/user.yaml"
+    _existing_path(config)
+    fd = os.open(config, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+    with os.fdopen(fd, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError("regular_config_required")
+        raw = stream.read(1_048_577)
+    if len(raw) > 1_048_576:
+        raise ValueError("config_too_large")
+    import yaml
+    cfg = yaml.safe_load(raw)
+    if not isinstance(cfg, dict):
+        raise ValueError("paper_config_required")
+    from services.execution.paper_weekly_slot import _paper_only
+    runner = dict(cfg.get("strategy_runner") or {})
+    paper = cfg.get("paper_trading") or {}
+    runner["_paper_entry_policy"] = {
+        **{key: paper.get(key) for key in ("enabled", "quote_currency", "require_fresh_snapshot_quotes", "use_ccxt_fallback")},
+        "live_enabled": (cfg.get("execution") or {}).get("live_enabled"),
+        "armed": (cfg.get("live_execution") or {}).get("armed"),
+    }
+    if not _paper_only(runner):
+        raise ValueError("paper_only_policy_required")
+    configured = runner.get("symbols") or [runner.get("symbol")]
+    if not isinstance(configured, list) or len(configured) != 1 or not isinstance(configured[0], str):
+        raise ValueError("single_paper_account_required")
+    configured = canonicalize(configured[0])
+    symbols = raw_symbols.split(",") if raw_symbols else []
+    if not symbols or any(not re.fullmatch(r"[A-Z0-9]{1,30}[-/]USD", s) for s in symbols):
+        raise ValueError("explicit_usd_symbols_required")
+    symbols = [canonicalize(s) for s in symbols]
+    if len(symbols) != len(set(symbols)):
+        raise ValueError("duplicate_symbol")
+    if "group_b_selection" in runner:
+        from services.market_data.group_b_selection import POLICY, UNIVERSE
+        option = runner["group_b_selection"]
+        if (not isinstance(option, dict) or option.get("policy") != POLICY
+                or type(option.get("slot")) is not int or not 1 <= option["slot"] <= 3):
+            raise ValueError("group_b_policy_required")
+        allowed = {canonicalize(s) for s in UNIVERSE}
+    else:
+        allowed = {configured}
+    if configured not in allowed or any(s not in allowed for s in symbols):
+        raise ValueError("symbol_outside_account_scope")
+    db = root / "data/execution.sqlite"
+    for file in (db, Path(str(db) + "-wal"), Path(str(db) + "-shm"), Path(str(db) + "-journal")):
+        _existing_path(file)
+    return db, symbols
+
+
+def _refresh_paper(state, venue, raw_symbols):
+    try:
+        db, symbols = _paper_target(state, venue, raw_symbols)
+    except Exception as exc:
+        reason = str(exc) if type(exc) is ValueError else type(exc).__name__
+        print(json.dumps({"ok": False, "scope": "paper_cache_provisioning", "reason": reason, "results": []}))
+        return 2
+    from services.execution.paper_cash_entry import _cached_rules, _number
+    results = []
+    for symbol in symbols:
+        try:
+            # Legacy failure-to-inactive caching is preserved, not misreported
+            # as usable metadata. No quote, balance or credential call is added.
+            fetched = fetch_and_cache(str(db), venue, symbol, paper_coinbase_precision=True)
+            rules, evidence = _cached_rules(venue, symbol.replace("-", "/"),
+                                            datetime.now(timezone.utc).isoformat(), cache_path=db)
+            if fetched != rules:
+                raise ValueError("persisted_rules_mismatch")
+            for field in ("min_qty", "min_notional", "qty_step"):
+                _number(getattr(rules, field), field, positive=field == "qty_step")
+            results.append({"symbol": symbol, "ok": True, "active": True,
+                            "native": rules.native_symbol, "updated_ts": evidence["updated_ts"],
+                            "rules_sha256": evidence["sha256"]})
+        except Exception:
+            # Error text may contain provider payloads/configuration. Print none.
+            results.append({"symbol": symbol, "ok": False, "reason": "refresh_or_usability_failed"})
+    ok = all(row["ok"] for row in results)
+    print(json.dumps({"ok": ok, "scope": "paper_cache_provisioning", "exec_db": str(db),
+                      "results": results}, indent=2, allow_nan=False))
+    return 0 if ok else 1
+
+
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--venue", default="", help="binance|gate|coinbase")
     ap.add_argument("--exchange", default="", help="alias for --venue")
     ap.add_argument("--symbols", default="", help="comma-separated canonical symbols")
     ap.add_argument("--symbol", default="", help="alias: single symbol")
-    args = ap.parse_args()
+    ap.add_argument("--paper-state-dir", help="explicit existing paper account; no ambient DB/default symbols")
+    args = ap.parse_args(argv)
 
-    exec_db = default_exec_db()
     v = (args.venue or args.exchange).lower().strip()
     raw = args.symbols.strip() or args.symbol.strip()
+    if args.paper_state_dir is not None:
+        if ((args.venue and args.exchange and args.venue != args.exchange)
+                or (args.symbols and args.symbol and args.symbols != args.symbol)):
+            print(json.dumps({"ok": False, "scope": "paper_cache_provisioning", "reason": "conflicting_aliases", "results": []}))
+            return 2
+        return _refresh_paper(args.paper_state_dir, v, raw)
+    exec_db = default_exec_db()
     symbols = [canonicalize(x) for x in raw.split(",") if x.strip()] if raw else DEFAULT.get(v, ["BTC-USD"])
 
     out=[]

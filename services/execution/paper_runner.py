@@ -239,6 +239,29 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
             rejected += 1
             continue
 
+        if str(it.get("side")).lower().strip() == "buy":
+            from services.execution.paper_weekly_slot import buy_selection_verdict
+            engine_cfg = getattr(eng, "cfg", {})
+            verdict = buy_selection_verdict(
+                meta=it.get("meta"), venue=it.get("venue"), symbol=it.get("symbol"),
+                strategy_id=it.get("strategy_id"), now=_now(),
+                guard=engine_cfg.get("group_b_guard", False),
+            )
+            if not verdict["ok"]:
+                try:
+                    receipt = eng.db.refuse_group_b_buy(client_order_id, expected_order=it, now=_now())
+                    if receipt["state"] in {"rejected", "expired"}:
+                        finish_buy(qdb, it, receipt["state"], receipt["reason"], now_ts=_now())
+                        rejected += 1
+                    else:
+                        qdb.record_paper_buy_event(intent_id, "selection_deferred", reason=verdict["reason"])
+                        recover_paper_buys(qdb, eng.db, clock=_now)
+                except Exception as exc:
+                    # An uncertain fence is not a terminal rejection, and must
+                    # not abort unrelated exits already claimed in this batch.
+                    _LOG.warning("group_b_buy_fence_unresolved error_type=%s", type(exc).__name__)
+                continue
+
         try:
             resp = eng.submit_order(
                 client_order_id=client_order_id,
@@ -276,6 +299,9 @@ def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, li
             continue
 
         if not bool(resp.get("ok")):
+            if str(it.get("side")).lower().strip() == "buy" and resp.get("unresolved") is True:
+                qdb.record_paper_buy_event(intent_id, "selection_deferred", reason=resp.get("reason"))
+                continue
             reason = str(resp.get("reason") or "paper_submit_failed")
             if str(it.get("side")).lower().strip() == "buy" and reason.startswith("paper_buy_ttl:"):
                 finish_buy(qdb, it, "expired" if reason.startswith("paper_buy_ttl:expired") else "rejected",
@@ -360,7 +386,17 @@ def run_forever() -> None:
             rec = eng.evaluate_open_orders()
             recon = reconcile_once(qdb=qdb, pdb=eng.db, jdb=jdb, max_intents=max_intents_per_loop)
             mtm_by_symbol = {}
-            for symbol in symbols:
+            valuation_symbols = symbols
+            runner_cfg = cfg.get("strategy_runner")
+            if isinstance(runner_cfg, dict) and "group_b_selection" in runner_cfg:
+                from services.execution.paper_weekly_slot import valuation_symbol
+                from storage.strategy_state_sqlite import StrategyStateSQLite
+                current = valuation_symbol(pdb=eng.db, sdb=StrategyStateSQLite())
+                valuation_symbols = [current] if current is not None else []
+                if current is None:
+                    mtm_by_symbol["group_b"] = {"ok": False, "valuation_status": "incomplete",
+                                               "equity_recorded": False, "reason": "slot_ownership_unknown"}
+            for symbol in valuation_symbols:
                 try:
                     mtm_by_symbol[symbol] = eng.mark_to_market(venue, symbol)
                 except Exception as e:

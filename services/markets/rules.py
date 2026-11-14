@@ -9,9 +9,11 @@ from services.markets.cache_sqlite import get as cache_get, upsert as cache_upse
 
 DEFAULT_TTL_S = 6 * 3600.0
 
-def fetch_and_cache(exec_db: str, venue: str, canonical_symbol: str) -> MarketRules:
+def fetch_and_cache(exec_db: str, venue: str, canonical_symbol: str, *, paper_coinbase_precision: bool = False) -> MarketRules:
     v = venue.lower().strip()
     cs = canonicalize(canonical_symbol)
+    if type(paper_coinbase_precision) is not bool or (paper_coinbase_precision and v != "coinbase"):
+        raise ValueError("paper_coinbase_precision_scope")
 
     # best-effort native symbol for error cases
     native = cs
@@ -35,7 +37,7 @@ def fetch_and_cache(exec_db: str, venue: str, canonical_symbol: str) -> MarketRu
             r = fetch_rules(cs)
         elif v in ("coinbase", "coinbase_adv"):
             from services.markets.fetch_coinbase_ccxt import fetch_rules
-            r = fetch_rules(cs)
+            r = fetch_rules(cs, strict_precision=True) if paper_coinbase_precision else fetch_rules(cs)
         else:
             r = MarketRules(v, cs, native, False, meta={"error":"UNSUPPORTED_VENUE"})
     except Exception as e:

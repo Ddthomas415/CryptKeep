@@ -1,8 +1,10 @@
 from __future__ import annotations
+import math
+from services.markets.math_utils import decimal_value
 from services.markets.models import MarketRules
 from services.markets.symbols import canonicalize, coinbase_native
 
-def fetch_rules(canonical_symbol: str) -> MarketRules:
+def fetch_rules(canonical_symbol: str, *, strict_precision: bool = True) -> MarketRules:
     cs = canonicalize(canonical_symbol)
     try:
         import ccxt  # type: ignore
@@ -16,6 +18,11 @@ def fetch_rules(canonical_symbol: str) -> MarketRules:
     m = markets.get(ccxt_symbol)
     if not m:
         return MarketRules("coinbase", cs, coinbase_native(cs), False, meta={"error":"NOT_FOUND", "ccxt_symbol": ccxt_symbol})
+
+    info = m.get("info") if isinstance(m.get("info"), dict) else {}
+    native = coinbase_native(cs)
+    if m.get("id") != native or (info.get("product_id") or info.get("id")) != native:
+        return MarketRules("coinbase", cs, native, False, meta={"error": "PRODUCT_IDENTITY_MISMATCH"})
 
     active = bool(m.get("active", True))
 
@@ -32,27 +39,33 @@ def fetch_rules(canonical_symbol: str) -> MarketRules:
     except Exception:
         pass
 
-    prec = m.get("precision") or {}
+    # The keyword remains source-compatible; False cannot restore the old bug.
+    mode, tick_mode = getattr(ex, "precisionMode", None), getattr(ccxt, "TICK_SIZE", None)
+    if (type(strict_precision) is not bool or type(mode) is not int
+            or type(tick_mode) is not int or mode != tick_mode):
+        return MarketRules("coinbase", cs, native, False, meta={"error": "UNSUPPORTED_PRECISION_MODE"})
+
+    def increment(value):
+        if isinstance(value, bool):
+            raise ValueError("invalid_increment")
+        exact = decimal_value(value, name="increment")
+        result = float(exact)
+        if not math.isfinite(result) or result <= 0 or decimal_value(str(result)) != exact:
+            raise ValueError("invalid_increment")
+        return result
+
     try:
-        amt_prec = prec.get("amount")
-        if amt_prec is not None:
-            ap = float(amt_prec)
-            if ap >= 1 and ap.is_integer():
-                qty_step = 10.0 ** (-int(ap))
-            elif 0 < ap < 1:
-                qty_step = ap
-    except Exception:
-        pass
-    try:
-        price_prec = prec.get("price")
-        if price_prec is not None:
-            pp = float(price_prec)
-            if pp >= 1 and pp.is_integer():
-                price_tick = 10.0 ** (-int(pp))
-            elif 0 < pp < 1:
-                price_tick = pp
-    except Exception:
-        pass
+        prec = m.get("precision")
+        if not isinstance(prec, dict):
+            raise ValueError("invalid_precision")
+        qty_step, price_tick = increment(prec.get("amount")), increment(prec.get("price"))
+        native_price_step = info.get("price_increment")
+        if native_price_step is None:
+            native_price_step = info.get("quote_increment")
+        if qty_step != increment(info.get("base_increment")) or price_tick != increment(native_price_step):
+            raise ValueError("increment_identity")
+    except (TypeError, ValueError, OverflowError):
+        return MarketRules("coinbase", cs, native, False, meta={"error": "INVALID_PRODUCT_INCREMENT"})
 
     info = m.get("info") if isinstance(m.get("info"), dict) else {}
     product = {key: info.get(key) for key in

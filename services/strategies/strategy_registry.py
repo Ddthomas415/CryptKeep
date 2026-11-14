@@ -100,6 +100,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None 
         return {
             **fn(
                 **({"observer": observer} if observer is not None else {}),
+                **({"filters_apply_to_sell": st["filters_apply_to_sell"]} if "filters_apply_to_sell" in st else {}),
                 ohlcv=ohlcv,
                 ema_fast=int(st.get("ema_fast", 12)),
                 ema_slow=int(st.get("ema_slow", 26)),
@@ -117,6 +118,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None 
         return {
             **fn(
                 **({"observer": observer} if observer is not None else {}),
+                **({"filters_apply_to_sell": st["filters_apply_to_sell"]} if "filters_apply_to_sell" in st else {}),
                 ohlcv=ohlcv,
                 rsi_len=int(st.get("rsi_len", 14)),
                 rsi_buy=float(st.get("rsi_buy", 30.0)),
@@ -137,6 +139,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None 
         return {
             **fn(
                 **({"observer": observer} if observer is not None else {}),
+                **({"filters_apply_to_sell": st["filters_apply_to_sell"]} if "filters_apply_to_sell" in st else {}),
                 ohlcv=ohlcv,
                 donchian_len=int(st.get("donchian_len", 20)),
                 filter_window=int(st["filter_window"]) if "filter_window" in st else None,

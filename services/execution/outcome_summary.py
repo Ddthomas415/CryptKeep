@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from pathlib import Path
 from typing import Any
 
-STORE_FILE = Path(".cbp_state/runtime/outcomes/strategy_outcomes.jsonl")
+from services.execution.outcome_logger import outcomes_file
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
@@ -21,10 +20,11 @@ def load_outcomes(
     require_selected_strategy: bool = False,
     require_regime: bool = False,
 ) -> list[dict[str, Any]]:
-    if not STORE_FILE.exists():
+    store_file = outcomes_file()
+    if not store_file.exists():
         return []
     rows: list[dict[str, Any]] = []
-    with STORE_FILE.open("r", encoding="utf-8") as f:
+    with store_file.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:

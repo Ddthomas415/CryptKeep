@@ -61,6 +61,16 @@ def test_changes_and_dynamic_quote_exclusion(monkeypatch):
     assert capture_intent_identity(**data)["execution_identity_sha256"]!=baseline
 
 
+def test_paper_cash_sizing_is_not_mislabeled_as_fixed_quantity(monkeypatch):
+    enable(monkeypatch)
+    data = inputs()
+    fixed = capture_intent_identity(**data)
+    data["cfg"]["paper_entry_sizing"] = "available_cash_v1"
+    sized = capture_intent_identity(**data)
+    assert sized["execution_identity"]["sizing"]["paper_entry_sizing"] == "available_cash_v1"
+    assert sized["execution_identity_sha256"] != fixed["execution_identity_sha256"]
+
+
 def test_missing_cohort_and_bad_cost_do_not_raise(monkeypatch):
     enable(monkeypatch)
     monkeypatch.delenv("CBP_EXECUTION_IDENTITY_COHORT_ID")

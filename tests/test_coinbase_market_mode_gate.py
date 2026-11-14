@@ -107,17 +107,13 @@ def test_alias_malformed_meta_and_unsupported_order_are_fail_closed(monkeypatch)
 
 
 def test_public_fetcher_retains_only_relevant_native_mode_fields(monkeypatch):
-    raw = product(limit_only=True); raw["unrelated"] = "not-retained"
-    fake = SimpleNamespace(coinbase=lambda options: SimpleNamespace(load_markets=lambda: {
-        "ETH/USD": {"id": "ETH-USD", "active": True, "info": raw}}))
+    raw = product(limit_only=True); raw.update(unrelated="not-retained", base_increment="1", quote_increment=".01")
+    fake = SimpleNamespace(TICK_SIZE=4, coinbase=lambda options: SimpleNamespace(precisionMode=4, load_markets=lambda: {
+        "ETH/USD": {"id": "ETH-USD", "active": True, "info": raw, "precision": {"amount": 1, "price": .01}}}))
     monkeypatch.setitem(sys.modules, "ccxt", fake)
-    source = ROOT / "services/markets/fetch_coinbase_ccxt.py"
-    node = next(n for n in ast.parse(source.read_bytes()).body if isinstance(n, ast.FunctionDef) and n.name == "fetch_rules")
-    future = ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0)
-    module = ast.Module(body=[future, node], type_ignores=[]); ast.fix_missing_locations(module)
-    ns = {"MarketRules": MarketRules, "canonicalize": lambda s: s, "coinbase_native": lambda s: s}
-    exec(compile(module, str(source), "exec"), ns)
-    r = ns["fetch_rules"]("ETH-USD")
+    from services.markets.fetch_coinbase_ccxt import fetch_rules
+    r = fetch_rules("ETH-USD")
+    assert r.active and r.qty_step == 1 and r.price_tick == .01
     assert r.meta["coinbase_product"] == product(limit_only=True)
 
 

@@ -129,6 +129,27 @@ def _command(argv, env, profile, work, deadline):
                 process.wait(timeout=1)
 
 
+def _sandbox_diagnostics(code, output, error, expected=None):
+    # Fixed indicators only: never copy a path, secret, exception or output snippet.
+    scanned = error[:4096].lower() if type(error) is bytes else b''
+    markers = (
+        ('operation_not_permitted', b'operation not permitted'),
+        ('permission_denied', b'permission denied'),
+        ('sandbox_apply', b'sandbox_apply'), ('sandbox_init', b'sandbox_init'),
+        ('syntax_error', b'syntax error'), ('parse_error', b'parse error'),
+        ('file_not_found', b'no such file or directory'), ('dyld', b'dyld'),
+    )
+    return {
+        'exit_code': code if type(code) is int and -255 <= code <= 255 else None,
+        'stdout_bytes': len(output) if type(output) is bytes else None,
+        'stderr_bytes': len(error) if type(error) is bytes else None,
+        'stdout_matches_expected': (type(output) is bytes and output == expected) if expected is not None else None,
+        'stderr_scanned_bytes': len(scanned),
+        'stderr_scan_truncated': type(error) is bytes and len(error) > 4096,
+        'stderr_markers': [name for name, fragment in markers if fragment in scanned],
+    }
+
+
 def _fixture(work, deadline):
     # Reuse the already-tested synthetic producer fixture, never operator data.
     import pytest
@@ -171,6 +192,7 @@ def _corruption_rejected(code, output, pack):
 
 def _worker(directory, receipt_sha, pins_path, pins_sha, parent, deadline):
     phase = 'verify_inputs'
+    diagnostics = None
     try:
         parent = core._private(Path(parent))
         work = parent / 'work'
@@ -194,17 +216,22 @@ def _worker(directory, receipt_sha, pins_path, pins_sha, parent, deadline):
             'LC_ALL': 'C', 'RCLONE_CONFIG': str(work / 'config/rclone.conf'), 'RESTIC_PASSWORD': secrets.token_hex(32)}
         profile = sandbox_profile(parent)
         phase = 'sandbox_positive'
-        code, out, _ = _command(['/bin/cat', work / 'inside-canary'], env, profile, work, deadline)
+        code, out, error = _command(['/bin/cat', work / 'inside-canary'], env, profile, work, deadline)
+        diagnostics = _sandbox_diagnostics(code, out, error, b'CRYPTKEEP_SYNTHETIC_CANARY\n')
         if code != 0 or out != b'CRYPTKEEP_SYNTHETIC_CANARY\n':
             raise core.BundleError('native_sandbox_unavailable')
         phase = 'sandbox_file_denial'
-        code, _, error = _command(['/bin/cat', parent / 'outside-canary'], env, profile, work, deadline)
+        diagnostics = None
+        code, out, error = _command(['/bin/cat', parent / 'outside-canary'], env, profile, work, deadline)
+        diagnostics = _sandbox_diagnostics(code, out, error)
         if code == 0 or not any(s in error for s in (b'Operation not permitted', b'Permission denied')):
             raise core.BundleError('native_sandbox_file_denial_unproved')
         phase = 'sandbox_network_denial'
+        diagnostics = None
         canary = ('import socket,sys\ntry:\n s=socket.socket();s.bind(("127.0.0.1",0))\n'
                   'except PermissionError:\n print("NETWORK_DENIED")\nelse:\n s.close();sys.exit(7)\n')
-        code, out, _ = _command(['/usr/bin/python3', '-I', '-S', '-B', '-c', canary], env, profile, work, deadline)
+        code, out, error = _command(['/usr/bin/python3', '-I', '-S', '-B', '-c', canary], env, profile, work, deadline)
+        diagnostics = _sandbox_diagnostics(code, out, error, b'NETWORK_DENIED\n')
         if code != 0 or out != b'NETWORK_DENIED\n':
             raise core.BundleError('native_sandbox_network_denial_unproved')
         phase = 'build_synthetic_fixture'
@@ -278,8 +305,25 @@ def _worker(directory, receipt_sha, pins_path, pins_sha, parent, deadline):
         return {'status': 'COMPLETE', 'local_encrypted_recovery': True, 'offsite_verified': False,
             'manifest_sha256': captured.bundle.manifest_sha256, 'replayed': replayed,
             'wrong_key_rejected': True, 'modified_ciphertext_rejected': True, 'measured_state_bytes': size}
-    except Exception:
-        return {'status': 'INCOMPLETE', 'phase': phase, 'offsite_verified': False}
+    except Exception as exc:
+        result = {'status': 'INCOMPLETE', 'phase': phase, 'offsite_verified': False}
+        if phase in ('sandbox_positive', 'sandbox_file_denial', 'sandbox_network_denial'):
+            reason = 'unclassified_sandbox_failure'
+            known = ('native_sandbox_unavailable', 'native_sandbox_file_denial_unproved',
+                     'native_sandbox_network_denial_unproved', 'native_stage_deadline',
+                     'native_diagnostic_size_limit', 'native_test_state_limit', 'unsafe_native_test_state')
+            if (isinstance(exc, core.BundleError) and len(exc.args) == 1
+                    and type(exc.args[0]) is str and exc.args[0] in known):
+                reason = exc.args[0]
+            elif isinstance(exc, OSError):
+                reason = 'os_error'
+            error_number = exc.errno if isinstance(exc, OSError) else None
+            result['diagnostics'] = {
+                'reason': reason,
+                'errno': error_number if type(error_number) is int and 0 < error_number < 4096 else None,
+                'command': diagnostics,
+            }
+        return result
 
 
 def main(argv=None, *, executor=None):
@@ -296,6 +340,8 @@ def main(argv=None, *, executor=None):
     attempt_deadline = time.monotonic() + 300
     parent = None
     try:
+        # Anchor to invocation cwd; the worker still rejects symlinks/noncanonical paths.
+        pins_path = args.pins if args.pins.is_absolute() else Path.cwd() / args.pins
         # Image verification is the worker's first phase, inside its deadline.
         parent = Path(tempfile.mkdtemp(prefix='cryptkeep-backup-native-', dir='/private/tmp'))
         parent.chmod(0o700)
@@ -303,7 +349,7 @@ def main(argv=None, *, executor=None):
         if remaining < 0.5:
             raise core.BundleError('native_attempt_budget_exhausted_before_worker')
         result = (executor or OwnedProcessExecutor()).call(_worker,
-            (str(args.tools), args.receipt_sha256, str(args.pins), args.pins_sha256, str(parent), attempt_deadline - 30), remaining)
+            (str(args.tools), args.receipt_sha256, str(pins_path), args.pins_sha256, str(parent), attempt_deadline - 30), remaining)
         print(json.dumps({**result, 'owned_directory': str(parent)}, sort_keys=True))
         return 0 if result.get('status') == 'COMPLETE' else 1
     except (Exception, KeyboardInterrupt):

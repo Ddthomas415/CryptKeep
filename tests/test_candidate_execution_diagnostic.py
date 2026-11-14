@@ -1,0 +1,490 @@
+"""Synthetic bytes and injected transport only; no public requests or processes."""
+from copy import deepcopy
+from datetime import datetime, timezone
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import socket
+import ssl
+import subprocess
+import urllib.error
+
+import pytest
+
+from scripts.research import capture_candidate_execution_diagnostic as cap
+
+
+@pytest.fixture(autouse=True)
+def offline(monkeypatch):
+    def refuse(*args, **kwargs):
+        pytest.fail("synthetic diagnostic attempted external work")
+    for name in ("socket", "create_connection", "getaddrinfo"):
+        monkeypatch.setattr(socket, name, refuse)
+    monkeypatch.setattr(subprocess, "Popen", refuse)
+
+
+class Clock:
+    def __init__(self):
+        self.now, self.sleeps = 0.0, []
+
+    def time(self):
+        return 1_700_000_000 + self.now
+
+    def monotonic(self):
+        return self.now
+
+    def sleep(self, seconds):
+        assert seconds == 2
+        self.sleeps.append(seconds)
+        self.now += seconds
+
+
+def product(name):
+    return {"id": name, "base_currency": name[:-4], "quote_currency": "USD", "status": "online",
+            "base_increment": "0.00000001", "quote_increment": "0.01", "min_market_funds": "1",
+            **dict.fromkeys(cap.FLAGS, False)}
+
+
+def book(mid=100):
+    return {"bids": [[str(mid - .05), "10", 99]], "asks": [[str(mid + .05), "10", 77]],
+            "auction_mode": False, "sequence": 12, "time": "2023-11-14T22:13:20Z"}
+
+
+class Get:
+    def __init__(self, clock, failure=None):
+        self.clock, self.calls, self.failure = clock, [], failure
+
+    def __call__(self, url, timeout, limit, sink):
+        assert url in cap.URLS and timeout == 5 and limit <= cap.PER_BODY
+        self.calls.append(url)
+        self.clock.now += .01
+        if self.failure and len(self.calls) == 3:
+            sink.write(b'{"partial":')
+            if self.failure == "http":
+                return 429, {"date": "synthetic", "authorization": "NEVER_SAVED"}, None
+            raise TimeoutError("DO_NOT_PRINT_PRIVATE_MESSAGE")
+        name = url.split("/products/")[1].split("/")[0]
+        if "/book?" in url:
+            value = book(100 if name == "BTC-USD" else 200)
+        elif "/trades?" in url:
+            when = datetime.fromtimestamp(self.clock.time() - 1, timezone.utc).isoformat()
+            value = [{"trade_id": 1, "price": "100", "size": ".1", "time": when, "side": "buy"},
+                     {"trade_id": 2, "price": "101", "size": ".2", "time": when, "side": "sell"}]
+        else:
+            value = product(name)
+        sink.write(json.dumps(value).encode())
+        return 200, {"date": "synthetic", "cb-after": "123", "authorization": "NEVER_SAVED"}, None
+
+
+def capture(tmp_path, failure=None):
+    clock = Clock()
+    get = Get(clock, failure)
+    output = tmp_path / "new-attempt"
+    return cap.capture(output, get=get, clock=clock), output, get, clock
+
+
+def test_cli_without_capture_is_offline_and_does_not_create_output(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(cap, "public_getter", lambda: pytest.fail("transport initialization"))
+    output = tmp_path / "absent"
+    assert cap.main(["--output", str(output)]) == 0 and not output.exists()
+    assert json.loads(capsys.readouterr().out)["status"] == "OFFLINE"
+    with pytest.raises(SystemExit):
+        cap.main(["--capture"])
+
+
+def test_exclusive_folder_refuses_before_transport(tmp_path):
+    with pytest.raises(FileExistsError):
+        cap.capture(tmp_path, get=lambda *a: pytest.fail("request"))
+
+
+def test_complete_capture_has_ten_fixed_gets_hashes_and_separate_evidence(tmp_path):
+    result, output, get, clock = capture(tmp_path)
+    assert result["status"] == "COMPLETE" and result["get_count"] == len(get.calls) == 10
+    assert clock.sleeps == [2, 2, 2, 2]
+    assert result["orders_submitted"] is False and result["e1_qualified"] is False
+    assert result["actual_account_fills"] == result["trade_page_coverage"] == "UNVERIFIED"
+    total = 0
+    for index, record in enumerate(result["requests"], 1):
+        raw = (output / record["raw_file"]).read_bytes()
+        assert len(raw) == record["bytes"] < cap.PER_BODY
+        assert hashlib.sha256(raw).hexdigest() == record["sha256"]
+        assert json.loads((output / f"{index:02d}_receipt.json").read_text()) == record
+        assert record["duration_seconds"] == pytest.approx(.01)
+        assert set(record["headers"]) == {"date", "cb-after"}
+        total += len(raw)
+    assert total == result["stored_payload_bytes"]
+    for observed in result["products"].values():
+        assert observed["trade_page_coverage"] == "UNVERIFIED"
+        assert observed["trade_side_semantics"].endswith("not aggressor side")
+        assert {r["maker_side"] for r in observed["selected_reported_trades"]} == {"buy", "sell"}
+        assert "not probabilities" in observed["assumptions"][0]
+        for side in ("buy", "sell"):
+            models = observed["hypothetical_models"][side]
+            assert models["qty_base"] == pytest.approx(500 / observed["books"][0]["mid"])
+            assert models["arrival_taker"] == models["no_maker_fill_final_taker"]
+            assert models["optimistic_full_maker"]["fee_usd"] > 0
+    assert "NEVER_SAVED" not in (output / "report.json").read_text()
+
+
+def test_buy_sell_cost_sign_and_full_fallback_fee_accounting(tmp_path):
+    assert cap.cost(510, 5, 100, "buy", .005)["price_cost_usd"] == 10
+    assert cap.cost(510, 5, 100, "sell", .005)["price_cost_usd"] == -10
+    result, _, _, _ = capture(tmp_path)
+    for side, gross in (("buy", 500.25), ("sell", 499.75)):
+        models = result["products"]["BTC-USD"]["hypothetical_models"][side]
+        assert models["arrival_taker"]["gross_notional_usd"] == pytest.approx(gross)
+        fallback = models["no_maker_fill_final_taker"]
+        assert fallback["fee_usd"] == pytest.approx(gross * .005)
+        assert fallback["cost_bps"] == pytest.approx(fallback["total_cost_usd"] / 500 * 10000)
+        assert "assumed_half_maker_final_residual" not in models
+    with pytest.raises(cap.Invalid, match="depth"):
+        cap.walk([(100, 1)], 2)
+
+
+def test_book_sorts_prices_without_multiplying_aggregated_size_by_count():
+    value = book()
+    value["bids"].insert(0, ["99.94", "1", 1000])
+    normal = cap.book(value)
+    assert normal["bids"] == [(99.95, 10), (99.94, 1)]
+    assert normal["visible_usd_within_10bps_of_mid"]["bids"] == pytest.approx(1099.44)
+    assert normal["half_spread_fraction"] == pytest.approx(.0005)
+    assert normal["source_time"] == value["time"] and normal["sequence"] == 12
+    del value["auction_mode"]
+    assert cap.book(value)["auction_mode"] is None  # Metadata still gates shadow eligibility.
+
+
+@pytest.mark.parametrize("fault", ["empty", "crossed", "duplicate", "nonfinite", "auction"])
+def test_bad_books_are_not_normalized_into_fills(fault):
+    value = book()
+    if fault == "empty":
+        value["asks"] = []
+    elif fault == "crossed":
+        value["bids"][0][0] = "101"
+    elif fault == "duplicate":
+        value["bids"] *= 2
+    elif fault == "nonfinite":
+        value["asks"][0][1] = "NaN"
+    else:
+        value["auction_mode"] = True
+    with pytest.raises(cap.Invalid):
+        cap.book(value)
+    for invalid in (True, "Infinity", "-1", "0"):
+        with pytest.raises(cap.Invalid):
+            cap.positive(invalid)
+
+
+@pytest.mark.parametrize("fault", ["identity", "missing_mode", "disabled"])
+def test_metadata_identity_unknown_modes_and_ineligibility(fault):
+    value = product("BTC-USD")
+    if fault == "identity":
+        value["id"] = "ETH-USD"
+        with pytest.raises(cap.Invalid, match="identity"):
+            cap.metadata(value, "BTC-USD")
+    elif fault == "missing_mode":
+        del value["post_only"]
+        assert cap.metadata(value, "BTC-USD")["eligibility"] is None
+    else:
+        value["trading_disabled"] = True
+        assert cap.metadata(value, "BTC-USD")["eligibility"] is False
+    value = product("BTC-USD")
+    del value["status"]
+    assert cap.metadata(value, "BTC-USD")["status"] == "UNKNOWN"
+    assert cap.metadata(value, "BTC-USD")["eligibility"] is None
+    value = product("BTC-USD")
+    del value["trading_disabled"]
+    result = cap.metadata(value, "BTC-USD")
+    assert result["flags"]["trading_disabled"] is None and result["eligibility"] is None
+
+
+@pytest.mark.parametrize("failure", ["http", "exception"])
+def test_partial_failure_preserves_raw_receipt_and_stops_without_retry(tmp_path, failure):
+    result, output, get, _ = capture(tmp_path, failure)
+    assert result["status"] == "INCOMPLETE" and len(get.calls) == 3
+    assert (output / "03_raw.bin").read_bytes() == b'{"partial":'
+    assert (output / "03_intent.json").exists() and (output / "03_receipt.json").exists()
+    assert result["requests"][-1]["http_status"] == (429 if failure == "http" else None)
+    assert all("PRIVATE_MESSAGE" not in p.read_text() for p in output.glob("*.json"))
+
+
+def test_body_cap_is_exclusive_and_partial_bytes_are_preserved(tmp_path):
+    def huge(url, timeout, limit, sink):
+        sink.write(b"x" * (limit + 1))
+    result = cap.capture(tmp_path / "bounded", get=huge, clock=Clock())
+    assert result["status"] == "INCOMPLETE" and result["get_count"] == 1
+    assert result["stored_payload_bytes"] == cap.PER_BODY
+    assert result["requests"][0]["body_at_cap_or_truncated"] is True
+
+
+def test_total_and_get_budgets_stop_before_extra_request(tmp_path, monkeypatch):
+    monkeypatch.setattr(cap, "MAX_GETS", 2)
+    result, _, get, _ = capture(tmp_path)
+    assert result["status"] == "INCOMPLETE" and len(get.calls) == 2
+    monkeypatch.setattr(cap, "MAX_GETS", 10)
+    monkeypatch.setattr(cap, "TOTAL_BODY", 20)
+    clock = Clock()
+    result = cap.capture(tmp_path / "total-cap", get=Get(clock), clock=clock)
+    assert result["get_count"] == 1 and result["stored_payload_bytes"] == 20
+
+
+@pytest.mark.parametrize("fault", ["empty", "duplicate", "outside_window"])
+def test_missing_or_incomplete_trade_evidence_never_implies_interval_coverage(fault):
+    b = cap.book(book())
+    prints = [{"trade_id": 1, "price": "100", "size": "1", "side": "buy",
+               "time": "2023-11-14T22:13:21Z"}]
+    if fault == "empty":
+        prints = []
+    elif fault == "duplicate":
+        prints *= 2
+    else:
+        prints[0]["time"] = "2020-01-01T00:00:00Z"
+    with pytest.raises(cap.Invalid):
+        cap.analyse(cap.metadata(product("BTC-USD"), "BTC-USD"), [b, b, b], prints,
+                    (1_700_000_000, 1_700_000_004))
+
+
+def test_only_exact_fixed_public_urls_can_reach_opener(monkeypatch):
+    class Opener:
+        def open(self, *args, **kwargs):
+            pytest.fail("unsafe request reached opener")
+    monkeypatch.setattr(cap.urllib.request, "build_opener", lambda *a: Opener())
+    get = cap.public_getter()
+    for url in (cap.BASE + "/accounts", "http://api.exchange.coinbase.com/products/BTC-USD",
+                cap.BASE + "/products/SOL-USD", cap.BASE + "/products/BTC-USD/trades?limit=100&after=1",
+                "https://user:pass@api.exchange.coinbase.com/products/BTC-USD",
+                cap.BASE + "/products/BTC-USD#fragment"):
+        with pytest.raises(cap.Invalid, match="unsafe"):
+            get(url, 5, 100, None)
+    with pytest.raises(cap.Invalid):
+        get(next(iter(cap.URLS)), 6, 100, None)
+
+
+def test_https_transport_no_auth_proxy_redirect_retry_and_bounded_body(monkeypatch):
+    calls, handlers = [], []
+    class Opener:
+        def open(self, request, timeout):
+            calls.append((request, timeout))
+            raise urllib.error.HTTPError(request.full_url, 302, "redirect", {"Date": "test"}, io.BytesIO(b"redirect"))
+    def build(*supplied):
+        handlers.extend(supplied)
+        return Opener()
+    monkeypatch.setattr(cap.urllib.request, "build_opener", build)
+    get = cap.public_getter()
+    stream = io.BytesIO()
+    status, _, failure = get(cap.BASE + "/products/BTC-USD", 5, 100, cap.Body(stream, 100))
+    assert status == 302 and stream.getvalue() == b"redirect" and failure is None
+    assert len(calls) == 1 and calls[0][1] == 5
+    request = calls[0][0]
+    assert request.get_method() == "GET"
+    assert request.get_header("Authorization") is request.get_header("Cookie") is None
+    assert next(h for h in handlers if isinstance(h, cap.urllib.request.ProxyHandler)).proxies == {}
+    assert next(h for h in handlers if isinstance(h, cap.NoRedirect)).redirect_request(None) is None
+    context = next(h for h in handlers if isinstance(h, cap.urllib.request.HTTPSHandler))._context
+    assert context.verify_mode == ssl.CERT_REQUIRED and context.check_hostname and context.keylog_filename is None
+
+
+def test_crossing_t0_limit_is_not_a_hypothetical_maker_fill():
+    initial, later = cap.book(book()), cap.book(book(110))
+    prints = [{"trade_id": 1, "price": "110", "size": "1", "side": "sell", "time": "2023-11-14T22:13:21Z"}]
+    result = cap.analyse(cap.metadata(product("BTC-USD"), "BTC-USD"), [initial, later, later],
+                         prints, (1_700_000_000, 1_700_000_004))
+    sell = result["hypothetical_models"]["sell"]
+    assert sell["maker_eligibility"] == "HYPOTHETICAL_POST_ONLY_REJECTION"
+    assert sell["optimistic_full_maker"] is None
+    assert sell["no_maker_fill_final_taker"]["gross_notional_usd"] > 500
+
+
+def test_clock_rollback_is_preserved_as_incomplete_receipt(tmp_path):
+    clock = Clock()
+    class Rollback(Get):
+        def __call__(self, *args):
+            result = super().__call__(*args)
+            self.clock.now -= 1
+            return result
+    result = cap.capture(tmp_path / "clock", get=Rollback(clock), clock=clock)
+    assert result["status"] == "INCOMPLETE" and result["get_count"] == 1
+    assert result["requests"][0]["failure"] == "invalid_local_clock"
+
+
+def test_absent_optional_disabled_flag_is_unknown_not_permission():
+    value = product("BTC-USD")
+    del value["trading_disabled"]
+    assert cap.metadata(value, "BTC-USD")["eligibility"] is None
+
+
+@pytest.mark.parametrize("minimum,expected", [("1", 4.8), ("1000", None)])
+def test_shadow_quantity_respects_known_product_rules(minimum, expected):
+    value = product("BTC-USD")
+    value.update(base_increment="0.3", min_market_funds=minimum)
+    b = cap.book(book())
+    prints = [{"trade_id": 1, "price": "100", "size": "1", "side": "buy",
+               "time": "2023-11-14T22:13:21Z"}]
+    if expected is None:
+        with pytest.raises(cap.Invalid, match="minimum"):
+            cap.analyse(cap.metadata(value, "BTC-USD"), [b, b, b], prints,
+                        (1_700_000_000, 1_700_000_004))
+    else:
+        result = cap.analyse(cap.metadata(value, "BTC-USD"), [b, b, b], prints,
+                             (1_700_000_000, 1_700_000_004))
+        assert result["hypothetical_models"]["buy"]["qty_base"] == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("gross,fee", [(-1, .005), (500, -.005)])
+def test_invalid_model_values_do_not_generate_negative_fees(gross, fee):
+    with pytest.raises(cap.Invalid):
+        cap.cost(gross, 5, 100, "buy", fee)
+
+
+def test_partial_failure_keeps_already_observed_normalized_book(tmp_path):
+    result, _, _, _ = capture(tmp_path, "http")
+    assert len(result["products"]["BTC-USD"]["observed_books"]) == 1
+
+
+@pytest.mark.parametrize("minimum,final_mid", [("500", 100), ("400", 80)])
+def test_execution_notionals_below_minimum_do_not_qualify(minimum, final_mid):
+    value = product("BTC-USD")
+    value["min_market_funds"] = minimum
+    initial, final = cap.book(book()), cap.book(book(final_mid))
+    prints = [{"trade_id": 1, "price": "100", "size": "1", "side": "buy",
+               "time": "2023-11-14T22:13:21Z"}]
+    with pytest.raises(cap.Invalid, match="minimum"):
+        cap.analyse(cap.metadata(value, "BTC-USD"), [initial, initial, final], prints,
+                    (1_700_000_000, 1_700_000_004))
+
+
+def timing_record(headers=None):
+    return {"request_utc": "2023-11-14T22:13:20Z", "receipt_utc": "2023-11-14T22:13:21Z",
+            "duration_seconds": 1, "headers": headers or {}}
+
+
+def test_public_freshness_headers_are_allowlisted_case_insensitive_and_bounded(tmp_path):
+    clock = Clock()
+    inner = Get(clock)
+    def supplied(*args):
+        status, _, failure = inner(*args)
+        return status, {"Age": "2", "Cache-Control": "public, max-age=1",
+                        "Via": "x" * 1000, "CF-Cache-Status": "HIT", "X-Cache": "MISS",
+                        "Authorization": "NEVER_SAVED", "Set-Cookie": "NEVER_SAVED",
+                        "unapproved": "NEVER_SAVED"}, failure
+    result = cap.capture(tmp_path / "headers", get=supplied, clock=clock)
+    headers = result["requests"][0]["headers"]
+    assert headers["age"] == "2" and headers["cache-control"] == "public, max-age=1"
+    assert headers["cf-cache-status"] == "HIT" and len(headers["via"]) == 256
+    assert "NEVER_SAVED" not in json.dumps(result)
+    assert result["get_count"] == 10 and result["status"] == "COMPLETE"
+    assert result["requests"][0]["freshness_diagnostics"]["reported_age_seconds"] == 2
+
+
+@pytest.mark.parametrize("headers", [{}, {"date": "bad", "age": "-1"},
+                                      {"date": "bad", "age": "NaN"}])
+def test_absent_or_malformed_freshness_never_becomes_clock_qualification(headers):
+    result = cap.response_freshness(timing_record(headers))
+    assert result["clock_alignment"] == result["freshness_qualification"] == "UNVERIFIED"
+    assert result["reported_age_seconds"] is None
+    assert result["http_date_minus_receipt_seconds"] is None
+    json.dumps(result, allow_nan=False)
+
+
+@pytest.mark.parametrize("source,expected,issue", [
+    ("2023-11-14T22:13:19Z", -2, None),
+    ("2023-11-14T22:13:22Z", 1, "source_time_after_receipt"),
+    ("2023-11-14T22:13:19", None, "source_time_missing_or_invalid"),
+    ("bad", None, "source_time_missing_or_invalid"),
+])
+def test_source_timestamp_offsets_are_signed_diagnostics_not_latency(source, expected, issue):
+    result = cap.response_freshness(timing_record({"date": "Tue, 14 Nov 2023 22:13:20 GMT"}), source)
+    assert result["source_time_minus_receipt_seconds"] == expected
+    assert result["http_date_minus_receipt_seconds"] == -1
+    assert result["clock_alignment"] == "UNVERIFIED"
+    if issue:
+        assert issue in result["issues"]
+
+
+def trade_at(second, identity=1):
+    return {"trade_id": identity, "price": "100", "size": "1", "side": "buy",
+            "time": datetime.fromtimestamp(1_700_000_000 + second, timezone.utc).isoformat()}
+
+
+@pytest.mark.parametrize("seconds,count,reaches_start,reaches_end", [
+    ([-2, -1], 0, True, False), ([1, 2], 2, False, False),
+    ([-1, 5], 0, True, True), ([0, 4], 2, True, True),
+])
+def test_returned_range_is_not_complete_trade_tape(seconds, count, reaches_start, reaches_end):
+    result = cap.trade_window_diagnostics([trade_at(t, i) for i, t in enumerate(seconds)],
+                                        (1_700_000_000, 1_700_000_004))
+    assert result["in_window_prints"] == count
+    assert result["returned_range_reaches_start"] is reaches_start
+    assert result["returned_range_reaches_end"] is reaches_end
+    assert result["interval_coverage"] == result["source_clock_alignment"] == "UNVERIFIED"
+
+
+def test_trade_diagnostics_keep_bad_timestamps_and_duplicate_conflicts_explicit():
+    bad = trade_at(1, 3)
+    bad["time"] = "invalid"
+    original = trade_at(1)
+    conflicting = {**original, "price": "101"}
+    result = cap.trade_window_diagnostics([original, original.copy(), conflicting, bad],
+                                        (1_700_000_000, 1_700_000_004))
+    assert result["invalid_timestamp_rows"] == 1
+    assert result["duplicate_id_rows"] == 2 and result["conflicting_id_rows"] == 1
+    assert result["interval_coverage"] == "UNVERIFIED"
+
+
+def test_excluded_trade_page_keeps_timing_and_range_evidence(tmp_path):
+    clock = Clock()
+    inner = Get(clock)
+    def old_trades(url, timeout, limit, sink):
+        if "/trades?" not in url:
+            return inner(url, timeout, limit, sink)
+        inner.calls.append(url)
+        clock.now += .01
+        sink.write(json.dumps([trade_at(-100)]).encode())
+        return 200, {"Age": "3"}, None
+    result = cap.capture(tmp_path / "old-trades", get=old_trades, clock=clock)
+    assert result["status"] == "INCOMPLETE"
+    assert result["reason"] == "no_reported_trades_in_local_window"
+    assert result["get_count"] == 5
+    observed = result["products"]["BTC-USD"]
+    assert observed["trade_window_diagnostics"]["in_window_prints"] == 0
+    assert len(observed["observed_books"]) == 3
+    assert observed["observed_books"][0]["timing_diagnostics"]["clock_alignment"] == "UNVERIFIED"
+    assert result["requests"][-1]["freshness_diagnostics"]["reported_age_seconds"] == 3
+
+
+def test_complete_capture_keeps_new_diagnostics_without_upgrading_qualification(tmp_path):
+    result, _, _, _ = capture(tmp_path)
+    for observed in result["products"].values():
+        diagnostics = observed["trade_window_diagnostics"]
+        assert diagnostics["in_window_prints"] == 2
+        assert diagnostics["interval_coverage"] == "UNVERIFIED"
+        assert all(b["timing_diagnostics"]["clock_alignment"] == "UNVERIFIED" for b in observed["books"])
+    assert result["e1_qualified"] is False and result["trade_page_coverage"] == "UNVERIFIED"
+
+
+@pytest.mark.parametrize("failure", [None, "http", "exception"])
+def test_instrumentation_preserves_prechange_models_statuses_and_request_budgets(tmp_path, failure):
+    original = Path(__file__).resolve().parents[1] / (
+        "docs/research/btc_eth_forward_experiment_20261112/diagnostic_proof_20261113/"
+        "before_freshness_instrumentation.py")
+    legacy = runpy.run_path(str(original), run_name="legacy_diagnostic_control")
+    old_clock, new_clock = Clock(), Clock()
+    old_get, new_get = Get(old_clock, failure), Get(new_clock, failure)
+    old = legacy["capture"](tmp_path / "before", get=old_get, clock=old_clock)
+    new = cap.capture(tmp_path / "after", get=new_get, clock=new_clock)
+    def without_diagnostics(value):
+        if isinstance(value, dict):
+            return {k: without_diagnostics(v) for k, v in value.items() if k not in
+                    ("timing_diagnostics", "freshness_diagnostics", "trade_window_diagnostics")}
+        if isinstance(value, list):
+            return [without_diagnostics(v) for v in value]
+        return value
+    assert without_diagnostics(new) == old
+    assert new_get.calls == old_get.calls and new_clock.sleeps == old_clock.sleeps
+
+
+@pytest.mark.parametrize("interval", [(2, 1), (float("nan"), 1), (1,)])
+def test_invalid_local_window_diagnostic_does_not_invent_a_range(interval):
+    result = cap.trade_window_diagnostics([trade_at(1)], interval)
+    assert result["in_window_prints"] is None
+    assert result["issues"] == ["invalid_local_window"]

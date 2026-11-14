@@ -89,7 +89,17 @@ def test_sandbox_failure_stops_before_crypto_commands_or_fixture(staged, tmp_pat
     monkeypatch.setattr(probe, '_fixture', forbidden)
     output = probe._worker(result['directory'], result['receipt_sha256'], str(inputs['path']), digest,
                            str(parent), time.monotonic() + 10)
-    assert output == {'status': 'INCOMPLETE', 'phase': 'sandbox_positive', 'offsite_verified': False}
+    assert output == {
+        'status': 'INCOMPLETE', 'phase': 'sandbox_positive', 'offsite_verified': False,
+        'diagnostics': {
+            'reason': 'native_sandbox_unavailable', 'errno': None,
+            'command': {
+                'exit_code': 1, 'stdout_bytes': 0, 'stderr_bytes': len(b'SYNTHETIC-private'),
+                'stdout_matches_expected': False, 'stderr_scanned_bytes': len(b'SYNTHETIC-private'),
+                'stderr_scan_truncated': False, 'stderr_markers': [],
+            },
+        },
+    }
     assert len(calls) == 1 and calls[0][0] == '/bin/cat'
     assert 'SYNTHETIC-private' not in json.dumps(output)
     assert all((core.Path(result['directory']) / 'bin' / name).stat().st_mode & 0o777 == 0o600
@@ -157,3 +167,75 @@ def test_parent_preparation_consumes_the_same_attempt_budget(staged, tmp_path, m
     else:
         assert len(calls) == 1 and calls[0][1] <= 300 - elapsed
         assert calls[0][0][-1] <= 270
+
+
+def _offline_cli(staged, tmp_path, monkeypatch, pins_argument, pins_sha=None):
+    inputs, result, digest = staged
+    attempt = tmp_path / 'path-contract-attempt'
+    worker_cwd = tmp_path / 'different-worker-cwd'
+    worker_cwd.mkdir()
+    verified = []
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('path regression must not start processes or native commands')
+
+    def owned_parent(**kwargs):
+        attempt.mkdir(mode=0o700)
+        return str(attempt)
+
+    monkeypatch.setattr(probe.tempfile, 'mkdtemp', owned_parent)
+    monkeypatch.setattr(probe.subprocess, 'Popen', forbidden)
+    monkeypatch.setattr(probe, '_command', forbidden)
+    monkeypatch.setattr(probe, 'OwnedProcessExecutor', forbidden)
+    monkeypatch.chdir(inputs['path'].parent)
+
+    class Executor:
+        def call(self, fn, values, timeout):
+            assert fn is probe._worker and 0 < timeout <= 300
+            directory, receipt_sha, pins, expected_sha, parent, deadline = values
+            assert parent == str(attempt)
+            # Exercise the real CLI-to-verifier contract, independent of worker cwd.
+            monkeypatch.chdir(worker_cwd)
+            paths, receipt = probe.verify_tools(core.Path(directory), receipt_sha,
+                                               core.Path(pins), expected_sha, deadline)
+            verified.append((core.Path(pins), set(paths), receipt['clients_executed']))
+            return {'status': 'INCOMPLETE', 'phase': 'synthetic_identity_verified',
+                    'offsite_verified': False}
+
+    code = probe.main(['--tools', result['directory'], '--receipt-sha256', result['receipt_sha256'],
+                       '--pins', str(pins_argument), '--pins-sha256', pins_sha or digest,
+                       '--execute'], executor=Executor())
+    return code, verified, result
+
+
+@pytest.mark.parametrize('relative', [True, False])
+def test_pins_cli_handoff_is_independent_of_worker_cwd(staged, tmp_path, monkeypatch, capsys, relative):
+    inputs, _, _ = staged
+    pins = inputs['path'].name if relative else inputs['path']
+    code, verified, result = _offline_cli(staged, tmp_path, monkeypatch, pins)
+    assert code == 1  # Identity-only synthetic test never reports a completed backup.
+    assert verified == [(inputs['path'], {'restic', 'rclone'}, False)]
+    assert json.loads(capsys.readouterr().out)['phase'] == 'synthetic_identity_verified'
+    assert all((core.Path(result['directory']) / 'bin' / name).stat().st_mode & 0o777 == 0o600
+               for name in ('restic', 'rclone'))
+
+
+@pytest.mark.parametrize('invalid', ['relative_symlink', 'parent_traversal', 'missing', 'wrong_digest'])
+def test_pins_cli_does_not_relax_worker_path_or_hash_checks(staged, tmp_path, monkeypatch, capsys, invalid):
+    inputs, _, digest = staged
+    pins = inputs['path'].name
+    if invalid == 'relative_symlink':
+        (inputs['path'].parent / 'linked-pins.json').symlink_to(inputs['path'])
+        pins = 'linked-pins.json'
+    elif invalid == 'parent_traversal':
+        (inputs['path'].parent / 'child').mkdir()
+        pins = 'child/../' + inputs['path'].name
+    elif invalid == 'missing':
+        pins = 'missing-pins.json'
+    else:
+        digest = '0' * 64
+    code, verified, _ = _offline_cli(staged, tmp_path, monkeypatch, pins, digest)
+    assert code == 1 and verified == []
+    output = json.loads(capsys.readouterr().out)
+    assert output['phase'] == 'controller_or_cleanup'
+    assert output['offsite_verified'] is False

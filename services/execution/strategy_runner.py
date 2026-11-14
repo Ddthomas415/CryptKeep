@@ -397,6 +397,15 @@ def _cfg() -> dict:
         **_resolved_exit_controls(s, strategy_block, strategy_preset),
         "strategy_id": str(strategy_block["name"]),
         "strategy": strategy_block,
+        **({"paper_entry_sizing": s["paper_entry_sizing"]} if "paper_entry_sizing" in s else {}),
+        **({"group_b_selection": s["group_b_selection"]} if "group_b_selection" in s else {}),
+        **({"_paper_entry_policy": {
+                "live_enabled": (cfg.get("execution") if isinstance(cfg.get("execution"), dict) else {}).get("live_enabled"),
+                "armed": (cfg.get("live_execution") if isinstance(cfg.get("live_execution"), dict) else {}).get("armed"),
+                **{key: (cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}).get(key) for key in (
+                    "enabled", "quote_currency", "fee_bps", "slippage_bps",
+                    "require_fresh_snapshot_quotes", "use_ccxt_fallback")},
+            }} if "paper_entry_sizing" in s or "group_b_selection" in s else {}),
         "strategy_preset": str(strategy_preset),
         "venue": venue,
         "symbol": symbol,
@@ -1068,6 +1077,16 @@ def _execution_identity_meta(*, cfg, strategy, venue, symbol, provenance):
         paper = raw.get("paper_trading") or {}
         if not isinstance(paper, dict) or not isinstance(strategy, dict):
             raise ValueError("identity_unresolved_config")
+        sizing_functions = {}
+        if "paper_entry_sizing" in cfg:
+            from services.execution import paper_cash_entry
+            sizing_functions = {
+                "paper_cash_quantity": paper_cash_entry.cash_quantity,
+                "paper_cash_inputs": paper_cash_entry.size_paper_entry,
+                "paper_cash_number": paper_cash_entry._number,
+                "paper_cash_rules": paper_cash_entry._cached_rules,
+                "paper_cash_snapshot": PaperTradingSQLite.entry_cash_snapshot,
+            }
         implementation = {
             "signal": loaded_functions_digest({
                 **{name: fn for name, fn in vars(es_daily_trend).items()
@@ -1077,6 +1096,7 @@ def _execution_identity_meta(*, cfg, strategy, venue, symbol, provenance):
             "resolver": loaded_functions_digest({
                 "cfg": _cfg, "strategy_block": _strategy_block_from_runner_cfg,
                 "exit_controls": _resolved_exit_controls, "strategy_builder": build_strategy_block,
+                **sizing_functions,
             }),
             "exits": loaded_functions_digest({
                 name: fn for name, fn in vars(exit_controls).items()
@@ -1209,6 +1229,18 @@ def run_forever() -> None:
                 time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
                 continue
 
+            slot_decision = None
+            if "group_b_selection" in cfg:
+                from services.execution.paper_weekly_slot import resolve_slot
+                slot_decision = resolve_slot(cfg=cfg, sdb=sdb, qdb=qdb, pdb=pdb,
+                                            accounting=exit_accounting, limits=performance_limits, now=_now())
+                symbols = slot_decision["symbols"]
+                if not symbols:
+                    write_run_status({"ok": False, "status": "running", "ts": _now(),
+                                      "note": "group_b_ownership_unknown", "group_b": slot_decision})
+                    time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                    continue
+
             if len(symbols) > 1 and not startup_precheck_complete:
                 # Preserve patch 0004's all-symbol startup check and round-robin
                 # service; no symbol trades before these checks have passed.
@@ -1291,6 +1323,9 @@ def run_forever() -> None:
 
                     sym_cfg = dict(cfg)
                     sym_cfg["symbol"] = symbol
+                    if slot_decision is not None:
+                        # Cash sizing remains a single-coin account contract.
+                        sym_cfg["symbols"] = [symbol]
                     sym_cfg["venue"] = selected_venue
                     evidence_extra: dict[str, object] = {}
 
@@ -1321,7 +1356,26 @@ def run_forever() -> None:
                         sym_cfg.get("name"), sym_cfg.get("signal_source"),
                         f"public_ohlcv:{timeframe}" if timeframe else "tick_based",
                     )
-                    if timeframe:
+                    rotation_requested = slot_decision is not None and symbol in slot_decision["rotation_symbols"]
+                    if rotation_requested:
+                        # Rotation is a portfolio instruction, not a strategy
+                        # signal; don't wait for candle warm-up or a new cross.
+                        from services.market_data.paper_snapshot_quote import read_paper_quote
+                        quote, reason = read_paper_quote(selected_venue, symbol, clock=_now)
+                        if quote is not None and normalize_symbol(quote["symbol_mapped"]) != normalize_symbol(symbol):
+                            quote, reason = None, "wrong_mapped_market"
+                        if quote is None:
+                            write_run_status({"ok": False, "status": "running", "ts": _now(),
+                                              "note": "rotation_quote_unavailable", "symbol": symbol,
+                                              "quote_reason": reason})
+                            time.sleep(max(0.2, float(cfg["loop_interval_sec"])))
+                            continue
+                        m = quote["bid"] + (quote["ask"] - quote["bid"]) / 2
+                        ts_ms, bars = quote["ts_ms"], 0
+                        fresh_market = (m, ts_ms, bars)
+                        evidence_extra = {"market_data_source": "public_ticker", "rotation_quote": quote}
+                        signal = {"ok": True, "action": "hold", "reason": "rotation"}
+                    elif timeframe:
                         if fetch_health is not None and selected_venue == "coinbase" and timeframe == "1h":
                             before_attempt = fetch_health.attempt_seq
                             ohlcv, ohlcv_source = _fetch_public_ohlcv(sym_cfg, clients=public_clients, health=fetch_health)
@@ -1614,6 +1668,9 @@ def run_forever() -> None:
                 action, changed = exit_selection["action"], exit_selection["changed"]
                 exit_action, exit_reason = exit_selection["exit_action"], exit_selection["exit_reason"]
                 exit_out = exit_selection["exit_out"]
+                if rotation_requested and pos_qty > 0:
+                    action, changed, exit_action, exit_reason = "sell", True, True, "rotation"
+                    exit_out = {"stack_rule": "group_b_rotation"}
                 if exit_action:
                     note = exit_reason
                 if record is not None:
@@ -1644,7 +1701,7 @@ def run_forever() -> None:
                     protective_exit = (
                         action == "sell" and pos_qty > 0.0
                         and cooldown_exit_qty is not None
-                        and action != last_emitted_action
+                        and (rotation_requested or action != last_emitted_action)
                         and _open_strategy_intent_state(qdb, symbol) == "none"
                     )
                     if record is not None:
@@ -1669,7 +1726,7 @@ def run_forever() -> None:
                         )
                         continue
 
-                if action and action == last_emitted_action:
+                if action and action == last_emitted_action and not rotation_requested:
                     if record is not None:
                         record["actual"]["outcome"] = "emission_latch"
                     action = None
@@ -1680,9 +1737,22 @@ def run_forever() -> None:
                                    "symbol": symbol, "venue": selected_venue,
                                    "note": "exit_accounting_unsettled", "loops": loops})
                     continue
+                if action and slot_decision is not None:
+                    # Recheck ownership/current week after market/signal work;
+                    # snapshots from the start of a turn are not reservations.
+                    check = resolve_slot(cfg=cfg, sdb=sdb, qdb=qdb, pdb=pdb,
+                                         accounting=exit_accounting, limits=performance_limits, now=_now())
+                    if ((action == "buy" and (not check["allow_buy"] or check["symbols"] != [symbol]))
+                            or (rotation_requested and symbol not in check["rotation_symbols"])):
+                        write_run_status({"ok": False, "status": "running", "ts": _now(),
+                                          "symbol": symbol, "note": "group_b_entry_or_rotation_wait",
+                                          "group_b": check})
+                        continue
+                    slot_decision = check
                 if action:
                     intent_id = str(uuid.uuid4())
                     exit_event = None
+                    entry_sizing = None
                     intent_created_ts = _now()
                     qty = cooldown_exit_qty if cooldown_exit_qty is not None else float(cfg["qty"])
                     if action == "sell" and bool(cfg["sell_full_position"]) and pos_qty > 0.0:
@@ -1788,6 +1858,19 @@ def run_forever() -> None:
                                 )
                             continue
 
+                        if "paper_entry_sizing" in cfg:
+                            from services.execution.paper_cash_entry import size_paper_entry
+                            sized = size_paper_entry(cfg=sym_cfg, qdb=qdb, pdb=pdb,
+                                                     venue=selected_venue, symbol=symbol, now=intent_created_ts)
+                            if not sized["ok"]:
+                                if record is not None:
+                                    record["actual"].update(outcome="paper_entry_sizing_refused", sizing=sized)
+                                write_run_status({"ok": True, "status": "running", "ts": _now(),
+                                                  "venue": selected_venue, "symbol": symbol,
+                                                  "note": "paper_entry_sizing_refused", "sizing_reason": sized["reason"]})
+                                continue
+                            qty, entry_sizing = sized["qty"], sized["evidence"]
+
                         sdb.set(k_risk_block_count, "0")
                         sdb.set(k_kill_until, "0")
                         sdb.set(k_kill_remaining, "0")
@@ -1813,6 +1896,9 @@ def run_forever() -> None:
 
                     open_strategy_intent_exists = False
                     try:
+                        if slot_decision is not None:
+                            # No capped/fail-open duplicate fence for slot rotation.
+                            open_strategy_intent_exists = bool(qdb.slot_open_intents() or qdb.list_paper_exits())
                         for row in qdb.list_intents(limit=200):
                             if (
                                 row.get("source") == "strategy"
@@ -1824,7 +1910,7 @@ def run_forever() -> None:
                     except Exception:
                         if record is not None:
                             record["actual"]["gates"]["open_intent_lookup"] = "unknown_existing_fail_open"
-                        open_strategy_intent_exists = False
+                        open_strategy_intent_exists = slot_decision is not None
 
                     if record is not None and "open_intent_lookup" not in record["actual"]["gates"]:
                         record["actual"]["gates"]["open_intent_lookup"] = "open" if open_strategy_intent_exists else "none"
@@ -1874,6 +1960,8 @@ def run_forever() -> None:
                             "client_order_id": None,
                             "linked_order_id": None,
                             "meta": {
+                                **({"group_b_selection": slot_decision} if slot_decision is not None else {}),
+                                **({"paper_entry_sizing": entry_sizing} if entry_sizing is not None else {}),
                                 **({"exit_event": exit_event} if exit_event is not None else {}),
                                 **({"paper_exit_policy": PAPER_EXIT_POLICY,
                                     "paper_exit_id": intent_id} if action == "sell" else {}),

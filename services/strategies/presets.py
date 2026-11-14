@@ -362,6 +362,17 @@ PRESETS: Dict[str, Dict[str, Any]] = {
 }
 
 
+# Opt-in research variants; preserve every existing preset and its risk policy.
+for _base, _variant in (
+    ("breakout_default", "breakout_exit_unblocked"),
+    ("ema_cross_default", "ema_cross_exit_unblocked"),
+    ("mean_reversion_default", "mean_reversion_exit_unblocked"),
+):
+    PRESETS[_variant] = deepcopy(PRESETS[_base])
+    PRESETS[_variant]["strategy"]["filters_apply_to_sell"] = False
+del _base, _variant
+
+
 def _deep_merge(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
     out = deepcopy(dict(base or {}))
     for k, v in (overlay or {}).items():

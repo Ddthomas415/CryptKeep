@@ -222,8 +222,10 @@ class FrozenSignalBridge:
         return target
 
 
-def simulate_bridge(frames, bridge, *, state=None, target_contract_id, **profile):
+def simulate_bridge(frames, bridge, *, state=None, target_contract_id, decision_trade_context=False, **profile):
     """Run the existing ledger; incomplete first-decision evidence has no state."""
+    if type(decision_trade_context) is not bool:
+        raise ValueError("invalid_decision_trade_context")
     if profile.get("interval_ms") != HOUR or tuple(sorted(profile["symbols"])) != bridge.symbols:
         raise ValueError("bridge_profile_mismatch")
     if profile["venue"] != bridge.venue or profile["quote"] != bridge.quote or profile["rules"] != bridge.rules:
@@ -239,7 +241,8 @@ def simulate_bridge(frames, bridge, *, state=None, target_contract_id, **profile
         old_trace = deepcopy(old["decisions"])
     bridge.trace = []
     try:
-        result = ledger.simulate_shared_next_open(frames, bridge, state=state,
+        simulate = ledger.simulate_shared_with_trade_context if decision_trade_context else ledger.simulate_shared_next_open
+        result = simulate(frames, bridge, state=state,
             target_contract_id=target_contract_id + ":" + digest(bridge.identity), **profile)
     except ledger.Incomplete as error:
         if state is not None:

@@ -16,6 +16,7 @@ def signal_from_ohlcv(
     max_trend_efficiency: float | None = None,
     max_sma_distance_pct: float | None = None,
     require_reversal_confirmation: bool = False,
+    filters_apply_to_sell: bool = True,
     observer=None,
 ) -> dict:
     if not ohlcv or len(ohlcv) < 5:
@@ -58,6 +59,9 @@ def signal_from_ohlcv(
     }
 
     if action == "hold":
+        return {"ok": True, "action": action, "reason": reason, "ind": ind}
+
+    if action == "sell" and filters_apply_to_sell is False:
         return {"ok": True, "action": action, "reason": reason, "ind": ind}
 
     if max_volatility_pct is not None and ctx["avg_range_pct"] > float(max_volatility_pct):

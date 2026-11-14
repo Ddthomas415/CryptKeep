@@ -14,6 +14,7 @@ def signal_from_ohlcv(
     min_channel_width_pct: float | None = None,
     breakout_buffer_pct: float | None = None,
     require_directional_confirmation: bool = False,
+    filters_apply_to_sell: bool = True,
     observer=None,
 ) -> dict:
     if not ohlcv or len(ohlcv) < 5:
@@ -60,6 +61,9 @@ def signal_from_ohlcv(
     }
 
     if action == "hold":
+        return {"ok": True, "action": action, "reason": reason, "ind": ind}
+
+    if action == "sell" and filters_apply_to_sell is False:
         return {"ok": True, "action": action, "reason": reason, "ind": ind}
 
     if min_volatility_pct is not None and ctx["avg_range_pct"] < float(min_volatility_pct):

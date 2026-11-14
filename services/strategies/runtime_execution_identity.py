@@ -69,7 +69,8 @@ def capture_intent_identity(*, cfg, strategy, market, paper_config, implementati
             "entry_policy": {"rule": "runner_signal_change", "allow_first_signal_trade": cfg["allow_first_signal_trade"]},
             "exit_policy": {"signal_rule": "runner_opposing_signal", **exits},
             "sizing": {"qty": cfg["qty"], "order_type": cfg["order_type"],
-                       "position_aware": cfg["position_aware"], "sell_full_position": cfg["sell_full_position"]},
+                       "position_aware": cfg["position_aware"], "sell_full_position": cfg["sell_full_position"],
+                       **({"paper_entry_sizing": cfg["paper_entry_sizing"]} if "paper_entry_sizing" in cfg else {})},
             "costs": costs, "market": dict(market), "implementation": dict(implementation),
         }
         return {"execution_identity_capture_status": "captured", **identity_evidence(payload)}

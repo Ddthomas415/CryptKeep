@@ -37,14 +37,14 @@ _FLOAT_FIELDS = {
 }
 
 _BOOL_FIELDS = {
-    "ema_cross": (),
+    "ema_cross": ("filters_apply_to_sell",),
     "momentum": (),
     "pullback_recovery": ("stop_below_trend_sma",),
     "volatility_reversal": ("require_volume_spike",),
     "gap_fill": (),
     "breakout_volume": ("require_close_above",),
-    "mean_reversion_rsi": ("require_reversal_confirmation",),
-    "breakout_donchian": ("require_directional_confirmation",),
+    "mean_reversion_rsi": ("require_reversal_confirmation", "filters_apply_to_sell"),
+    "breakout_donchian": ("require_directional_confirmation", "filters_apply_to_sell"),
     "sma_200_trend": (),
 }
 
@@ -86,6 +86,8 @@ def build_strategy_block(
         if k in p and p.get(k) is not None:
             out[k] = float(p[k])
     for k in _BOOL_FIELDS.get(n, ()):
+        if k == "filters_apply_to_sell" and k in p and type(p[k]) is not bool:
+            raise ValueError("invalid_filters_apply_to_sell")
         if k in p and p.get(k) is not None:
             out[k] = bool(p[k])
     return out
