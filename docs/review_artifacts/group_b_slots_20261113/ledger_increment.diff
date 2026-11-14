@@ -1,0 +1,172 @@
+--- docs/review_artifacts/group_b_slots_20261113/paper_trading_sqlite.py.before	2026-11-13 23:04:17
++++ storage/paper_trading_sqlite.py	2026-11-13 23:40:04
+@@ -169,6 +169,22 @@
+                 "('filled','rejected','cancelled','canceled','expired')").fetchone()[0]
+             return {"cash_quote": state["cash_quote"], "quote_currency": state["quote_currency"],
+                     "nonflat_positions": positions, "open_orders": orders}
++        finally:
++            con.close()
++
++    def slot_snapshot(self) -> dict:
++        """Complete read-only ownership evidence for a single Group B account."""
++        con = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True, timeout=5)
++        try:
++            con.execute("BEGIN")
++            positions = con.execute(
++                "SELECT symbol,qty FROM paper_positions WHERE qty IS NULL "
++                "OR typeof(qty) NOT IN ('real','integer') OR qty != 0").fetchall()
++            orders = con.execute(
++                "SELECT symbol FROM paper_orders WHERE status IS NULL OR status NOT IN "
++                "('filled','rejected','cancelled','canceled','expired')").fetchall()
++            return {"positions": [{"symbol": s, "qty": q} for s, q in positions],
++                    "open_order_symbols": [s for (s,) in orders]}
+         finally:
+             con.close()
+ 
+@@ -569,6 +585,48 @@
+             return False
+         linked = expected.get("linked_order_id")
+         return left == right and (linked is None or linked == existing["order_id"])
++
++    def refuse_group_b_buy(self, client_order_id: str, *, expected_order: dict, now: Any) -> dict:
++        """Fence selection refusal before queue disposal; never replace filled truth."""
++        from services.execution.paper_weekly_slot import buy_selection_verdict
++        con = _connect()
++        try:
++            con.execute("BEGIN IMMEDIATE")
++            existing = self._exit_order_conn(con, client_order_id=str(client_order_id))
++            if existing is not None:
++                if (not self._paper_buy_order_matches(existing, expected_order)
++                        or existing.get("strategy_id") != expected_order.get("strategy_id")
++                        or (existing.get("meta") or {}).get("group_b_selection") != (expected_order.get("meta") or {}).get("group_b_selection")):
++                    con.rollback()
++                    return {"state": "blocked", "reason": "group_b:order_identity"}
++                if existing["status"] == "filled":
++                    receipt = self._committed_fill_receipt_conn(con, existing["order_id"], existing["qty"])
++                    con.execute("COMMIT")
++                    return {"state": "filled" if receipt["ok"] else "blocked", "order": existing}
++            terminal = self._paper_buy_terminal_conn(con, str(client_order_id))
++            if terminal is not None:
++                con.execute("COMMIT")
++                return {**terminal, "order": existing}
++            verdict = buy_selection_verdict(meta=expected_order.get("meta"), venue=expected_order.get("venue"),
++                                            symbol=expected_order.get("symbol"), strategy_id=expected_order.get("strategy_id"),
++                                            now=now, guard=True)
++            if verdict["ok"]:
++                con.execute("COMMIT")
++                return {"state": "authorized", "order": existing}
++            if existing is not None and existing["status"] not in {"new", "open"}:
++                con.rollback()
++                return {"state": "blocked", "reason": "group_b:order_state", "order": existing}
++            self._write_paper_buy_terminal_conn(con, str(client_order_id), "rejected", verdict["reason"], expected_order.get("created_ts"))
++            if existing is not None:
++                self._update_order_status_conn(con, existing["order_id"], "rejected", verdict["reason"])
++                existing.update(status="rejected", reject_reason=verdict["reason"])
++            con.execute("COMMIT")
++            return {"state": "rejected", "reason": verdict["reason"], "order": existing}
++        except Exception:
++            con.rollback()
++            raise
++        finally:
++            con.close()
+ 
+     def expire_buy_order(
+         self, client_order_id: str, *, created_ts: Any = None,
+@@ -792,13 +850,14 @@
+         snapshot_quote_guard: Any = False,
+         snapshot_quote: Optional[Dict[str, Any]] = None,
+         snapshot_slippage_bps: Any = None,
++        group_b_guard: Any = False,
+     ) -> Dict[str, Any]:
+         con = _connect()
+         try:
+             con.execute("BEGIN IMMEDIATE")
+             order_row = con.execute(
+                 "SELECT order_id, symbol, side, status, reject_reason, client_order_id, meta_json, created_ts, venue, "
+-                "order_type, limit_price, qty "
++                "order_type, limit_price, qty, strategy_id "
+                 "FROM paper_orders WHERE order_id=?",
+                 (str(order["order_id"]),),
+             ).fetchone()
+@@ -963,6 +1022,10 @@
+                 return {"ok": False, "reason": status}
+ 
+             quote_evidence = None
++            group_b_marked = isinstance(stored_meta, dict) and "group_b_selection" in stored_meta
++            if group_b_marked and snapshot_quote_guard is not True:
++                con.rollback()
++                return {"ok": False, "reason": "group_b:strict_quote_required", "unresolved": True}
+             if snapshot_quote_guard is not False:
+                 from services.market_data.paper_snapshot_quote import assess_paper_quote, paper_quote_fill_price
+ 
+@@ -976,6 +1039,11 @@
+                 if quote_evidence is None:
+                     con.rollback()
+                     return {"ok": False, "reason": "quote_data:" + reason, "unresolved": True}
++                if group_b_marked:
++                    from services.market_data.symbol_router import normalize_symbol
++                    if normalize_symbol(quote_evidence["symbol_mapped"]) != normalize_symbol(symbol):
++                        con.rollback()
++                        return {"ok": False, "reason": "group_b:wrong_mapped_market", "unresolved": True}
+                 if (not self._exit_number(price) or not self._exit_number(qty)
+                         or not self._exit_number(fee, positive=False)):
+                     con.rollback()
+@@ -988,6 +1056,20 @@
+                     con.rollback()
+                     return {"ok": False, "reason": "quote_data:price_model_mismatch", "unresolved": True}
+                 ts = datetime.fromtimestamp(_parse_created_epoch(quote_now), timezone.utc).isoformat()
++
++            group_b_active = side == "buy" and (group_b_guard is not False or
++                               (isinstance(stored_meta, dict) and "group_b_selection" in stored_meta))
++            if group_b_active:
++                from services.execution.paper_weekly_slot import buy_selection_verdict
++                verdict = buy_selection_verdict(meta=stored_meta, venue=order_row[8], symbol=symbol,
++                                                strategy_id=order_row[12],
++                                                now=_paper_buy_now(clock), guard=group_b_guard)
++                if not verdict["ok"]:
++                    self._write_paper_buy_terminal_conn(con, client_id, "rejected", verdict["reason"], order_row[7])
++                    self._update_order_status_conn(con, order_id, "rejected", verdict["reason"])
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": verdict["reason"]}
++                con.execute("SAVEPOINT group_b_financial_writes")
+ 
+             fill_id = _paper_fill_id(order_id, price, qty)
+             pos = self._get_position_conn(con, symbol) or {
+@@ -1098,7 +1180,37 @@
+                     quote_evidence, venue=order_row[8], symbol=symbol, now=final_now,
+                 )
+                 if final_quote is None:
++                    con.rollback()
++                    return {"ok": False, "reason": "quote_data:" + reason, "unresolved": True}
++            if group_b_active:
++                final_selection = buy_selection_verdict(meta=stored_meta, venue=order_row[8], symbol=symbol,
++                                                       strategy_id=order_row[12], now=_paper_buy_now(clock),
++                                                       guard=group_b_guard)
++                # Authorization performed I/O. Sample time AFTER it and check
++                # cached bounds only: no further authorization I/O before commit.
++                commit_now = _paper_buy_now(clock)
++                if final_selection["ok"]:
++                    epoch = _parse_created_epoch(commit_now)
++                    if epoch is None:
++                        con.rollback()
++                        return {"ok": False, "reason": "group_b:invalid_commit_clock", "unresolved": True}
++                    if not (_parse_created_epoch(final_selection["rank_at"]) <= epoch
++                            < _parse_created_epoch(final_selection["valid_until"])):
++                        final_selection = {"ok": False, "reason": "group_b:selection_time_bound"}
++                if not final_selection["ok"]:
++                    con.execute("ROLLBACK TO group_b_financial_writes")
++                    con.execute("RELEASE group_b_financial_writes")
++                    self._write_paper_buy_terminal_conn(con, client_id, "rejected", final_selection["reason"], order_row[7])
++                    self._update_order_status_conn(con, order_id, "rejected", final_selection["reason"])
++                    con.execute("COMMIT")
++                    return {"ok": False, "reason": final_selection["reason"]}
++                final_age = _paper_buy_age_verdict(order_row[7], order_row[6], commit_now, queue_origins=queue_origins)
++                if not final_age["ok"]:
+                     con.rollback()
++                    return {"ok": False, "reason": final_age["reason"], "unresolved": True}
++                _, reason = assess_paper_quote(quote_evidence, venue=order_row[8], symbol=symbol, now=commit_now)
++                if reason is not None:
++                    con.rollback()
+                     return {"ok": False, "reason": "quote_data:" + reason, "unresolved": True}
+             con.execute("COMMIT")
+             return {

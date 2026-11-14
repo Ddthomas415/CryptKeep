@@ -68,3 +68,91 @@ local synthetic native test is the next evidence, not automatic cloud setup.
 What do I know that could change the owner's decision that I have not yet said?
 Even a successful local encrypted restore will not prove unattended MEGA login,
 remote durability, key recovery, retention or complete operating backup coverage.
+
+## Separate invocation-path correction GATE,2026-11-12T17:15:37Z
+
+Bot relation:STANDALONE; runtime trading configuration not checked.
+
+Reviewer:Darwin,01a1d038-a33c-7da1-926e-c4fe2e2c3e1e,separate from author.
+Disposition:ACCEPTED_WITH_RISK for offline invocation-path source repair only,
+no blocking findings. This is a normalized receipt of the returned separate
+review,not a new native run or a replacement for earlier review history.
+
+SHOWN relativepins anchored lexically to invocationcwd,absolute inputs unchanged;
+no symlink/'..' resolution before existing strict validation. Sharedload_pins,
+toolverification and executor source unchanged. Worker/shareddeadline/noexecute
+earlyreturn unchanged; existing tests retained verbatim. Existing concurrent
+same-UID path-mutation assumptions remain outside this narrow correction.
+
+Independent command:
+
+```sh
+env CBP_STATE_DIR="/private/tmp/cryptkeep-r10-gate-synthetic-state-$$" \
+  PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+  ./.venv/bin/python -B -m pytest -q -p no:cacheprovider \
+  tests/test_group_a_backup_native_policy.py \
+  -k 'pins_cli or no_execute_flag or parent_preparation'
+```
+
+VERIFIED_ENV:9passed,18deselected1.69s; six newpathcases,noexecutecontrol,
+twodeadlinecases. Read-only baseline comparison and scopedgitdiffcheck passed.
+Author's before1failed/5passed and final55passed are CLAIMED to reviewer by
+work-log/test-output records, not independently rerun. Prior242notrefreshed.
+
+Reviewed hashes:
+- scripts/research/probe_group_a_backup_native.py:52f54b469b48151c41b4470f663d15c3d45738041552623f902486f9aa1624ce.
+- tests/test_group_a_backup_native_policy.py:f8de09d743186528c85245b610d28f6ab98f181c7c01683379821631098eae98.
+
+No reviewer edits, actual staged-tool reads, native/controller execution,
+network/account/server/service operations, installation, commit or push.
+Native isolation/interoperability/encryption/recovery/cloud durability remain
+UNVERIFIED; operational R10 held. Current17:16:11UTC authorreadback matched
+bothreviewhashes; source frozen after review.
+
+What do I know that could change the owner's decision that I have not yet said?
+The repair makes a relativepins invocation consistent with the existing strict
+verifier, not a working encrypted backup. Only separately authorized native
+execution can establish the next evidence; this review grants none.
+
+## Separate bounded-diagnostics GATE,2026-11-12T17:36:56Z
+
+Bot relation:STANDALONE; runtime trading configuration not checked.
+
+ReviewerDarwin01a1d038-a33c-7da1-926e-c4fe2e2c3e1e,not author,returned
+ACCEPTED_WITH_RISK for O135offline diagnostic-source repair only,no blockers.
+This is a normalized receipt of the returned review,not new runtime evidence.
+
+SHOWN fields limitedtotypecheckedstatus/errno,bytecounts,booleans,fixedlabels;
+no rawoutput/exceptionmessage/environment/key/path copied. Marker scanfirst
+4096stderrbytes only,notcausality. Per-canaryresets avoidstalereceipts and fields
+attach onlyto3sandboxfailurephases. Reviewercomparisonagainstexactaccepted
+52f54b46...source confirms_command/profile/executor/timing/CLIpathrepair/
+nativegates unchanged; failures stillstop. No weaker isolation/native preflight.
+
+Independent command:
+
+```sh
+env CBP_STATE_DIR="/private/tmp/cryptkeep-o135-gate-synthetic-state-$$" \
+  PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+  ./.venv/bin/python -B -m pytest -q -p no:cacheprovider \
+  tests/test_group_a_backup_native_diagnostics.py \
+  tests/test_group_a_backup_native_policy.py
+```
+
+VERIFIED_ENV:41passed0.46s. Scoped diffcheckpassed. Author14beforefailures/
+final69passconsolidatedresult are CLAIMED to reviewer,not independentlyrerun.
+
+Exactreviewhashes:
+- scripts/research/probe_group_a_backup_native.py:51161a9d3899fa9d4247cc31a32c31f8e26db9a9b8ef3da0b4af67b524960745.
+- tests/test_group_a_backup_native_policy.py:965a3e71b3bb7199d3a5161bfb6e4ded372de0c6be03ff1ed41189a77001c1ac.
+- tests/test_group_a_backup_native_diagnostics.py:25aa744faf33c5870c9e99718eff0d0ad74851ffda3fda9de555fda8bdb1967a.
+
+No revieweredit/stagedclientread/nativeprobe/sandbox/network/operationalaction,
+install/commit/push. Earliercause UNVERIFIED,discardeddetailsirrecoverable;
+realdiagnosticusefulness/sandbox/encryption/recovery stillunproved. Acceptance
+doesnotauthorizearetry. Authorpost-review17:37:46UTChashesmatch; sourcefrozen.
+
+What do I know that could change the owner's decision that I have not yet said?
+Better diagnostic reporting is not a sandbox fix, and synthetic rejection
+tests do not establish why the previous actual command failed. A new real
+observation would require separate approval and could still be inconclusive.

@@ -1,0 +1,44 @@
+{
+  "schema": "ed002-dual-exit-design-bindings-v1",
+  "scope": "offline_proposal_only_not_adopted_or_implemented",
+  "proposal": {
+    "path": "docs/research/ed002_dual_exit_protocol_proposal_20261114.md",
+    "sha256": "4a6666c014ff380eae799797b04155bfc6277a065f5896e690c94738693718d5"
+  },
+  "inputs": {
+    "services/backtest/shared_cash_research.py": "3625c91f7d9af17daa685f6c118d175387d5d132dc6209aafb2d50c5271333cc",
+    "services/backtest/frozen_signal_bridge.py": "7ca917d6edda68fe02c3ab439ab56cf182106831444a71fdd78ee26b5212639a",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/delayed_research_comparison.py": "749ba4ad7e755be44a5c3359894aff66a58e356610dbabefb1c293ac56cc8ca7",
+    "services/backtest/descriptive_report.py": "f600940d9db7b5bdafe278253d00de86017fdf8c40d379f8fd3e4e26db279130",
+    "services/backtest/descriptive_metadata.py": "9c98bba24ed52bcb99e73ecc8bcd0bfa51ccd5e60447aa5f2017ef8cbb1e4099",
+    "services/backtest/descriptive_readiness.py": "6ae9c8139b068e5a543be859822648eb0d3ed930901b00a8428710c5688fdfa1",
+    "services/risk/exit_controls.py": "a6d007500682421449cc65223bbc73689a0184e6daea379f5eb9a96b9dc3f6e0",
+    "config/candidate_universe.yaml": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "services/strategies/breakout_donchian.py": "23cd6012265a54924a75fde568e9758c6777b070080ae927bcc155950caa24c7",
+    "services/strategies/ema_cross.py": "45fecf18f12ee15d3f6d4a4463da9aa27dbb192657db4c07fc27325c4d00cbab",
+    "services/strategies/mean_reversion_rsi.py": "c4a895a866905910d87e5a5f2e28ef51b671d7641ddc93d46c2b27639ea77f18",
+    "services/strategies/presets.py": "dcdce7ff5f4be43ddd420ff89ebfffe0941fc568811d4f966dc29dca0290e510",
+    "services/strategies/strategy_registry.py": "3c3a3c109bd7889042a7fae12e8dae42cccf5b89673109b20340c88acdde672d",
+    "services/strategies/config_tools.py": "84f09333f2c71f4ee4562fd95e6d2da8e5333425afd8281d1df0f75ba2e46716",
+    "docs/research/ed002_defaults25_comparison_design_20261027.md": "5d8c86e3743fafa44427aea79e0f41ba9dc3f16276ce83a19c4c1117e019760b",
+    "docs/research/ed002_defaults25_descriptive_contract_20261027.md": "129e7daa1d83151e75003f02bf8b21c61ae6563b5d88639891bb8c12a937adbc",
+    "docs/research/ed002_defaults25_input_contract_20261027.md": "bdf986b7d9db6fa45b93b3e8e59d4ef7e9dfeacc4fc891d96822a8da73722a17",
+    "docs/research/exit_variants_spec_20261114/HISTORICAL_COMPARISON.md": "9eb9fe15ca9f044d4ce921d07b3b61eb1e316318c07b75c252576d7c496f58ee",
+    "docs/research/exit_variants_spec_20261114/HISTORICAL_REVIEW.md": "3f0e9624bb6772dd1dab5fd2f4febadf606bf774d9361727dd7a0074dc4563cc"
+  },
+  "proposed_counts": {
+    "strategy_policies": 12,
+    "controls": 4,
+    "alternative_accounts_per_cost": 16,
+    "cost_cases": 2,
+    "alternative_trajectories": 32,
+    "symbol_strategy_policy_considerations": 300,
+    "symbol_strategy_policy_cost_views": 600
+  },
+  "current_source_arm_count": 7,
+  "source_changed": false,
+  "market_run_authorized": false,
+  "operational_authority": false
+}

@@ -1,0 +1,138 @@
+Author before-fix focused test output, 2026-11-14 UTC. Initial progress characters
+were returned in the preceding tool chunk; the following is the completion chunk.
+F                                                  [100%]
+=================================== FAILURES ===================================
+____ test_fresh_currency_is_immediately_available_to_cash_reader[ usd -USD] ____
+tests/test_paper_account_currency.py:17: in test_fresh_currency_is_immediately_available_to_cash_reader
+    assert db.entry_cash_snapshot() == {
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+storage/paper_trading_sqlite.py:170: in entry_cash_snapshot
+    return {"cash_quote": state["cash_quote"], "quote_currency": state["quote_currency"],
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'quote_currency'
+_____ test_fresh_currency_is_immediately_available_to_cash_reader[eur-EUR] _____
+tests/test_paper_account_currency.py:17: in test_fresh_currency_is_immediately_available_to_cash_reader
+    assert db.entry_cash_snapshot() == {
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+storage/paper_trading_sqlite.py:170: in entry_cash_snapshot
+    return {"cash_quote": state["cash_quote"], "quote_currency": state["quote_currency"],
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'quote_currency'
+____ test_fresh_currency_is_immediately_available_to_cash_reader[USDT-USDT] ____
+tests/test_paper_account_currency.py:17: in test_fresh_currency_is_immediately_available_to_cash_reader
+    assert db.entry_cash_snapshot() == {
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+storage/paper_trading_sqlite.py:170: in entry_cash_snapshot
+    return {"cash_quote": state["cash_quote"], "quote_currency": state["quote_currency"],
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'quote_currency'
+____ test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[EUR] ____
+tests/test_paper_account_currency.py:28: in test_existing_currency_without_cash_is_not_reinterpreted_as_fresh
+    assert db.initialize_account(1000, "USD") == {"baseline_created": False}
+E   AssertionError: assert {'baseline_created': True} == {'baseline_created': False}
+E     
+E     Differing items:
+E     {'baseline_created': True} != {'baseline_created': False}
+E     Use -v to get more diff
+____ test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[USD] ____
+tests/test_paper_account_currency.py:28: in test_existing_currency_without_cash_is_not_reinterpreted_as_fresh
+    assert db.initialize_account(1000, "USD") == {"baseline_created": False}
+E   AssertionError: assert {'baseline_created': True} == {'baseline_created': False}
+E     
+E     Differing items:
+E     {'baseline_created': True} != {'baseline_created': False}
+E     Use -v to get more diff
+_____ test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[] ______
+tests/test_paper_account_currency.py:28: in test_existing_currency_without_cash_is_not_reinterpreted_as_fresh
+    assert db.initialize_account(1000, "USD") == {"baseline_created": False}
+E   AssertionError: assert {'baseline_created': True} == {'baseline_created': False}
+E     
+E     Differing items:
+E     {'baseline_created': True} != {'baseline_created': False}
+E     Use -v to get more diff
+_ test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[not/known] _
+tests/test_paper_account_currency.py:28: in test_existing_currency_without_cash_is_not_reinterpreted_as_fresh
+    assert db.initialize_account(1000, "USD") == {"baseline_created": False}
+E   AssertionError: assert {'baseline_created': True} == {'baseline_created': False}
+E     
+E     Differing items:
+E     {'baseline_created': True} != {'baseline_created': False}
+E     Use -v to get more diff
+_ test_currency_and_origin_write_failure_rolls_back_every_new_field[quote_currency] _
+tests/test_paper_account_currency.py:62: in test_currency_and_origin_write_failure_rolls_back_every_new_field
+    with pytest.raises(RuntimeError, match="synthetic initialization"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RuntimeError
+___ test_concurrent_initializers_bind_cash_currency_and_origin_to_one_winner ___
+tests/test_paper_account_currency.py:78: in test_concurrent_initializers_bind_cash_currency_and_origin_to_one_winner
+    snapshot = db.entry_cash_snapshot()
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+storage/paper_trading_sqlite.py:170: in entry_cash_snapshot
+    return {"cash_quote": state["cash_quote"], "quote_currency": state["quote_currency"],
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'quote_currency'
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[breakout-default-btc] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[breakout-default-eth] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[breakout-default-sol] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[ema-cross-default-btc] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[ema-cross-default-eth] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[ema-cross-default-sol] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[mean-reversion-default-btc] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[mean-reversion-default-eth] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+_ test_nine_fresh_profiles_size_without_manually_seeding_currency[mean-reversion-default-sol] _
+tests/test_paper_account_currency.py:94: in test_nine_fresh_profiles_size_without_manually_seeding_currency
+    assert sized["ok"], sized
+E   AssertionError: {'ok': False, 'reason': 'KeyError'}
+E   assert False
+=========================== short test summary info ============================
+FAILED tests/test_paper_account_currency.py::test_fresh_currency_is_immediately_available_to_cash_reader[ usd -USD]
+FAILED tests/test_paper_account_currency.py::test_fresh_currency_is_immediately_available_to_cash_reader[eur-EUR]
+FAILED tests/test_paper_account_currency.py::test_fresh_currency_is_immediately_available_to_cash_reader[USDT-USDT]
+FAILED tests/test_paper_account_currency.py::test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[EUR]
+FAILED tests/test_paper_account_currency.py::test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[USD]
+FAILED tests/test_paper_account_currency.py::test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[]
+FAILED tests/test_paper_account_currency.py::test_existing_currency_without_cash_is_not_reinterpreted_as_fresh[not/known]
+FAILED tests/test_paper_account_currency.py::test_currency_and_origin_write_failure_rolls_back_every_new_field[quote_currency]
+FAILED tests/test_paper_account_currency.py::test_concurrent_initializers_bind_cash_currency_and_origin_to_one_winner
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[breakout-default-btc]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[breakout-default-eth]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[breakout-default-sol]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[ema-cross-default-btc]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[ema-cross-default-eth]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[ema-cross-default-sol]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[mean-reversion-default-btc]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[mean-reversion-default-eth]
+FAILED tests/test_paper_account_currency.py::test_nine_fresh_profiles_size_without_manually_seeding_currency[mean-reversion-default-sol]
+18 failed, 5 passed in 0.88s

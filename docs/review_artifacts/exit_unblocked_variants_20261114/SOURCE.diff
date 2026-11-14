@@ -1,0 +1,148 @@
+diff --git a/services/strategies/breakout_donchian.py b/services/strategies/breakout_donchian.py
+index 554fdb266..6101dfed6 100644
+--- a/services/strategies/breakout_donchian.py
++++ b/services/strategies/breakout_donchian.py
+@@ -14,6 +14,7 @@ def signal_from_ohlcv(
+     min_channel_width_pct: float | None = None,
+     breakout_buffer_pct: float | None = None,
+     require_directional_confirmation: bool = False,
++    filters_apply_to_sell: bool = True,
+     observer=None,
+ ) -> dict:
+     if not ohlcv or len(ohlcv) < 5:
+@@ -62,6 +63,9 @@ def signal_from_ohlcv(
+     if action == "hold":
+         return {"ok": True, "action": action, "reason": reason, "ind": ind}
+ 
++    if action == "sell" and filters_apply_to_sell is False:
++        return {"ok": True, "action": action, "reason": reason, "ind": ind}
++
+     if min_volatility_pct is not None and ctx["avg_range_pct"] < float(min_volatility_pct):
+         return {"ok": True, "action": "hold", "reason": "low_volatility_filter", "ind": ind}
+     if min_volume_ratio is not None and ctx["volume_ratio"] < float(min_volume_ratio):
+diff --git a/services/strategies/config_tools.py b/services/strategies/config_tools.py
+index b1eaf1b6e..a9e44f35f 100644
+--- a/services/strategies/config_tools.py
++++ b/services/strategies/config_tools.py
+@@ -37,14 +37,14 @@ _FLOAT_FIELDS = {
+ }
+ 
+ _BOOL_FIELDS = {
+-    "ema_cross": (),
++    "ema_cross": ("filters_apply_to_sell",),
+     "momentum": (),
+     "pullback_recovery": ("stop_below_trend_sma",),
+     "volatility_reversal": ("require_volume_spike",),
+     "gap_fill": (),
+     "breakout_volume": ("require_close_above",),
+-    "mean_reversion_rsi": ("require_reversal_confirmation",),
+-    "breakout_donchian": ("require_directional_confirmation",),
++    "mean_reversion_rsi": ("require_reversal_confirmation", "filters_apply_to_sell"),
++    "breakout_donchian": ("require_directional_confirmation", "filters_apply_to_sell"),
+     "sma_200_trend": (),
+ }
+ 
+@@ -86,6 +86,8 @@ def build_strategy_block(
+         if k in p and p.get(k) is not None:
+             out[k] = float(p[k])
+     for k in _BOOL_FIELDS.get(n, ()):
++        if k == "filters_apply_to_sell" and k in p and type(p[k]) is not bool:
++            raise ValueError("invalid_filters_apply_to_sell")
+         if k in p and p.get(k) is not None:
+             out[k] = bool(p[k])
+     return out
+diff --git a/services/strategies/ema_cross.py b/services/strategies/ema_cross.py
+index 1ac4a6fd8..1370f6600 100644
+--- a/services/strategies/ema_cross.py
++++ b/services/strategies/ema_cross.py
+@@ -57,7 +57,7 @@ def _ema_pair_from_closes(closes: list[float], *, ema_fast: int, ema_slow: int)
+     return float(ef[-2]), float(ef[-1]), float(es[-2]), float(es[-1])
+ 
+ 
+-def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, **kwargs):
++def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, *, filters_apply_to_sell: bool = True, **kwargs):
+     closes = [float(r[4]) for r in ohlcv]
+     need = max(int(ema_fast), int(ema_slow)) + 2
+     if not ohlcv or len(ohlcv) < 5:
+@@ -111,6 +111,9 @@ def signal_from_ohlcv(ohlcv, ema_fast=12, ema_slow=26, **kwargs):
+     if action == "hold":
+         return {"ok": True, "action": action, "reason": reason, "ind": ind}
+ 
++    if action == "sell" and filters_apply_to_sell is False:
++        return {"ok": True, "action": action, "reason": reason, "ind": ind}
++
+     min_volatility_pct = kwargs.get("min_volatility_pct")
+     min_volume_ratio = kwargs.get("min_volume_ratio")
+     min_trend_efficiency = kwargs.get("min_trend_efficiency")
+diff --git a/services/strategies/mean_reversion_rsi.py b/services/strategies/mean_reversion_rsi.py
+index 8b424b66c..f9a411ee9 100644
+--- a/services/strategies/mean_reversion_rsi.py
++++ b/services/strategies/mean_reversion_rsi.py
+@@ -16,6 +16,7 @@ def signal_from_ohlcv(
+     max_trend_efficiency: float | None = None,
+     max_sma_distance_pct: float | None = None,
+     require_reversal_confirmation: bool = False,
++    filters_apply_to_sell: bool = True,
+     observer=None,
+ ) -> dict:
+     if not ohlcv or len(ohlcv) < 5:
+@@ -60,6 +61,9 @@ def signal_from_ohlcv(
+     if action == "hold":
+         return {"ok": True, "action": action, "reason": reason, "ind": ind}
+ 
++    if action == "sell" and filters_apply_to_sell is False:
++        return {"ok": True, "action": action, "reason": reason, "ind": ind}
++
+     if max_volatility_pct is not None and ctx["avg_range_pct"] > float(max_volatility_pct):
+         return {"ok": True, "action": "hold", "reason": "high_volatility_filter", "ind": ind}
+     if min_volume_ratio is not None and ctx["volume_ratio"] < float(min_volume_ratio):
+diff --git a/services/strategies/presets.py b/services/strategies/presets.py
+index b9bb1ed6a..7e20b7b91 100644
+--- a/services/strategies/presets.py
++++ b/services/strategies/presets.py
+@@ -362,6 +362,17 @@ PRESETS: Dict[str, Dict[str, Any]] = {
+ }
+ 
+ 
++# Opt-in research variants; preserve every existing preset and its risk policy.
++for _base, _variant in (
++    ("breakout_default", "breakout_exit_unblocked"),
++    ("ema_cross_default", "ema_cross_exit_unblocked"),
++    ("mean_reversion_default", "mean_reversion_exit_unblocked"),
++):
++    PRESETS[_variant] = deepcopy(PRESETS[_base])
++    PRESETS[_variant]["strategy"]["filters_apply_to_sell"] = False
++del _base, _variant
++
++
+ def _deep_merge(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
+     out = deepcopy(dict(base or {}))
+     for k, v in (overlay or {}).items():
+diff --git a/services/strategies/strategy_registry.py b/services/strategies/strategy_registry.py
+index e7b0dccaf..ce9be1864 100644
+--- a/services/strategies/strategy_registry.py
++++ b/services/strategies/strategy_registry.py
+@@ -100,6 +100,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None
+         return {
+             **fn(
+                 **({"observer": observer} if observer is not None else {}),
++                **({"filters_apply_to_sell": st["filters_apply_to_sell"]} if "filters_apply_to_sell" in st else {}),
+                 ohlcv=ohlcv,
+                 ema_fast=int(st.get("ema_fast", 12)),
+                 ema_slow=int(st.get("ema_slow", 26)),
+@@ -117,6 +118,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None
+         return {
+             **fn(
+                 **({"observer": observer} if observer is not None else {}),
++                **({"filters_apply_to_sell": st["filters_apply_to_sell"]} if "filters_apply_to_sell" in st else {}),
+                 ohlcv=ohlcv,
+                 rsi_len=int(st.get("rsi_len", 14)),
+                 rsi_buy=float(st.get("rsi_buy", 30.0)),
+@@ -137,6 +139,7 @@ def compute_signal(*, cfg: dict, symbol: str, ohlcv: list, context: dict | None
+         return {
+             **fn(
+                 **({"observer": observer} if observer is not None else {}),
++                **({"filters_apply_to_sell": st["filters_apply_to_sell"]} if "filters_apply_to_sell" in st else {}),
+                 ohlcv=ohlcv,
+                 donchian_len=int(st.get("donchian_len", 20)),
+                 filter_window=int(st["filter_window"]) if "filter_window" in st else None,

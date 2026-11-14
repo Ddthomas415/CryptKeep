@@ -1,0 +1,65 @@
+--- docs/review_artifacts/group_b_slots_20261113/paper_engine.py.before	2026-11-13 23:27:31
++++ services/execution/paper_engine.py	2026-11-13 23:32:23
+@@ -83,6 +83,7 @@
+ def _cfg() -> dict:
+     cfg = load_user_yaml()
+     p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
++    runner = cfg.get("strategy_runner") if isinstance(cfg.get("strategy_runner"), dict) else {}
+ 
+     def _float_cfg(key: str, default: float) -> float:
+         value = p.get(key, default)
+@@ -93,6 +94,7 @@
+         return default if value is None else bool(value)
+ 
+     return {
++        **({"group_b_guard": True} if "group_b_selection" in runner else {}),
+         "enabled": _bool_cfg("enabled", True),
+         "quote_currency": str(p.get("quote_currency", "USDT") or "USDT"),
+         "starting_cash_quote": _float_cfg("starting_cash_quote", 10000.0),
+@@ -286,11 +288,37 @@
+             qty = prepared["qty"]
+         existing = self.db.get_order_by_client_id(client_order_id)
+         if existing and not pending:
++            if str(side).lower().strip() == "buy" and (self.cfg.get("group_b_guard", False) is not False
++                    or "group_b_selection" in (existing.get("meta") or {})):
++                receipt = self.db.refuse_group_b_buy(client_order_id, expected_order={
++                    "venue": venue, "symbol": symbol, "side": side, "order_type": order_type,
++                    "qty": qty, "limit_price": limit_price, "strategy_id": strategy_id, "meta": meta,
++                }, now=self._clock())
++                if receipt["state"] in {"rejected", "expired"}:
++                    return {"ok": False, "reason": receipt["reason"]}
++                if receipt["state"] not in {"authorized", "filled"}:
++                    return {"ok": False, "reason": "group_b:order_unresolved", "unresolved": True}
+             return {"ok": True, "idempotent": True, "order": existing}
+         side = str(side).lower().strip()
+         order_type = str(order_type).lower().strip()
+         if side not in ("buy", "sell"):
+             return {"ok": False, "reason": "bad_side"}
++        if side == "buy":
++            from services.execution.paper_weekly_slot import buy_selection_verdict
++            verdict = buy_selection_verdict(meta=meta, venue=venue, symbol=symbol,
++                                            strategy_id=strategy_id, now=self._clock(),
++                                            guard=self.cfg.get("group_b_guard", False))
++            if not verdict["ok"]:
++                receipt = self.db.refuse_group_b_buy(client_order_id, expected_order={
++                    "venue": venue, "symbol": symbol, "side": side, "order_type": order_type,
++                    "qty": qty, "limit_price": limit_price, "strategy_id": strategy_id, "meta": meta,
++                    "created_ts": intent_created_ts,
++                }, now=self._clock())
++                if receipt["state"] in {"rejected", "expired"}:
++                    return {"ok": False, "reason": receipt["reason"]}
++                if receipt["state"] == "filled":
++                    return {"ok": True, "idempotent": True, "order": receipt["order"]}
++                return {"ok": False, "reason": verdict["reason"], "unresolved": True}
+         if order_type not in ("market", "limit"):
+             return {"ok": False, "reason": "bad_order_type"}
+         qty = float(qty)
+@@ -406,6 +434,8 @@
+         if quote_policy is not False:
+             identity_kwargs.update(snapshot_quote_guard=quote_policy, snapshot_quote=quote_evidence,
+                                    snapshot_slippage_bps=self.cfg["slippage_bps"])
++        if self.cfg.get("group_b_guard", False) is not False:
++            identity_kwargs["group_b_guard"] = self.cfg["group_b_guard"]
+         result = self.db.apply_fill(
+             order=order,
+             ts=fill_ts,

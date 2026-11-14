@@ -1,0 +1,57 @@
+{
+  "observed_at_utc": "2026-11-12T17:44:34Z",
+  "authorization": "one separately approved instrumented retry; no automatic retry",
+  "attempts_under_this_authorization": 1,
+  "controller_budget_seconds": 300,
+  "cli_exit_code": 1,
+  "tool_reported_command_wall_seconds": 0.19539325,
+  "runtime_result": {
+    "diagnostics": {
+      "command": {
+        "exit_code": -6,
+        "stderr_bytes": 0,
+        "stderr_markers": [],
+        "stderr_scan_truncated": false,
+        "stderr_scanned_bytes": 0,
+        "stdout_bytes": 0,
+        "stdout_matches_expected": false
+      },
+      "errno": null,
+      "reason": "native_sandbox_unavailable"
+    },
+    "offsite_verified": false,
+    "owned_directory": "/private/tmp/cryptkeep-backup-native-1mnhjirb",
+    "phase": "sandbox_positive",
+    "status": "INCOMPLETE"
+  },
+  "source_sha256": "51161a9d3899fa9d4247cc31a32c31f8e26db9a9b8ef3da0b4af67b524960745",
+  "executor_sha256": "c2abbacf7031b82ab30257f8a3d291f55ef14a67421c5a5bb9f80c30eb99cf73",
+  "tools_library_sha256": "d1d7782b788206ced089cc3977cd56bd964e4e94e5666bf122baf57e5ec3ccbd",
+  "pins_sha256": "a048a74db7342f18c3a16d591f951e0564f57d9d8b45e687ef1513b3b3ca8041",
+  "toolchain_receipt_sha256": "866a8650d1a3570d0fe3e02d7e9022db5c10023ed022aeddbc68bc7cc5108c4e",
+  "interpretation": {
+    "signal_6_name_on_this_host": "SIGABRT",
+    "observed_failure": "sandbox-exec/canary subprocess terminated by signal 6 before the positive canary succeeded",
+    "exact_aborting_image_or_root_cause": "UNVERIFIED",
+    "permission_denial": "NOT_ESTABLISHED",
+    "input_verification_and_tool_copy": "REACHED",
+    "negative_isolation_checks": "NOT_REACHED",
+    "restic_rclone_execution": "NOT_REACHED",
+    "fixture_encryption_restore_replay": "NOT_REACHED"
+  },
+  "post_attempt_observations": {
+    "matching_probe_processes": 0,
+    "open_handles_under_owned_directory": 0,
+    "staged_original_modes": {"restic": "0600", "rclone": "0600"},
+    "owned_copy_modes": {"restic": "0500", "rclone": "0500"},
+    "fixture_source_exists": false,
+    "encrypted_repository_exists": false,
+    "owned_files_retained": true
+  },
+  "limits": [
+    "No raw output, exception message, credential, environment dump or diagnostic hash was retained.",
+    "SIGABRT establishes a termination mechanism, not the identity of the aborting image or its cause.",
+    "No crash-report or system-log contents were inspected.",
+    "No retry, isolation change, native tool invocation, source repair, download, deletion, cloud or service operation followed."
+  ]
+}

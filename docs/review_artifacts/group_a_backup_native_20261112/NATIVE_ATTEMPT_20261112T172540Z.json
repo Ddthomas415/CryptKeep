@@ -1,0 +1,45 @@
+{
+  "observed_at_utc": "2026-11-12T17:25:40Z",
+  "attempts": 1,
+  "controller_budget_seconds": 300,
+  "cli_exit_code": 1,
+  "tool_reported_command_wall_seconds": 0.19971725,
+  "runtime_result": {
+    "offsite_verified": false,
+    "owned_directory": "/private/tmp/cryptkeep-backup-native-lp7du1tv",
+    "phase": "sandbox_positive",
+    "status": "INCOMPLETE"
+  },
+  "source_sha256": "52f54b469b48151c41b4470f663d15c3d45738041552623f902486f9aa1624ce",
+  "executor_sha256": "c2abbacf7031b82ab30257f8a3d291f55ef14a67421c5a5bb9f80c30eb99cf73",
+  "tools_library_sha256": "d1d7782b788206ced089cc3977cd56bd964e4e94e5666bf122baf57e5ec3ccbd",
+  "pins_argument": "docs/review_artifacts/group_a_backup_native_20261112/TOOL_PINS.json",
+  "pins_sha256": "a048a74db7342f18c3a16d591f951e0564f57d9d8b45e687ef1513b3b3ca8041",
+  "staged_directory": "/private/tmp/cryptkeep-backup-tools-pdaujppb/tools-darwinarm64",
+  "toolchain_receipt_sha256": "866a8650d1a3570d0fe3e02d7e9022db5c10023ed022aeddbc68bc7cc5108c4e",
+  "post_attempt_observations": {
+    "matching_probe_processes": 0,
+    "open_handles_under_owned_directory": 0,
+    "staged_original_modes": {"restic": "0600", "rclone": "0600"},
+    "owned_copy_modes": {"restic": "0500", "rclone": "0500"},
+    "inside_canary_matches_expected_bytes": true,
+    "fixture_source_exists": false,
+    "encrypted_repository_exists": false,
+    "owned_files_retained": true
+  },
+  "stage_interpretation": {
+    "basis": "returned phase, reviewed worker ordering, read-only owned-directory inventory",
+    "input_verification_and_tool_copy": "REACHED",
+    "sandbox_positive_canary": "FAILED",
+    "sandbox_file_and_network_denial_checks": "NOT_REACHED",
+    "downloaded_client_execution": "NOT_REACHED",
+    "synthetic_fixture_and_encryption": "NOT_REACHED",
+    "restore_and_replay": "NOT_REACHED",
+    "cloud_transport": "NOT_AUTHORIZED_OR_ATTEMPTED"
+  },
+  "limitations": [
+    "The controller does not retain the inner canary command exit code or diagnostics; exact failure cause is unresolved.",
+    "No retry, isolation bypass, source repair, download, deletion, real-data access, service change or cloud operation followed.",
+    "Process and handle checks are point-in-time observations, not a permanent cleanup guarantee."
+  ]
+}

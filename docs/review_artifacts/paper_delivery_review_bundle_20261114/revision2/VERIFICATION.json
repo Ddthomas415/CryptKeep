@@ -1,0 +1,16 @@
+{
+  "all_extracted_members_hash_checked": true,
+  "archive_bytes": 517579,
+  "archive_sha256": "ee6f4dc2d1a7cfef6be820dae48fb2083d7b32fa67c3ca2cb20ece54e2800e82",
+  "deterministic_bytes_checked": true,
+  "inactive_profiles": 9,
+  "inputs_rechecked": 98,
+  "members": 215,
+  "python_members_compiled_not_executed": 150,
+  "runtime_or_strategy_test_executed": false,
+  "scope": "archive_integrity_only_not_runtime_tests",
+  "temporary_extraction_removed": true,
+  "uncompressed_bytes": 2254614,
+  "v3_members": 126,
+  "v3_replacements": 7
+}

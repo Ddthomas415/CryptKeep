@@ -1,0 +1,85 @@
+diff --git a/services/backtest/frozen_signal_bridge.py b/services/backtest/frozen_signal_bridge.py
+index f737ab10a..d168fb81a 100644
+--- a/services/backtest/frozen_signal_bridge.py
++++ b/services/backtest/frozen_signal_bridge.py
+@@ -222,8 +222,10 @@ class FrozenSignalBridge:
+         return target
+ 
+ 
+-def simulate_bridge(frames, bridge, *, state=None, target_contract_id, **profile):
++def simulate_bridge(frames, bridge, *, state=None, target_contract_id, decision_trade_context=False, **profile):
+     """Run the existing ledger; incomplete first-decision evidence has no state."""
++    if type(decision_trade_context) is not bool:
++        raise ValueError("invalid_decision_trade_context")
+     if profile.get("interval_ms") != HOUR or tuple(sorted(profile["symbols"])) != bridge.symbols:
+         raise ValueError("bridge_profile_mismatch")
+     if profile["venue"] != bridge.venue or profile["quote"] != bridge.quote or profile["rules"] != bridge.rules:
+@@ -239,7 +241,8 @@ def simulate_bridge(frames, bridge, *, state=None, target_contract_id, **profile
+         old_trace = deepcopy(old["decisions"])
+     bridge.trace = []
+     try:
+-        result = ledger.simulate_shared_next_open(frames, bridge, state=state,
++        simulate = ledger.simulate_shared_with_trade_context if decision_trade_context else ledger.simulate_shared_next_open
++        result = simulate(frames, bridge, state=state,
+             target_contract_id=target_contract_id + ":" + digest(bridge.identity), **profile)
+     except ledger.Incomplete as error:
+         if state is not None:
+diff --git a/services/backtest/shared_cash_research.py b/services/backtest/shared_cash_research.py
+index b55b0ca3d..2ed614eae 100644
+--- a/services/backtest/shared_cash_research.py
++++ b/services/backtest/shared_cash_research.py
+@@ -271,8 +271,20 @@ def simulate_shared_next_open(frames, target_fn, *, symbols, venue, quote, inter
+         valuation_marks=valuation_marks or {}, state=state, terminal_liquidation=terminal_liquidation)
+ 
+ 
++def simulate_shared_with_trade_context(frames, target_fn, *, symbols, venue, quote, interval_ms,
++        initial_cash, fee_bps, slippage_bps, rules, target_contract_id,
++        valuation_marks=None, state=None, terminal_liquidation=False):
++    """Explicit opt-in: copied MODEL fill evidence, not exchange executions."""
++    return _simulate(frames, target_fn, symbols=symbols, venue=venue, quote=quote,
++        interval_ms=interval_ms, initial_cash=initial_cash, fee_bps=fee_bps,
++        slippage_bps=slippage_bps, rules=rules, target_contract_id=target_contract_id,
++        valuation_marks=valuation_marks or {}, state=state, terminal_liquidation=terminal_liquidation,
++        decision_trade_context=True)
++
++
+ def _simulate(frames, target_fn, *, symbols, venue, quote, interval_ms, initial_cash,
+-        fee_bps, slippage_bps, rules, target_contract_id, valuation_marks, state, terminal_liquidation):
++        fee_bps, slippage_bps, rules, target_contract_id, valuation_marks, state, terminal_liquidation,
++        decision_trade_context=False):
+     if not isinstance(symbols, (list, tuple)) or not all(isinstance(s, str) and s for s in symbols):
+         raise ValueError("explicit_symbols_required")
+     symbols = tuple(sorted(symbols))
+@@ -287,6 +299,9 @@ def _simulate(frames, target_fn, *, symbols, venue, quote, interval_ms, initial_
+     profile = {"symbols": symbols, "venue": venue, "quote": quote, "interval": interval_ms,
+                "initial_cash": number(initial_cash, positive=True), "fee": fee, "slip": slip,
+                "target_contract_id": target_contract_id}
++    if decision_trade_context:
++        profile["decision_trade_context"] = True
++        profile["model_event_schema"] = "target-and-pre-units-v1"
+     frames = deepcopy(frames)
+     for i, frame in enumerate(frames):
+         ts = timestamp(frame["ts_ms"])
+@@ -322,8 +337,12 @@ def _simulate(frames, target_fn, *, symbols, venue, quote, interval_ms, initial_
+             if pending is not None:
+                 if pending["execution_ms"] != ts or pending["signal_ms"] + interval_ms != ts:
+                     raise ValueError("pending_decision_time_mismatch")
++                pre_units = deepcopy(state["units"]) if decision_trade_context else None
+                 state = batch(state, pending["weights"], frame["open"], opening, rules,
+                               ts=ts, source_ts=pending["signal_ms"], interval=interval_ms)
++                if decision_trade_context:
++                    state["events"][-1].update({"target_weights": deepcopy(pending["weights"]),
++                                                "pre_batch_units": pre_units})
+             closing = marks_at(frame["close"], valuation_marks, symbols, ts + interval_ms)
+             state["last_nav"] = nav(state, closing)
+             state["last_marks"] = closing
+@@ -367,6 +386,9 @@ def _decision(state, frame, target_fn):
+     context = {"history": deepcopy(state["history"]), "decision_index": state["decision_index"],
+                "cash": state["cash"], "units": deepcopy(state["units"]), "basis": deepcopy(state["basis"]),
+                "marked_nav": state["last_nav"], "close_ms": frame["ts_ms"] + state["profile"]["interval"]}
++    if state["profile"].get("decision_trade_context") is True:
++        context["model_trades"] = deepcopy(state["trades"])
++        context["model_events"] = deepcopy(state["events"])
+     target = target_fn(context)
+     state["decision_index"] += 1
+     if target is not None:

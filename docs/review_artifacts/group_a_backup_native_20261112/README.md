@@ -2,6 +2,214 @@
 
 Bot relation: BOT_RULES; runtime trading configuration not checked.
 
+### One instrumented retry,2026-11-12T17:44:34Z:SIGABRT,INCOMPLETE
+
+Owner continuation directly answered the bounded retry permission question.
+One invocation used reviewed51161a9d...source,unchanged executor/library/pins,
+same arguments/environment/profile and300second controller. Full actual
+binary/receipt verification inside worker budget. No automatic retry or bypass.
+
+SHOWN CLIexit1/toolreportedwall0.19539325seconds,phase sandbox_positive,
+offsite_verifiedfalse. New metadata:inner returncode-6,stdout0bytes,stderr0bytes,
+no stderrmarkers,expectedstdoutfalse,errno null. signal.Signals(6).name on this
+host isSIGABRT. This establishes abrupt signal termination of the launched
+sandbox-exec/canary subprocess,NOT a demonstrated permissions denial, wrong
+credential or encryption failure. Exact aborting image/stage/cause remains
+UNVERIFIED; no crashreport/systemlogs were inspected. Prior failedreceipt
+remains unchanged and its discarded details remain unknown.
+
+Receipt:NATIVE_ATTEMPT_20261112T174434Z.json. Read-only inventory:no
+fixture-source/encrypted-repository;onlyowned copies0500/canaries/localconfig/
+emptyworkdirs. Stagedoriginalsregular0600/originalsizes. Probeprocess query and
+exactowned-path lsof returned no matches/handles. Ownedfilesretained; no
+deletion, realdata/credentials/cloud/server/service/schedule/trading action.
+
+Inputverification/copies REACHED; positivecanary FAILED; file/networkdenial,
+restic/rclone,fixture,encryption,restore,replay NOTREACHED. No encrypted backup
+was produced. Reporting-control O135 is now observed on a real failure with
+bounded status/counts and no rawpayload; this doesnot resolve the runtime cause.
+No new omission/sourcefix or repeatedsyntheticreview/testloop inferred.
+
+Smallest next proposed investigation:one bounded read-only capture of only
+matching timestamped crash metadata (processname,exceptiontype/codes,termination
+reason),without raw log,thread memory,environment or settings changes. This is
+a proposal,not authorized/executed here; no new controller/isolationworkaround.
+R10 runtimeINCOMPLETE; operationalattemptbudgetconsumed.
+
+What do I know that could change the owner's decision that I have not yet said?
+The subprocess aborted without stderr, so saying macOS simply denied sandbox
+permissions would overstate the evidence. We now know the termination signal,
+but still have neither an explained cause nor a working encrypted backup.
+
+### Bounded diagnostic-source repair submitted,2026-11-12T17:35:10Z
+
+Owner continuation after the specific diagnostic proposal authorizes only
+offline source repair/review, not another native attempt. The previous runtime
+receipt is unchanged:its lost inner output cannot be recovered by this patch.
+
+New structured diagnostics apply ONLY to the three sandbox canary refusals:
+exact bounded integer exitcode,stdout/stderr bytecounts,expectedstdoutmatch,
+first4096stderrbytes scanned for eight fixed indicators,scanlength/truncation,
+fixed refusalreason and bounded errno. No raw output/message, arbitrary string,
+path, key, environment or diagnostic hash emitted. Unknown exceptions stay opaque.
+The markers mean text fragments were present, not that their suggested cause
+is proven. Later canary exceptions reset commanddata rather than reusing the
+previous canary's output. _command/profile/processownership, deadlines, native
+gates, no-execute behavior and stop conditions remain unchanged.
+
+SHOWN14new tests fail before patch0.34s for missingfields/helper. Final focused:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+  ./.venv/bin/python -B -m pytest -q -p no:cacheprovider \
+  tests/test_group_a_backup_native_diagnostics.py \
+  tests/test_group_a_backup_native_policy.py tests/test_group_a_backup_tools.py
+```
+
+69passed0.65s,zero failures/errors/skips,one deliberate duplicateZIPwarning.
+Initial69pass0.68s preceded tightening the reason type check; final0.65s
+receipt covers that last change. Existing sandbox-failure exact assertion is
+strengthened with new fields, not weakened. Newworker tests fakecommand and
+forbidPopen/_fixture; only synthetictoolbytes/temporarypaths, no actual staged
+binary, client, sandbox, network, nativecontroller, backup or cloud access.
+gitdiffcheck passes; no fullsuite or old242test result relabelled current.
+
+Three-file review seal:
+- scripts/research/probe_group_a_backup_native.py:`51161a9d3899fa9d4247cc31a32c31f8e26db9a9b8ef3da0b4af67b524960745`.
+- tests/test_group_a_backup_native_policy.py:`965a3e71b3bb7199d3a5161bfb6e4ded372de0c6be03ff1ed41189a77001c1ac`.
+- tests/test_group_a_backup_native_diagnostics.py:`25aa744faf33c5870c9e99718eff0d0ad74851ffda3fda9de555fda8bdb1967a`.
+
+AuthorREADY_FOR_INDEPENDENT_REVIEW; separateDarwinGATE requested, source frozen.
+No native retry, isolation change, sourcecommit/push, newcontroller, account,
+realdata/server/service/schedule/trading or downloadedtool action. The exact
+old sandbox failure cause and native encryption/recovery remain UNVERIFIED.
+
+SeparateDarwinGATE17:36:56UTC ACCEPTED_WITH_RISK supersedes the pendingstate
+for these three offline source/test files only. Reviewer independently passed
+41diagnostic/nativepolicy tests0.46s and scoped diffcheck,verifiedthe3sealhashes
+and compared against exactaccepted52f54b46...source. _command/profile/executor/
+timing/pathrepair/nativegates unchanged; failure stillstops. Author14before
+failures/final69pass remain attributedreceipts,notindependentlyrerun.
+Current17:37:46UTCreadbackmatchesall3hashes; no post-reviewsourcechange.
+Detailedseparateverdictin INDEPENDENT_REVIEW.md. This acceptsboundedmetadata
+reporting only,not causal/runtime/native proof and not permission to retry.
+
+What do I know that could change the owner's decision that I have not yet said?
+This can make a future refusal diagnosable; it neither fixes an unknown OS
+compatibility problem nor demonstrates a working backup. Runtime retry needs
+separate authorization and cannot silently reuse the consumed attempt budget.
+
+### Single native attempt,2026-11-12T17:25:40Z:INCOMPLETE
+
+Owner explicitly authorized one300second local synthetic probe after the
+bounded permission question. Currentreviewedprobe/executor/toolslib/publicpins
+matched; stagedtool metadata regular0600. One invocation used existingCLI,
+cleanstartupenv and the relativepinsargument (now anchored by the repair).
+Actualbinary/receiptverification and copies occur inside the worker deadline.
+No separate unbounded native pre-run or new controller.
+
+SHOWN commandexit1,toolreportedwall0.19971725seconds; sanitizedreturnedresult:
+`{"offsite_verified":false,"owned_directory":"/private/tmp/cryptkeep-backup-native-lp7du1tv","phase":"sandbox_positive","status":"INCOMPLETE"}`.
+Full sanitized receipt:NATIVE_ATTEMPT_20261112T172540Z.json. Inputverification/
+copy succeeded in reviewedsource ordering; failed first sandbox-positive
+canary. File/network-denial checks, downloadedclient execution, fixture,
+encryption/restore/replay/corruption checks were NOT REACHED. No backup exists.
+No failure bypass, retry, native --version check or source repair followed.
+
+Read-only ownedinventory confirms expected insidecanary bytes and copied
+tools0500, no fixture-source or encrypted-repository. Originals remain0600,
+29756850/88778466bytes; no originalmode change. Generated work/config/home/
+cache/tmp and canaries retained. Nativeprobe process query and exactowned-path
+lsof returned no matches/handles. Parent returned a sanitized workerresult,
+not controller_or_cleanup uncertainty; this is point-in-time evidence, not
+a guarantee against all possible orphan/kernel states or future mutation.
+
+Failure classification:insufficient evidence for the precise runtime cause;
+the confirmed boundary is sandbox-positive preflight, not encryption or
+wrong-password/corruption behavior. The current worker discards its inner
+exitcode/stdout/stderr on this refusal. macOS entitlement/permissions, policy
+compatibility and canary runtime failure are possible but UNVERIFIED; none
+is asserted as the cause. O135 records this missing diagnostic evidence.
+Smallest proposed next repair:retain bounded sanitized canary return/status
+details before returning; separate source review before any new attempt.
+Proposal parked, not implemented or authorized as a retry.
+
+R10 native-encryption and off-server operation remainINCOMPLETE. Prior
+offline path/executor/source acceptance stays its narrow scope; the actual
+attempt supplies no native-isolation or executable-interoperability proof.
+No real account/database/credential/cloud/server/service/schedule/trading
+action, global install/config change, commit/push or originalhistory cleanup.
+
+What do I know that could change the owner's decision that I have not yet said?
+The one approved attempt ended before restic/rclone ran, so it cannot establish
+any encrypted backup benefit. A new Claude work-log note also reports missing
+CMC10/11Novsnapshots and primaryeligibility impact; that separate claim has
+not been independently verified in this R10 task and must not be overlooked.
+
+### Invocation-path repair submitted,2026-11-12T17:14:27Z
+
+Owner continuation after the explicit R10 question authorizes ONLY fixing
+the invocation-path defect and focused offline review. This supersedes the
+earlier prohibition on source repair below, not the ban on downloaded-tool,
+sandbox/encryption/cloud/server/backup execution. R10 operations remain held.
+
+SHOWN production diff in probe_group_a_backup_native.py:ordinary relative
+--pins is anchored lexically against invocationcwd before the worker handoff;
+absolute input stays unchanged. No resolve() shortcut erases a symlink or '..'.
+The shared load_pins canonical/absolute/digest checks remain untouched and run
+in the worker under the original deadline. No new controller or changed
+no-execute/shared300second budget. Other CLI paths retain their existing rules.
+
+Six new synthetic entrypoint tests call main with a fake executor, which
+changes cwd and calls the real verify_tools on synthetic fixture bytes only.
+Popen, native-command helper and real executor factory are forbidden. Tests
+never run downloaded restic/rclone, real worker, sandbox or encryption. Both
+normal relative and absolute paths succeed at identity verification only;
+relative symlink, parent traversal, missing pins and wrong digest are refused.
+Source-staged synthetic binaries retain0600. An identity-only result is still
+INCOMPLETE, never a completed backup or native-readiness claim.
+
+Before source edit, new6case selection:1failed/5passed/21deselected0.24s;
+ordinaryrelativeCLI regression fails to verify the synthetic identity. Final
+focused policy+tool command:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+  ./.venv/bin/python -B -m pytest -q -p no:cacheprovider \
+  tests/test_group_a_backup_native_policy.py tests/test_group_a_backup_tools.py
+```
+
+SHOWN55passed0.49s,zero failures/errors/skips,one deliberate duplicateZIPwarning.
+Includes the existing no-execute and deadline controls. git diff --check passed.
+The earlier242case result is not rerun/relabelled as current combined proof.
+No actual staged-tool directory/binary/receipt was accessed or mode changed.
+No network/download, real native/subprocess probe, account/cloud/server,
+service/schedule/trading, commit/push or history cleanup.
+
+Review seal,not a replacement for historical rejected/accepted seals below:
+- probe_group_a_backup_native.py SHA256 `52f54b469b48151c41b4470f663d15c3d45738041552623f902486f9aa1624ce`.
+- test_group_a_backup_native_policy.py SHA256 `f8de09d743186528c85245b610d28f6ab98f181c7c01683379821631098eae98`.
+- Unchanged group_a_backup_tools.py SHA256 `d1d7782b788206ced089cc3977cd56bd964e4e94e5666bf122baf57e5ec3ccbd`.
+
+Author stateREADY_FOR_INDEPENDENT_REVIEW; separate Darwin diff review requested,
+no same-thread acceptance. Actual native isolation/interoperability/encryption,
+recovery/key provisioning/MEGA delivery and durability remain UNVERIFIED.
+
+Separate review supersedes the pending state:Darwin ACCEPTED_WITH_RISK,
+checked2026-11-12T17:15:37Z,offline invocation-path repair only. Independently
+passed9focused tests1.69s (six path cases,no-execute,two deadline cases),
+verified unchanged shared loader/tool verifier/executor/worker, originaltests
+retained and both newseal hashes. Scoped diffcheck passed. Author1failed/5passed
+before result and55passedafter were inspected as records, not independently
+rerun. Current17:16:11UTC hashes remain unchanged after review. Detailed
+disposition appended to existing INDEPENDENT_REVIEW.md. No runtime authority
+granted, no downloaded clients read/executed, no new native attempt.
+
+What do I know that could change the owner's decision that I have not yet said?
+This repairs only argument handoff, not a working backup. The real04:48failed
+attempt and historical source-readiness withdrawal remain valid evidence;
+no new native attempt is authorized by these passing synthetic tests.
+
 Proposal disposition2026-11-12T03:29:32Z:ACCEPTED_WITH_RISK by separate Rawls
 GATE, planning scope only. Execution INCOMPLETE, NOT execution-ready. Existing R3/R10 remains
 INCOMPLETE. Owner local date2026-11-11; UTC checked2026-11-12T03:23:53Z.

@@ -1,0 +1,22 @@
+--- docs/review_artifacts/paper_account_currency_20261114/paper_trading_sqlite_before.py	2026-11-14 07:17:33
++++ storage/paper_trading_sqlite.py	2026-11-14 07:18:10
+@@ -222,9 +222,10 @@
+             except InvalidOperation:
+                 realized_zero = False
+             fresh = (cash is None and realized_zero
++                     and self._get_state_conn(con, "quote_currency") is None
+                      and self._get_state_conn(con, "paper_account_origin_v1") is None
+                      and not any(con.execute("SELECT 1 FROM " + table + " LIMIT 1").fetchone()
+-                                 for table in ("paper_orders", "paper_fills", "paper_positions")))
++                                 for table in ("paper_orders", "paper_fills", "paper_positions", "paper_equity")))
+             if cash is None:
+                 try:
+                     starting_cash = float(starting_cash_quote)
+@@ -242,6 +243,7 @@
+             if realized is None:
+                 self._set_state_conn(con, "realized_pnl", "0.0")
+             if fresh:
++                self._set_state_conn(con, "quote_currency", currency)
+                 self._set_state_conn(con, "paper_account_origin_v1", json.dumps({
+                     "schema": 1, "cash_quote": starting_cash, "quote_currency": currency,
+                 }, sort_keys=True, allow_nan=False))

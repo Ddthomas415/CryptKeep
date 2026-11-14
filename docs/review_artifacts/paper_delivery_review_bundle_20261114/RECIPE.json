@@ -1,0 +1,528 @@
+{
+  "known_open": [
+    "BA51 producer-code edit continuity",
+    "BA24 proposed exposure enforcement",
+    "actual metadata provisioning/cadence",
+    "permissions/capacity/dependency imports",
+    "R10 STOPPED",
+    "original commissioning/start requirements"
+  ],
+  "limits": {
+    "member_bytes": 1048576,
+    "members": 500,
+    "total_bytes": 33554432
+  },
+  "previous_archive": "docs/review_artifacts/group_a_composed_candidate_20261111_v3/source-test-overlay.tar.gz",
+  "previous_archive_sha256": "724b4785dd627f9ff35bc91b939788d6ac90850458ba4f4333f7c7231f3dac1d",
+  "previous_manifest": "docs/review_artifacts/group_a_composed_candidate_20261111_v3/MANIFEST.json",
+  "previous_manifest_sha256": "928b12da4275a76c44728cdd141b76d7c0899c99fa3d28204a86bb03ec26ea03",
+  "protected_base": "580ca31ea983af6452a1e02ab8d4b51645e9b43c",
+  "schema": 1,
+  "required_fixture_paths": ["docs/review_artifacts/coinbase_precision_shared_20261114/fetch_coinbase_before.py"],
+  "scope": "offline_review_overlay_only",
+  "selected": {
+    "docs/review_artifacts/coinbase_precision_shared_20261114/fetch_coinbase_before.py": {
+      "authority": "paper_market_rules_refresh_20261113/SOURCE_SHA256SUMS historical source; shared precision test fixture",
+      "role": "preserved_historical_test_fixture_not_runtime",
+      "sha256": "c6d3f3fdccee920169ec7b404189db067937069ddecca7cd74cfd6235d154810"
+    },
+    "config/candidate_universe.yaml": {
+      "authority": "services/market_data/group_b_selection.py:FROZEN",
+      "role": "frozen_ranker_or_public_universe",
+      "sha256": "2ae33fcbea648ee55315ebbe10cb312cb4a058aa675bce0de80aa59be9a07bd6"
+    },
+    "docs/research/bot_audit_20261031/ba51_fix_proposal_20261114/PROPOSED_PATCH.md": {
+      "authority": "Claude audit handoff; not independent acceptance",
+      "role": "open_unreviewed_proposal_evidence",
+      "sha256": "7ec59640d4e1bd1d56dae0435b2e07f576d6031dea39fea18a51665377b089ba"
+    },
+    "docs/research/bot_audit_20261031/ba51_fix_proposal_20261114/repro_output.txt": {
+      "authority": "Claude audit handoff; not independent acceptance",
+      "role": "open_unreviewed_proposal_evidence",
+      "sha256": "e5477e96c3df548164ea9b1cd6af865534d10917b714b01356362f986ea80c56"
+    },
+    "docs/research/paper_simulation_spec_20261031/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "c150601d0bfd4c9ca192e9c85883b18ff22bf0c3f6456ce857b6116a60390404"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/README.md": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "5f335bbc84f0e89ffc7696f72f956c1dbebf48245a3cb11d1ae38ab68ea87b2c"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "136352c28e90c1caed277d518e4f5c474355a3654883abd106e1fc840e7c35a2"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/approval_20261114/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "f3065f59a11b9823ab3f07cf79f41aafd169453aacb4dd151c1868e43c0958fe"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/approval_20261114/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "70361cf741edaf1e96251b2eeabd098e32359fd7ae915d1fe97ddf5ccd005814"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/approval_20261114/README_before.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "6cbba03a0a194aed4b1221ee3eb1aa4fc1c6b3507dd57175ce56bc71c08b4bee"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/approval_20261114/SHA256SUMS_before": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "c18fbf854f8aeacbd8ee9b6c8efa6d5c133d3bce21213e63dc5996538c21c5e9"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/approval_20261114/evaluation_rules_before.json": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "107209671751e53c5464e2d05c2c6d6c239160dd9a0294b7c657b958ec704f09"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/dryrun/report.json": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "9e1df5bad64015ee2ed67c71ffc33a618ac629619acce1579581e59a99242e71"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/dryrun/summary.json": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "4c6dfaced1f86601d19522424bff287d5ca911b0182184c7399e59c9dbfe7241"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/dryrun_on_replay.py": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "fd6e69fbca4e1f1d7f2766ecbb5b8f4ee4f495a2c766755995e84c583ae8c131"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/evaluation_rules.json": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "9818951e5e06b36d44410c9571519781cd6fe7aa9246126499db449e4cdf43ce"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/score_group_a.py": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "c36c822421f3c44fb28ada52e258b5c27f785518c7b032a8a64bd50dc85d5535"
+    },
+    "docs/research/paper_simulation_spec_20261031/evaluation/test_score_group_a.py": {
+      "authority": "docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS",
+      "role": "frozen_evaluation_or_historical_dryrun",
+      "sha256": "cefaf8222b9cc52cc69651890e1f2699d007f7cd19789927d80ad5994e865eb1"
+    },
+    "docs/review_artifacts/coinbase_precision_shared_20261114/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "841be141c245cac4939ddadc8bb4cb47ec006fd641466458f616c7b07f4a0bb6"
+    },
+    "docs/review_artifacts/coinbase_precision_shared_20261114/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "47b861ab673bfa0af11bbece92437ea37a97758ec35822771a635f3ca7ce2bea"
+    },
+    "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "1093f3ef6f0b4ed34ce8a059fa058b4641eb68c5b4e2e179bc568492cf504eaf"
+    },
+    "docs/review_artifacts/group_a_release_candidate_20261104/r3_native_probe_20261105/HOST_PREFLIGHT_RESULT_20261114.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "4f07b740646466b1b6310214f09bdb61590c93a390f9681d56bcbe07b677f361"
+    },
+    "docs/review_artifacts/group_a_release_candidate_20261104/r3_native_probe_20261105/HOST_PREFLIGHT_REVIEW_20261114.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "2151459db34df229cef6b417bc3211864ed704f166ab706f7108ba559063eadc"
+    },
+    "docs/review_artifacts/group_a_release_candidate_20261104/r3_native_probe_20261105/compatibility_attempt_20261114T124342Z.json": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "9762941a33f674e22a262100c563848d456d04a999b3e3ea6a8ac21b99caa252"
+    },
+    "docs/review_artifacts/group_a_release_candidate_20261104/r3_native_probe_20261105/host_source_comparison_20261114T124342Z.json": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "5e6d13b5082e617592efb4bddf5d0a1d22184e37e46a065bbc41ea0b487e2f42"
+    },
+    "docs/review_artifacts/group_a_unit_composition_20261111/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "06bf94eb0d1e85b8a2a3daa07272dd6ec70c8028413d64478a271dd19d42a75f"
+    },
+    "docs/review_artifacts/group_a_unit_composition_20261111/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "3a435da18515b6703daefbae0e8b8976bc3815601ad0591df95cc574764bafbb"
+    },
+    "docs/review_artifacts/group_b_slots_20261113/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "8278cf5a73fe2570f646ec672e6ac3e000baec6985c13c341e85706f0a2a0cb6"
+    },
+    "docs/review_artifacts/group_b_slots_20261113/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "bc6e52431adebb6ce7a5b3b0fec543ff9de6c56230d174d421f643a3f4843ac8"
+    },
+    "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "1ae490439f9d5096acdbed7b4cb60c62765d88a4059ba9c2baa60d64a89365e2"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/AFTER.txt": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "36572a84275cd0c11f600e862c65720b80b65469ff977f389e5a65fa6c51da66"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/BEFORE.txt": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "8eb6fa32c6d5254a5088c1918df666329a016ebb083e243029b6302be93b94b1"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "c1bacb3961e7380415178367e8caed7e209c7bc8f05cfc6abfe8d5ea8b95667c"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "a719add1ec3e1867e1e2aef936bca7903ed0f659010b8fe07b89e240cdded566"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/SOURCE_SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "657136dc96d555eb59b7bcf7d2724bf6b7eb2b14896811ad17e900ecf4caf7d8"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/initializer.diff": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "aaa41d6ed8f36f567984f51910789ca1128c5aa671a3338b072ef9360cd5cec0"
+    },
+    "docs/review_artifacts/paper_account_currency_20261114/paper_trading_sqlite_before.py": {
+      "authority": "docs/review_artifacts/paper_account_currency_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "d9142f603f11fec9ed4bb1b53971734a824893ffd0ff2334e91959eefdc5bde8"
+    },
+    "docs/review_artifacts/paper_cash_sizing_20261113/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "2d95ceba01bb3f81fff0b08f70d5907ee4b0a6ed047cfc19686a7d24134823d6"
+    },
+    "docs/review_artifacts/paper_cash_sizing_20261113/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "9e174272d4084ea0033671eb59dab915f08cc73c9a0a8b64647a8c3f25efab47"
+    },
+    "docs/review_artifacts/paper_cash_sizing_20261113/SOURCE_SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "a3f5e33981eea6212e4e13fcf6826082c70342a9a834f02d0b37f45c17f36097"
+    },
+    "docs/review_artifacts/paper_market_rules_refresh_20261113/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "0a91a38a3ace4090b9c91689d1dc7579b2dbf0bc6a80bf9ac1d2f110e9716dd9"
+    },
+    "docs/review_artifacts/paper_market_rules_refresh_20261113/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "5d30427b6abed29bfc1ec635d2b76f497749f446f34b4130718e4ad423274a4f"
+    },
+    "docs/review_artifacts/paper_market_rules_refresh_20261113/SOURCE_SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "70226a4d3ce562896d08a516bd54e9ee40599952acf81f4a9135499417883be0"
+    },
+    "docs/review_artifacts/paper_outcomes_0067_20261113/0067_original.patch": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "3bd52758a5e2022cad04277078abb124ea319e8ef73c635abcf0f7b7bef2db6e"
+    },
+    "docs/review_artifacts/paper_outcomes_0067_20261113/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "c190f7313dea77fc94aa612a11ea46a33387937ab3369e56fa012cc7d1a27e54"
+    },
+    "docs/review_artifacts/paper_outcomes_0067_20261113/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "4a4bc8c801ac654b52c9679506317d4b4c5c12e78b33abac7b411f9dd8c84a7a"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/INDEPENDENT_REVIEW.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "39183c0db9b47bb6cee6573f50875513e65a512154724aac99e16d045b44bc38"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/README.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "e0a6456e17c878ccdd7cd32d420febd4203e3ed51930f4f525393e0ddfa718ad"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "df3c1969ec24c67f6646e40da0f3bfd899081d845b896aad11debb3e55b2d756"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/VERIFICATION.md": {
+      "authority": "public evidence snapshot at packaging time",
+      "role": "evidence_not_runtime_approval",
+      "sha256": "5649441c35e9974877df274d55048088375bd9fd9ce037967f34f4487b2718f5"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/breakout-default-btc.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "a7a7daeefa540a833fcc0259a4bb4d8aa7605390e11d9bd214fb712cc774a382"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/breakout-default-eth.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "56229c7f525e6cd64392294c5ccdf5b5b175bf766b0f8afd6419184f22dab61a"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/breakout-default-sol.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "90fd6efb10289a886f53ccb25001ee91125559db77f679728a676e3612931e0d"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/ema-cross-default-btc.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "e3a9ade4fd6ffb903544e509023091d20b29d35517dbb9597782f4d1512a50da"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/ema-cross-default-eth.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "d35a0a78f82e1d197c9189b7fda637c5383664e7afefb02b2fdc8c7d3092fe4b"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/ema-cross-default-sol.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "42ef78bc80cc5b8592930f5189ef22912e02d39b0b8c770c927459600635dcf5"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/mean-reversion-default-btc.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "0ed9c9afeb55e2a0c2b9538ef596ecf79a98d978b91918c2253f2679768d2fac"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/mean-reversion-default-eth.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "a7ae8eab54129d6152196dd1b6ce41c1abb7565e7b8e64df3d670cbd9f574cb1"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/profiles/mean-reversion-default-sol.yaml": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "71c28669cfa8191e9bbc0e813c764ff48c21bc93c3e1b73d239223ed55dd616e"
+    },
+    "docs/review_artifacts/paper_profile_candidate_20261114/test_profiles.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "inactive_profile_or_preserved_fixture",
+      "sha256": "7adfec8e9b3f4e9c3fa28cf39862652602af898732f0c2cb4149a40542b59ce9"
+    },
+    "scripts/refresh_market_rules.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "380bc2514fcd81f2833e884328dea752d9a38c50371d49be02d7fe1bab668c24"
+    },
+    "scripts/research/build_group_b_weekly_selection.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "1ec6b18c0d3adb8835b7abf31bce620dcaabc221e32d2b6102bd53d7cb4eda5f"
+    },
+    "services/analytics/group_b_weekly_selection.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "30f30d6027b97cfd69677c7119a1c059df8e183c9bbcc43b5c1140c0ad5789a2"
+    },
+    "services/analytics/multi_symbol_paper_campaign_generator.py": {
+      "authority": "services/market_data/group_b_selection.py:FROZEN",
+      "role": "frozen_ranker_or_public_universe",
+      "sha256": "f3b6b2384a82fc03742bbfc58a44193daf369deb663b8f0505336e9900cc3d9c"
+    },
+    "services/control/group_a_account_units.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "169615d395074534214e0600a8a5c558cedee7bd7100666f4f9297a88d7991b9"
+    },
+    "services/control/group_a_unit_composition.py": {
+      "authority": "docs/review_artifacts/group_a_unit_composition_20261111/INDEPENDENT_REVIEW.md",
+      "role": "source_or_synthetic_test",
+      "sha256": "41520005cf0fabae9cb6758f722fc84fa3dad733bafe50b9ce748261e396c8be"
+    },
+    "services/execution/outcome_logger.py": {
+      "authority": "docs/review_artifacts/paper_outcomes_0067_20261113/INDEPENDENT_REVIEW.md",
+      "role": "source_or_synthetic_test",
+      "sha256": "a00509b9ddc215b612c121e910519119ed2851f0fd667a7d4e0f4b85fab93b52"
+    },
+    "services/execution/outcome_summary.py": {
+      "authority": "docs/review_artifacts/paper_outcomes_0067_20261113/INDEPENDENT_REVIEW.md",
+      "role": "source_or_synthetic_test",
+      "sha256": "72ba8315982c3f2e656aa97285cf1265ca0d90d9a1ce1b6f15cecbf911e92e2e"
+    },
+    "services/execution/paper_cash_entry.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "58d3e100fb432b6ab94b2571ddc3fba5e3a21449785dc58723c9cb35b22be01e"
+    },
+    "services/execution/paper_engine.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "9a3487db5bebbc2ca0863b5d102383b8bbdca195fa2731ac62868a9446c1b0b7"
+    },
+    "services/execution/paper_runner.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "a1b385a408fb1494421901d50a9f868e300a3477342776f8596b95046de145da"
+    },
+    "services/execution/paper_weekly_slot.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "a9340633b45760a814ae64fdc9fa55a3c3b3f3e67ea3b236ed6cf9b62d6a9494"
+    },
+    "services/execution/strategy_runner.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "b7beecd23a9ec6ba26b8fde43965b356f37ada7d21ef619b5dddcd9acbfca9a5"
+    },
+    "services/market_data/group_b_selection.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "e5680a0cbd26967924e00791876b66b260c700c2ab3a10b1e057076a3be4dfa6"
+    },
+    "services/markets/fetch_coinbase_ccxt.py": {
+      "authority": "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "87c0f06cb4f4073eb02e364f014ba74a9c57ae9f16489dfa12632fb0132b3b87"
+    },
+    "services/markets/rules.py": {
+      "authority": "docs/review_artifacts/paper_market_rules_refresh_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "1223d6ddc12b0b6cf4c83bf399fcadb7e5c515dbf3c3a5863244dc3cf7519a87"
+    },
+    "services/signals/market_ranker.py": {
+      "authority": "services/market_data/group_b_selection.py:FROZEN",
+      "role": "frozen_ranker_or_public_universe",
+      "sha256": "d6fc1860f53a3ef7f688be047b9084ea479e63cf38cd599e996b22bb1ec0fec9"
+    },
+    "services/signals/signal_library.py": {
+      "authority": "services/market_data/group_b_selection.py:FROZEN",
+      "role": "frozen_ranker_or_public_universe",
+      "sha256": "64405797a2aa1a703dcd7995476547b4d3437139ec1ded9faa71eb9ef3d3af4c"
+    },
+    "services/strategies/presets.py": {
+      "authority": "docs/review_artifacts/paper_profile_candidate_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "002735111eb3eda44e940e98756a80fc5b7a571b08d05d9edf611e988386fd95"
+    },
+    "services/strategies/runtime_execution_identity.py": {
+      "authority": "docs/review_artifacts/paper_cash_sizing_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "1bd215aa26160c5c9272bb37f2678096aafec6161779aa2a77dd2dadcf8055f2"
+    },
+    "storage/intent_queue_sqlite.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "f5d9023e50e788877c47cf79aae8bf99569807297c8b763c7817e413b13bc621"
+    },
+    "storage/paper_trading_sqlite.py": {
+      "authority": "docs/review_artifacts/paper_account_currency_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "0c7651ea0e47217b700cbbb2e1874962e2ad6241301de414a5f0c809f676c96f"
+    },
+    "tests/test_coinbase_market_mode_gate.py": {
+      "authority": "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "b50bd71c2d9b212a9ced7d0c2389cd9cc411eb847ad0b0f664dba82c88dedd94"
+    },
+    "tests/test_coinbase_shared_precision.py": {
+      "authority": "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "f38340b4def64e2b8bd88d2dcc5c5c059dc6c94f5faef241439b432b907b10bc"
+    },
+    "tests/test_group_a_unit_composition.py": {
+      "authority": "docs/review_artifacts/group_a_unit_composition_20261111/INDEPENDENT_REVIEW.md",
+      "role": "source_or_synthetic_test",
+      "sha256": "b525f3c0792e99bba0fa836e07e6c14002ea352470d5d94c08499b53581f2dcb"
+    },
+    "tests/test_group_b_weekly_selection.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "a53780b27e9b54449fcfb520c2263848289e299e10905154586929c4a2b16d39"
+    },
+    "tests/test_paper_account_currency.py": {
+      "authority": "docs/review_artifacts/paper_account_currency_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "3f533431ec8d540e6bc17e4fe71e691d67d7c354c18f911876aa6cbd6a87cf75"
+    },
+    "tests/test_paper_cash_entry.py": {
+      "authority": "docs/review_artifacts/paper_cash_sizing_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "f6afd32a1a9604c6100d30a351a25cda36faa24244993b730e86a4669bbccaed"
+    },
+    "tests/test_paper_weekly_slot.py": {
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "42a8232f761b4f2574901d43c0989ccc381bb2bd0b59ee176cf31f6953db79f3"
+    },
+    "tests/test_refresh_paper_market_rules.py": {
+      "authority": "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "8ad264681077cea51a7cf047b0a25c2ea3310dfdaf1e30b0e326ff26448ebbaf"
+    },
+    "tests/test_runtime_execution_identity.py": {
+      "authority": "docs/review_artifacts/paper_cash_sizing_20261113/SOURCE_SHA256SUMS",
+      "role": "source_or_synthetic_test",
+      "sha256": "f8e2b60e83d929651592b14d429240e769a2ff947094e4dd1600027b4a46e4a1"
+    },
+    "tests/test_simulation_outcome_reconciliation.py": {
+      "authority": "docs/review_artifacts/paper_outcomes_0067_20261113/INDEPENDENT_REVIEW.md",
+      "role": "source_or_synthetic_test",
+      "sha256": "19094fdbeac0d5704807a7c4088dc66be9c08040f8fdcf8743e435bdaf5c59b1"
+    },
+    "tests/test_strategy_outcomes_follow_state_dir.py": {
+      "authority": "docs/review_artifacts/paper_outcomes_0067_20261113/INDEPENDENT_REVIEW.md",
+      "role": "source_or_synthetic_test",
+      "sha256": "56a2d06b64bc3606455dba163d65c6d48c4ff854cfb7e9bdc3d51d2d93aa436e"
+    }
+  },
+  "supersession_chain": [
+    {
+      "after": "b7beecd23a9ec6ba26b8fde43965b356f37ada7d21ef619b5dddcd9acbfca9a5",
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "before": "f1a8dcafcb7af7ab11bd29da7ef7b6603ae9e55ee3bde5e16c2150c68e335f21",
+      "path": "services/execution/strategy_runner.py"
+    },
+    {
+      "after": "d9142f603f11fec9ed4bb1b53971734a824893ffd0ff2334e91959eefdc5bde8",
+      "authority": "docs/review_artifacts/group_b_slots_20261113/SOURCE_SHA256SUMS",
+      "before": "abb05f01fdc368574cb4c3b53140caec60434b836a7a09a5355577c9206b3e34",
+      "path": "storage/paper_trading_sqlite.py"
+    },
+    {
+      "after": "58d3e100fb432b6ab94b2571ddc3fba5e3a21449785dc58723c9cb35b22be01e",
+      "authority": "docs/review_artifacts/paper_market_rules_refresh_20261113/SOURCE_SHA256SUMS",
+      "before": "dd5a90fbb95026b3a3fd1fde5879c2604346521b6d3a71f64bd7bb45c8ed08a7",
+      "path": "services/execution/paper_cash_entry.py"
+    },
+    {
+      "after": "87c0f06cb4f4073eb02e364f014ba74a9c57ae9f16489dfa12632fb0132b3b87",
+      "authority": "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS",
+      "before": "c6d3f3fdccee920169ec7b404189db067937069ddecca7cd74cfd6235d154810",
+      "path": "services/markets/fetch_coinbase_ccxt.py"
+    },
+    {
+      "after": "8ad264681077cea51a7cf047b0a25c2ea3310dfdaf1e30b0e326ff26448ebbaf",
+      "authority": "docs/review_artifacts/coinbase_precision_shared_20261114/SOURCE_SHA256SUMS",
+      "before": "b3f88866dba6223ba71f61b0bbbc12ffb1699695d57e68ed38ca4129bf247665",
+      "path": "tests/test_refresh_paper_market_rules.py"
+    },
+    {
+      "after": "0c7651ea0e47217b700cbbb2e1874962e2ad6241301de414a5f0c809f676c96f",
+      "authority": "docs/review_artifacts/paper_account_currency_20261114/SOURCE_SHA256SUMS",
+      "before": "d9142f603f11fec9ed4bb1b53971734a824893ffd0ff2334e91959eefdc5bde8",
+      "path": "storage/paper_trading_sqlite.py"
+    }
+  ]
+}

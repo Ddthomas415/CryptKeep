@@ -1,0 +1,24 @@
+{
+  "observed_date_utc": "2026-11-13",
+  "authority": "owner-requested current server configuration investigation only",
+  "ssh_connections": 1,
+  "overall_timeout_seconds": 25,
+  "ssh_exit": 0,
+  "projection": {
+    "status": "READ_ONLY_FILE_PROJECTION",
+    "effective_loaded_config": "UNVERIFIED",
+    "paths": [
+      {"path": "/srv/cryptkeep/app/config/user.yaml", "exists": false},
+      {"path": "/srv/cryptkeep/app/.cbp_state/runtime/config/user.yaml", "exists": false}
+    ],
+    "bounded_group_a_release_lookup": "no additional matching configuration paths returned"
+  },
+  "limits": [
+    "not a complete filesystem search",
+    "no active process or unit inventory",
+    "no effective configuration established",
+    "no environment values, credentials, databases or private accounts accessed",
+    "no remote file, service, configuration, deployment or trading changes",
+    "ordinary SSH access logging may persist"
+  ]
+}

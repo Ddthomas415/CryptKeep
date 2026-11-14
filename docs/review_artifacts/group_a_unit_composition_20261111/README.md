@@ -119,3 +119,102 @@ What do I know that could change the owner's decision that I have not yet said?
 The service-wiring code is implemented, but the actual frozen package is still
 refused. Backup, permissions and sizing are real unfinished work, not fields
 that can be filled with true to make the deployment ready.
+
+## Owner-directed resumption check: 2026-11-13
+
+Bot relation: BOT_PAPER target; BOT_RULES source. Runtime trading configuration not checked.
+
+**Dated correction, 2026-11-13T23:12:10Z:** the inventory below is historical to
+19:32Z, not a claim that every paper route depends on R10. Owner explicitly
+retained the backup stop; Codex's 22:55Z inference lifting it was withdrawn.
+BA-44 subsequently supplied a genuine unblocked source correction: existing patch
+0067 is now applied and separately accepted with risk for the outcome path only.
+Existing runner/engine paths do not intrinsically require the full compositor;
+a distinct diagnostic trial may be considered without claiming original
+commissioning. No alternative profile, trial, deployment or backup waiver is
+approved here. Exact current findings, selected test failure and limited host
+config inspection are in `../paper_outcomes_0067_20261113/README.md`. The earlier
+"no additional unblocked offline source fix" conclusion is narrowed accordingly.
+
+The owner directly instructed Codex to finish the simulation tasks. The general
+simulation hold was an unconfirmed interpretation, now withdrawn. This does not
+silently revoke the separate explicit November12 R10backup stop. Codex asked for
+clarification of that stop; no backup development, downloaded-tool execution,
+server/service or other operational action was started while it is pending.
+
+**SHOWN current check:** the unchanged accepted compositor41520005... was called
+once, in memory, using the preserved reviewed tree manifest74ffffcc... and
+candidate archive724b4785.... Python audit guards refused filesystem mutations,
+private configuration, database opening, process creation and network access.
+All four existing current entrypoint hashes match their candidate references;
+scripts/run_group_a_backup.py is still absent. Result: zero unit files, zero
+launch definitions, composition_complete=false, deployment_status=INCOMPLETE.
+Exact output: [READINESS_CHECK_20261113.json](READINESS_CHECK_20261113.json).
+No image pulled, container created, source changed or existing test repeated.
+
+**Dated correction:** the November13 handoff's next step was stale. The local
+R3Linux image/test completed November11:7fixtures,0failures/errors/skips and
+owned-container removal, separately accepted with risk. See the actual
+[native result](../group_a_release_candidate_20261104/r3_native_probe_20261105/NATIVE_RESULT_20261110.md)
+and its independent receipt review. The one-attempt authority is consumed;
+this result does not authorize an automatic repeat or establish full R3.
+
+Current requirements are separated below; PARTLY DONE means accepted source
+or narrowly scoped evidence, not completed on-host acceptance:
+
+| Requirement | Current disposition | Remaining acceptance |
+| --- | --- | --- |
+| R1 cooldown/protective exits | PARTLY DONE: accepted source and synthetic integration | Real setup/restart/stop-under-blocker evidence; resolve observed cadence |
+| R2 restarts/one stop | PARTLY DONE: accepted policy, roster and composition source | Actual complete target, ownership/namespaces, restart/reboot/stop timing |
+| R3 alerts | PARTLY DONE: accepted watcher/dispatch source and seven Linux process fixtures | Effective host policy, sustained capacity, actual delivery and owner receipt |
+| R4 quotes/candles/fill provenance | PARTLY DONE: accepted exact-symbol, valuation, freshness and export increments | Approved effective profile, intended-host feed and operating acceptance |
+| R5 debug/logging | PARTLY DONE: accepted removal/rotation source | Intended-host log sinks, single-writer/ownership and bounded capacity |
+| R6 inputs/replay | PARTLY DONE: accepted recorder/replay source; preserved1616/1-skip composition selection | Observed-hour/72-hour replay, elapsed holding-time limitation and capacity |
+| R7 evaluation approval | NOT DONE: existing rule file still marks owner approvals PENDING | Minimum trades42/42/31 and drawdown-rule adoption, final scoring contract seal |
+| R8 lifecycle/reconciliation | PARTLY DONE: source increments accepted; account-reconciliation stage used human acceptance | Intended-host continuous reconciliation/latency/delivery and failure tests |
+| R9 all exit conditions | PARTLY DONE: accepted capture/parity source | Actual observed recordings and replay, not only synthetic input parity |
+| R10 heartbeat/backups | NOT DONE operationally; backup components exist, further work explicitly stopped | Real foreground integration, provider/access/key/retention/restore and external heartbeats; no fake role |
+| R11 commissioning | NOT DONE | Authorized complete setup,72hours with section9failure tests, replay/reconciliation/restore/capacity and alerts |
+| R12 durable stuck exits | PARTLY DONE: accepted retry/fence source | Real pending/refusal/stale-quote/restart cases and alert receipt |
+
+No sampled source receipt closes the entire system. Existing source test
+outputs/reviews are reused, not reissued as fresh full-suite or host proof.
+The earlier composed candidate's1616passed/one Linux skip is historical local
+evidence; this check does not rerun it. Whole-code cleanliness, current host
+health, deployed config, current fees or a profitable strategy are not shown.
+
+Distinct outstanding choices/actions are:
+- R10stop clarification before further backup integration; MEGA is already the
+  adopted storage choice, not a selection to repeat. Provider access/key and
+  heartbeat setup remain unresolved; no secrets are requested here.
+- Full-position sizing/configuration and evaluation adoption. The existing
+  strategy runner's buy path uses configured fixed qty; it does not implement
+  a newly invented full-cash allocation rule. No financial setting is guessed.
+- Reviewed source/dependency/provisioning package and separately authorized
+  host actions, real acceptance/delivery,72-hour commissioning and official
+  start approval. A generic instruction to finish is not a silent activation.
+
+The older57GiBjournal projection and33.46GBfree-disk sample are warning evidence,
+not current host proof; capacity needs resolution before commissioning. Do not
+delete evidence, lower recorded coverage or narrow symbols to make it fit.
+GroupB still follows GroupA under the frozen capacity/approval sequence; the
+25-symbol mandate and standalone BTC/ETH tracker are unchanged.
+
+Separate Pascal AUDITOR checked through2026-11-13T19:28:27Z against underlying
+specification, candidate/unit/native receipts and current queue: no additional
+unblocked offline source fix was demonstrated. It independently identified the
+stale Linux todo, missing required backup, pending sizing/evaluation choices and
+operational requirements. No edits/tests/operations were performed by that
+review. This is requirements/evidence analysis, not a new approval to operate.
+
+**Outcome:** current source-readiness check complete; full simulation INCOMPLETE.
+There is no justified extra prototype or test loop to start while the required
+R10decision is unresolved. Continue this same simulation item when that decision
+arrives; do not substitute another research task or abandon the objective.
+
+What do I know that could change the owner's decision that I have not yet said?
+
+The remaining bottleneck is not the already-passed Linux test. A missing required
+backup role and unapproved operating configuration prevent a runnable full-spec
+target; commissioning and26weeks of evaluation cannot be manufactured by more
+local tests. These are separate from whether the strategy eventually makes money.

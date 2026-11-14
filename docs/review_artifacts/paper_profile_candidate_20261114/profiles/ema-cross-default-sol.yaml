@@ -1,0 +1,31 @@
+# Review-only candidate; NOT installed, loaded or authorized to start.
+# Isolate as <approved-state-root>/ema-cross-default-sol/runtime/config/user.yaml.
+execution:
+  live_enabled: false
+live_execution:
+  armed: false
+paper_trading:
+  enabled: true
+  quote_currency: USD
+  starting_cash_quote: 1000
+  fee_bps: 50
+  slippage_bps: 0
+  use_ccxt_fallback: false
+  require_fresh_snapshot_quotes: true
+  require_fresh_hourly_candles: true
+  strategy_id: ema_cross
+strategy_runner:
+  enabled: true
+  venue: coinbase
+  symbols: [SOL/USD]
+  strategy_name: ema_cross
+  strategy_id: ema_cross
+  strategy_preset: ema_cross_default
+  signal_source: public_ohlcv_1h
+  loop_interval_sec: 15
+  paper_entry_sizing: available_cash_v1
+  position_aware: true
+  sell_full_position: true
+  auto_select_best_venue: false
+  order_type: market
+  use_ccxt_fallback: false

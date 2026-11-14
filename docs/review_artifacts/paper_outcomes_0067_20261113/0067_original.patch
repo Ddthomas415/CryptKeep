@@ -1,0 +1,279 @@
+From e48f8fe9d3a1ad812eb680f1953757c8f0e710d8 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 5 Oct 2026 13:17:55 +0000
+Subject: [PATCH] fix(outcomes): strategy outcome log follows the state
+ directory, not the working directory
+
+outcome_logger and outcome_summary used a path relative to the working
+directory and ignored CBP_STATE_DIR. Campaigns with their own state
+directories wrote one shared file (the closed-trade summary then read one
+campaign's realized total as a change from another's), a process started
+elsewhere used a different file, and every test run appended to the real one.
+
+Both modules now resolve the file from the state directory on each call. For
+the default state directory started from the repo root it is the same file.
+
+Recorded by test, not changed: outcome evidence cannot change which strategy
+the selector picks (score clamped to +/-3, rank steps of 10).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_011p3WBrLHso7qjbJYsguxAY
+---
+ docs/work_log/review_stabilized_work_log.md   |  42 +++++++
+ services/execution/outcome_logger.py          |  22 +++-
+ services/execution/outcome_summary.py         |   8 +-
+ ...test_strategy_outcomes_follow_state_dir.py | 118 ++++++++++++++++++
+ 4 files changed, 181 insertions(+), 9 deletions(-)
+ create mode 100644 tests/test_strategy_outcomes_follow_state_dir.py
+
+diff --git a/docs/work_log/review_stabilized_work_log.md b/docs/work_log/review_stabilized_work_log.md
+index 478dfc1a..20d78b89 100644
+--- a/docs/work_log/review_stabilized_work_log.md
++++ b/docs/work_log/review_stabilized_work_log.md
+@@ -1,5 +1,47 @@
+ # Review Stabilized Work Log
+ 
++## 2026-10-05 - Strategy outcomes were written relative to the working directory, shared by every campaign
++
++- AUDITOR then ENGINEER (Claude). Follow-up to the test-isolation entry
++  below: the one real file a full test run still changed. Master 97c24c8e
++  plus this series. Paper evidence path; no live order path changes.
++- SHOWN by probe and test (real logger and summary): `outcome_logger` and
++  `outcome_summary` used `Path(".cbp_state/runtime/outcomes/...")`, relative
++  to the working directory, and ignored `CBP_STATE_DIR`.
++  1. Two campaigns with their own state directories, started from one
++     working directory, wrote the same file. The closed-trade summary then
++     read campaign B's realized total (-40) as a change from campaign A's
++     (+5) and reported `realized_pnl_delta = -45` for B.
++  2. A process started from another directory wrote and read a different
++     file (0 rows visible).
++  3. Every full test run appended rows to the real file: 33,685 bytes per
++     run in the review clone.
++  The dashboard "Runtime Outcome Summary" page and the strategy selector's
++  evidence score read this file.
++- Correction: both modules resolve the file from the state directory on
++  each call (`outcome_logger.outcomes_file()`). For the default state
++  directory started from the repo root the file is the same one as before.
++- SHOWN, recorded, NOT changed: the selector's outcome evidence cannot
++  change which strategy is selected. The score is clamped to +/-3 and rank
++  steps are 10 (volume-surge bonuses of 4 and 8 included); across five
++  regimes, with and without a surge, every combination of extreme evidence
++  selects the same strategy as no evidence. Whether outcomes should
++  influence selection is an operator decision.
++- NOT changed: rows already in the shared file stay there, mixed (no
++  history is cleared or split); a campaign with its own state directory
++  starts a new file and no longer sees them. Four other paths are still
++  relative to the working directory and are pinned as known by a test:
++  `services/backtest/selector_run_store.py`,
++  `services/backtest/backtest_run_store.py`,
++  `services/market_data/market_intelligence.py`, `scripts/paper_stop.py`
++  (`make paper-stop-now` writes its stop flags there and stops paper
++  processes by name across every campaign on the machine).
++- Tests: tests/test_strategy_outcomes_follow_state_dir.py, 14 cases; 4 fail
++  on the previous code, the 10 selector cases record current behaviour.
++  Full suite with the tooling on the right interpreter: 4844 passed, 33
++  skipped, 0 failed; no file in the real state directory changed.
++- Status: READY_FOR_INDEPENDENT_REVIEW. Not pushed, not deployed.
++
+ ## 2026-10-05 - Test suite wrote into the real state directory (order-block flag, kill switch, arming state, user.yaml, operator events)
+ 
+ - AUDITOR then ENGINEER (Claude). Found while reviewing the risk-sink flag
+diff --git a/services/execution/outcome_logger.py b/services/execution/outcome_logger.py
+index ef98f945..cf89c95a 100644
+--- a/services/execution/outcome_logger.py
++++ b/services/execution/outcome_logger.py
+@@ -5,8 +5,19 @@ import time
+ from pathlib import Path
+ from typing import Any
+ 
+-STORE_DIR = Path(".cbp_state/runtime/outcomes")
+-STORE_FILE = STORE_DIR / "strategy_outcomes.jsonl"
++from services.os.app_paths import runtime_dir
++
++
++def outcomes_file() -> Path:
++    """The outcome log of the current state directory.
++
++    Resolved on each call from CBP_STATE_DIR (default <repo>/.cbp_state). It
++    used to be a path relative to the working directory, so every paper
++    campaign started from the repo root wrote one shared file whatever its
++    own state directory was, and a process started elsewhere wrote and read
++    a different file.
++    """
++    return runtime_dir() / "outcomes" / "strategy_outcomes.jsonl"
+ 
+ 
+ def _now() -> str:
+@@ -14,11 +25,12 @@ def _now() -> str:
+ 
+ 
+ def log_strategy_outcome(row: dict[str, Any]) -> dict[str, Any]:
+-    STORE_DIR.mkdir(parents=True, exist_ok=True)
++    store_file = outcomes_file()
++    store_file.parent.mkdir(parents=True, exist_ok=True)
+     payload = {
+         "ts": _now(),
+         **dict(row or {}),
+     }
+-    with STORE_FILE.open("a", encoding="utf-8") as f:
++    with store_file.open("a", encoding="utf-8") as f:
+         f.write(json.dumps(payload, sort_keys=True) + "\n")
+-    return {"ok": True, "path": str(STORE_FILE), "row": payload}
++    return {"ok": True, "path": str(store_file), "row": payload}
+diff --git a/services/execution/outcome_summary.py b/services/execution/outcome_summary.py
+index b530a7ed..1ed7ad2b 100644
+--- a/services/execution/outcome_summary.py
++++ b/services/execution/outcome_summary.py
+@@ -2,10 +2,9 @@ from __future__ import annotations
+ 
+ import json
+ from collections import defaultdict
+-from pathlib import Path
+ from typing import Any
+ 
+-STORE_FILE = Path(".cbp_state/runtime/outcomes/strategy_outcomes.jsonl")
++from services.execution.outcome_logger import outcomes_file
+ 
+ 
+ def _safe_float(v: Any, default: float = 0.0) -> float:
+@@ -21,10 +20,11 @@ def load_outcomes(
+     require_selected_strategy: bool = False,
+     require_regime: bool = False,
+ ) -> list[dict[str, Any]]:
+-    if not STORE_FILE.exists():
++    store_file = outcomes_file()
++    if not store_file.exists():
+         return []
+     rows: list[dict[str, Any]] = []
+-    with STORE_FILE.open("r", encoding="utf-8") as f:
++    with store_file.open("r", encoding="utf-8") as f:
+         for line in f:
+             line = line.strip()
+             if not line:
+diff --git a/tests/test_strategy_outcomes_follow_state_dir.py b/tests/test_strategy_outcomes_follow_state_dir.py
+new file mode 100644
+index 00000000..bf80bf6d
+--- /dev/null
++++ b/tests/test_strategy_outcomes_follow_state_dir.py
+@@ -0,0 +1,118 @@
++"""Strategy outcomes belong to the state directory of the process that logs them."""
++from __future__ import annotations
++
++import itertools
++import re
++from pathlib import Path
++
++import pytest
++
++from services.execution import outcome_logger, outcome_summary
++
++REPO = Path(__file__).resolve().parents[1]
++
++
++def _log(monkeypatch, state_dir: Path, name: str, realized: float) -> dict:
++    monkeypatch.setenv("CBP_STATE_DIR", str(state_dir))
++    return outcome_logger.log_strategy_outcome(
++        {"intent_strategy_id": name, "symbol": "BTC/USD", "pos_qty": 0.0, "realized_pnl_total": realized}
++    )
++
++
++def test_two_campaigns_from_one_working_directory_keep_separate_outcomes(monkeypatch, tmp_path):
++    monkeypatch.chdir(tmp_path)
++    a, b = tmp_path / "campA", tmp_path / "campB"
++
++    wrote_a = _log(monkeypatch, a, "campA", 5.0)
++    wrote_b = _log(monkeypatch, b, "campB", -40.0)
++
++    assert Path(wrote_a["path"]) == a / "runtime" / "outcomes" / "strategy_outcomes.jsonl"
++    assert Path(wrote_b["path"]) == b / "runtime" / "outcomes" / "strategy_outcomes.jsonl"
++    # nothing lands relative to the working directory
++    assert not (tmp_path / ".cbp_state").exists()
++
++    rows_b = outcome_summary.load_outcomes()
++    assert [r["intent_strategy_id"] for r in rows_b] == ["campB"]
++    # campB's realized total is not read as a change from campA's
++    closed = outcome_summary.summarize_closed_trade_outcomes(rows_b)["closed_rows"]
++    assert [(c["selected_strategy"], c["realized_pnl_delta"]) for c in closed] == [("campB", 0.0)]
++
++    monkeypatch.setenv("CBP_STATE_DIR", str(a))
++    assert [r["intent_strategy_id"] for r in outcome_summary.load_outcomes()] == ["campA"]
++
++
++def test_outcomes_do_not_depend_on_the_working_directory(monkeypatch, tmp_path):
++    state = tmp_path / "state"
++    (tmp_path / "one").mkdir()
++    (tmp_path / "two").mkdir()
++    monkeypatch.chdir(tmp_path / "one")
++    _log(monkeypatch, state, "ema_cross", 1.0)
++    monkeypatch.chdir(tmp_path / "two")
++    assert len(outcome_summary.load_outcomes()) == 1
++
++
++def test_selector_evidence_is_read_from_the_current_state_dir(monkeypatch, tmp_path):
++    monkeypatch.chdir(tmp_path)
++    other, mine = tmp_path / "other", tmp_path / "mine"
++    for _ in range(3):
++        monkeypatch.setenv("CBP_STATE_DIR", str(other))
++        outcome_logger.log_strategy_outcome(
++            {"selected_strategy": "momentum", "regime": "trending_up", "fill_vs_plan_pct": 2.0}
++        )
++    monkeypatch.setenv("CBP_STATE_DIR", str(mine))
++    got = outcome_summary.recent_strategy_regime_score("momentum", "trending_up")
++    assert got["count"] == 0 and got["enough_data"] is False
++
++    monkeypatch.setenv("CBP_STATE_DIR", str(other))
++    got = outcome_summary.recent_strategy_regime_score("momentum", "trending_up")
++    assert got["count"] == 3 and got["score"] == pytest.approx(2.0)
++
++
++# Production paths still written relative to the working directory. Each is
++# recorded in the work log as not fixed. A new one fails this test.
++KNOWN_CWD_RELATIVE = {
++    "services/backtest/selector_run_store.py",
++    "services/backtest/backtest_run_store.py",
++    "services/market_data/market_intelligence.py",
++    "scripts/paper_stop.py",
++}
++
++
++def test_no_new_state_path_relative_to_the_working_directory():
++    pattern = re.compile(r"Path\(\s*[\"']\.cbp_state")
++    found = set()
++    for top in ("services", "storage", "core", "dashboard", "adapters", "scripts"):
++        for path in (REPO / top).rglob("*.py"):
++            if "__pycache__" in path.parts:
++                continue
++            if pattern.search(path.read_text(encoding="utf-8", errors="replace")):
++                found.add(path.relative_to(REPO).as_posix())
++    assert found - KNOWN_CWD_RELATIVE == set()
++    assert "services/execution/outcome_logger.py" not in found
++    assert "services/execution/outcome_summary.py" not in found
++
++
++@pytest.mark.parametrize("regime", ["trending_up", "ranging", "high_volatility", "trending_down", "unknown"])
++@pytest.mark.parametrize("surge", [False, True])
++def test_outcome_evidence_cannot_change_the_selected_strategy(monkeypatch, regime, surge):
++    """Records current behaviour, not a requirement: the evidence score is
++    clamped to +/-3 and rank steps are 10, so no outcome history changes the
++    pick. If this fails, outcome evidence has started to matter and where it
++    is read from (above) matters with it."""
++    from services.strategies import strategy_selector as ss
++
++    monkeypatch.delenv("CBP_USE_CANDIDATE_ADVISOR", raising=False)
++    monkeypatch.setattr(ss, "detect_regime", lambda o: {"regime": regime})
++    monkeypatch.setattr(ss, "detect_volume_surge", lambda o: {"surge": surge, "ratio": 3.0 if surge else 1.0})
++    monkeypatch.setattr(ss, "recent_strategy_regime_score", lambda *a, **k: {"score": 0.0, "count": 0})
++    base = ss.select_strategy(default_strategy="ema_cross", ohlcv=[1])
++    names = base["ranked_candidates"]
++
++    picks = set()
++    for combo in itertools.product((-3.0, 3.0), repeat=len(names)):
++        scores = dict(zip(names, combo))
++        monkeypatch.setattr(
++            ss, "recent_strategy_regime_score", lambda n, r, **k: {"score": scores.get(n, 0.0), "count": 9}
++        )
++        picks.add(ss.select_strategy(default_strategy="ema_cross", ohlcv=[1])["selected_strategy"])
++    assert picks == {base["selected_strategy"]}
+-- 
+2.43.0
+

@@ -1,0 +1,391 @@
+from __future__ import annotations
+import asyncio
+import json
+import logging
+import os
+import time
+from datetime import datetime, timezone
+from services.admin.config_editor import load_user_yaml
+from services.os.app_paths import runtime_dir, ensure_dirs
+from services.execution.intent_reconciler import reconcile_once
+from services.execution.state_authority import LiveStateContext, paper_queue_status
+from services.execution.paper_engine import PaperEngine
+from services.execution.paper_buy_policy import buy_age_verdict
+from services.execution.paper_buy_lifecycle import recover_paper_buys, finish_buy, record_buy_alert
+from services.execution.paper_exit_retry import (
+    has_exit_marker, consume_pending_paper_exit, _prepare,
+)
+from services.live_router.router import decide_order
+from storage.intent_queue_sqlite import IntentQueueSQLite
+from storage.trade_journal_sqlite import TradeJournalSQLite
+from services.os.file_utils import atomic_write
+from services.control.managed_component import clean_stale_lock_file
+
+FLAGS = runtime_dir() / "flags"
+LOCKS = runtime_dir() / "locks"
+STOP_FILE = FLAGS / "paper_engine.stop"
+LOCK_FILE = LOCKS / "paper_engine.lock"
+STATUS_FILE = FLAGS / "paper_engine.status.json"
+_LOG = logging.getLogger(__name__)
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def _write_status(obj: dict) -> None:
+    FLAGS.mkdir(parents=True, exist_ok=True)
+    atomic_write(STATUS_FILE, json.dumps(obj, indent=2, sort_keys=True) + "\n")
+
+def _acquire_lock() -> bool:
+    LOCKS.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps({"pid": os.getpid(), "ts": _now()}, indent=2) + "\n"
+    try:
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        if not clean_stale_lock_file(LOCK_FILE):
+            return False
+        try:
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            return False
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(payload)
+    except Exception:
+        try:
+            if LOCK_FILE.exists():
+                LOCK_FILE.unlink()
+        except Exception:
+            pass
+        raise
+    return True
+
+def _release_lock() -> None:
+    try:
+        if LOCK_FILE.exists():
+            LOCK_FILE.unlink()
+    except Exception as e:
+        _LOG.warning("paper runner lock release failed: %s: %s", type(e).__name__, e)
+
+def request_stop() -> dict:
+    ensure_dirs()
+    FLAGS.mkdir(parents=True, exist_ok=True)
+    atomic_write(STOP_FILE, _now() + "\n")
+    return {"ok": True, "stop_file": str(STOP_FILE)}
+
+
+async def _decide_batch(intents: list[dict]) -> list[tuple[dict, object]]:
+    async def _decide_one(it: dict) -> object:
+        side = str(it.get("side") or "").strip().lower()
+        qty = float(it.get("qty") or 0.0)
+
+        if side not in ("buy", "sell"):
+            raise ValueError(f"invalid_side:{side!r}")
+        if qty <= 0.0:
+            raise ValueError(f"invalid_qty:{qty}")
+
+        delta_qty = qty if side == "buy" else -qty
+        overrides: dict = dict(it.get("meta") or {})
+
+        lp = it.get("limit_price")
+        if lp is not None:
+            router_ov = dict(overrides.get("router") or {})
+            router_ov.setdefault("limit_price", float(lp))
+            overrides["router"] = router_ov
+
+        return await decide_order(
+            venue=str(it.get("venue") or "coinbase"),
+            symbol_norm=str(it.get("symbol") or ""),
+            delta_qty=delta_qty,
+            overrides=overrides,
+        )
+
+    results = await asyncio.gather(
+        *[_decide_one(it) for it in intents],
+        return_exceptions=True,
+    )
+    return list(zip(intents, results))
+
+
+def _hold_pending_failure(qdb, row, exc):
+    try:
+        qdb.paper_exit_transition(row["intent_id"], "held", event="recovery_error",
+                                 reason=type(exc).__name__)
+    except Exception as receipt_exc:
+        _LOG.warning("paper_exit_receipt_failed error_type=%s", type(receipt_exc).__name__)
+
+
+def _consumer_status(qdb, row, status, **kwargs):
+    paper_queue_status(qdb, row, status, **kwargs)
+    if str(row.get("side")).lower().strip() == "buy" and status == "rejected":
+        record_buy_alert(qdb, row, kwargs.get("last_error") or status, now_ts=_now())
+
+
+def _consume_queued_intents_once(*, qdb: IntentQueueSQLite, eng: PaperEngine, limit: int = 20) -> dict:
+    recover_paper_buys(qdb, eng.db, clock=_now)
+    queued = qdb.claim_next_queued(limit=int(limit))
+    ctx = LiveStateContext(authority="INTENT_CONSUMER", origin="paper_runner.consume_queued_intents_once")
+    submitted = 0
+    rejected = 0
+    idempotent = 0
+
+    if not queued:
+        return {
+            "queued_seen": 0,
+            "submitted": 0,
+            "rejected": 0,
+            "idempotent": 0,
+        }
+
+    # Route the executable attempt size, not the immutable root size. Keep
+    # the original row for recovery/identity and recheck holdings in the engine.
+    routed = []
+    originals = {str(row["intent_id"]): row for row in queued}
+    recovered = []
+    for it in queued:
+        if str(it.get("side") or "").strip().lower() == "buy":
+            verdict = buy_age_verdict(it.get("created_ts"), _now())
+            if not verdict["ok"]:
+                finish_buy(qdb, it, "expired" if verdict["reason"].startswith("paper_buy_ttl:expired") else "rejected",
+                           verdict["reason"], now_ts=_now())
+                continue
+        if not has_exit_marker(it):
+            routed.append(it)
+            continue
+        try:
+            prepared = _prepare(eng.db, it)
+            if prepared["state"] == "ready":
+                routed.append({**it, "qty": prepared["qty"]})
+            else:
+                recovered.append((it, None))
+        except Exception as exc:
+            _hold_pending_failure(qdb, it, exc)
+    try:
+        routed_quantities = {str(row["intent_id"]): row["qty"] for row in routed}
+        decisions = recovered + [
+            (originals[str(row["intent_id"])], decision)
+            for row, decision in asyncio.run(_decide_batch(routed))
+        ]
+    except Exception as e:
+        _LOG.exception("paper_runner.decide_batch_failed: %s", e)
+        for it in queued:
+            intent_id = str(it.get("intent_id") or "").strip()
+            if not intent_id:
+                continue
+            if has_exit_marker(it):
+                try:
+                    consume_pending_paper_exit(qdb, eng, it, e)
+                except Exception as exc:
+                    _hold_pending_failure(qdb, it, exc)
+                continue
+            _consumer_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"decide_batch_failed:{type(e).__name__}:{e}",
+                client_order_id=str(it.get("client_order_id") or f"paper_intent_{intent_id}"),
+            )
+            rejected += 1
+        return {
+            "queued_seen": int(len(queued)),
+            "submitted": 0,
+            "rejected": int(rejected),
+            "idempotent": 0,
+        }
+
+    for it, decision_or_exc in decisions:
+        intent_id = str(it.get("intent_id") or "").strip()
+        if not intent_id:
+            continue
+
+        client_order_id = str(it.get("client_order_id") or f"paper_intent_{intent_id}")
+
+        if has_exit_marker(it):
+            try:
+                result = consume_pending_paper_exit(
+                    qdb, eng, it, decision_or_exc,
+                    routed_qty=routed_quantities.get(str(it["intent_id"])),
+                )
+                submitted += result["submitted"]
+                idempotent += result["idempotent"]
+            except Exception as exc:
+                _hold_pending_failure(qdb, it, exc)
+            continue
+
+        if isinstance(decision_or_exc, Exception):
+            _consumer_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"decide_order:{type(decision_or_exc).__name__}:{decision_or_exc}",
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
+        decision = decision_or_exc
+        if not bool(getattr(decision, "allowed", False)):
+            reason = str(getattr(decision, "reason", "blocked"))
+            _LOG.info("paper_runner.decide_order_blocked intent_id=%s reason=%s", intent_id, reason)
+            _consumer_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"decide_order:{reason}",
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
+        try:
+            resp = eng.submit_order(
+                client_order_id=client_order_id,
+                venue=str(it.get("venue") or "paper"),
+                symbol=str(it.get("symbol") or ""),
+                side=str(it.get("side") or ""),
+                order_type=str(it.get("order_type") or "market"),
+                qty=float(it.get("qty") or 0.0),
+                limit_price=(float(it["limit_price"]) if it.get("limit_price") is not None else None),
+                ts=str(it.get("ts") or _now()),
+                strategy_id=it.get("strategy_id"),
+                meta=it.get("meta"),
+                **({"intent_created_ts": it.get("created_ts")} if str(it.get("side")).lower().strip() == "buy" else {}),
+            )
+        except Exception as e:
+            if str(it.get("side")).lower().strip() == "buy":
+                # An exception may follow a durable order or fill. Recovery owns
+                # disposal; never report refusal while that order can execute.
+                try:
+                    qdb.record_paper_buy_event(intent_id, "submit_uncertain", reason=type(e).__name__)
+                except Exception as receipt_exc:
+                    _LOG.warning("paper_buy_receipt_failed error_type=%s", type(receipt_exc).__name__)
+                record_buy_alert(qdb, it, "paper_buy_submit_uncertain", now_ts=_now())
+                recover_paper_buys(qdb, eng.db, clock=_now)
+                continue
+            _consumer_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=f"{type(e).__name__}:{e}",
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
+        if not bool(resp.get("ok")):
+            reason = str(resp.get("reason") or "paper_submit_failed")
+            if str(it.get("side")).lower().strip() == "buy" and reason.startswith("paper_buy_ttl:"):
+                finish_buy(qdb, it, "expired" if reason.startswith("paper_buy_ttl:expired") else "rejected",
+                           reason, now_ts=_now())
+                rejected += 1
+                continue
+            _consumer_status(
+                qdb,
+                it,
+                "rejected",
+                ctx=ctx,
+                last_error=str(resp.get("reason") or "paper_submit_failed"),
+                client_order_id=client_order_id,
+            )
+            rejected += 1
+            continue
+
+        order = dict(resp.get("order") or {})
+        order_id = str(order.get("order_id") or "").strip() or None
+        reject_reason = order.get("reject_reason")
+        _consumer_status(
+            qdb,
+            it,
+            "submitted",
+            ctx=ctx,
+            last_error=reject_reason,
+            client_order_id=client_order_id,
+            linked_order_id=order_id,
+        )
+        submitted += 1
+        _LOG.info("paper_runner.intent_submitted intent_id=%s symbol=%s side=%s qty=%s", intent_id, it.get("symbol"), it.get("side"), it.get("qty"))
+        if bool(resp.get("idempotent")):
+            idempotent += 1
+
+    return {
+        "queued_seen": int(len(queued)),
+        "submitted": int(submitted),
+        "rejected": int(rejected),
+        "idempotent": int(idempotent),
+    }
+
+def run_forever() -> None:
+    ensure_dirs()
+    try:
+        if STOP_FILE.exists():
+            STOP_FILE.unlink()
+    except Exception as e:
+        _LOG.warning("paper runner stop-file cleanup failed: %s: %s", type(e).__name__, e)
+    if not _acquire_lock():
+        _write_status({"ok": False, "reason": "lock_exists", "lock_file": str(LOCK_FILE), "ts": _now()})
+        return
+    eng = PaperEngine()
+    qdb = IntentQueueSQLite()
+    jdb = TradeJournalSQLite()
+    cfg = load_user_yaml()
+    p = cfg.get("paper_trading") if isinstance(cfg.get("paper_trading"), dict) else {}
+    venue = str(
+        (
+            os.environ.get("CBP_COMPONENT_VENUE")
+            or os.environ.get("CBP_VENUE")
+            or p.get("default_venue")
+            or "coinbase"
+        )
+    ).lower().strip()
+    symbols = [
+        x.strip()
+        for x in str(os.environ.get("CBP_COMPONENT_SYMBOLS") or os.environ.get("CBP_SYMBOLS") or "").split(",")
+        if x.strip()
+    ]
+    if not symbols:
+        cfg_symbol = str(p.get("default_symbol", DEFAULT_SYMBOL) or DEFAULT_SYMBOL).strip()
+        symbols = [cfg_symbol] if cfg_symbol else [DEFAULT_SYMBOL]
+    interval = float(p.get("loop_interval_sec", 1.0) or 1.0)
+    max_intents_per_loop = int(p.get("max_intents_per_loop", 20) or 20)
+    _write_status({"ok": True, "status": "running", "pid": os.getpid(), "venue": venue, "symbols": symbols, "ts": _now()})
+    try:
+        while True:
+            if STOP_FILE.exists():
+                _write_status({"ok": True, "status": "stopping", "pid": os.getpid(), "ts": _now()})
+                break
+            queue_cycle = _consume_queued_intents_once(qdb=qdb, eng=eng, limit=max_intents_per_loop)
+            rec = eng.evaluate_open_orders()
+            recon = reconcile_once(qdb=qdb, pdb=eng.db, jdb=jdb, max_intents=max_intents_per_loop)
+            mtm_by_symbol = {}
+            for symbol in symbols:
+                try:
+                    mtm_by_symbol[symbol] = eng.mark_to_market(venue, symbol)
+                except Exception as e:
+                    mtm_by_symbol[symbol] = {"ok": False, "reason": f"{type(e).__name__}:{e}"}
+
+            _write_status({
+                "ok": True,
+                "status": "running",
+                "pid": os.getpid(),
+                "ts": _now(),
+                "venue": venue,
+                "symbols": symbols,
+                "queue": queue_cycle,
+                "reconcile": {"open_seen": rec.get("open_orders_seen"), "filled": rec.get("filled"), "rejected": rec.get("rejected")},
+                "intent_reconcile": recon,
+                "mtm": mtm_by_symbol,
+            })
+            time.sleep(max(0.25, interval))
+    finally:
+        _release_lock()
+        _write_status({"ok": True, "status": "stopped", "pid": os.getpid(), "ts": _now()})
+
+
+# ---- runtime defaults ----
+# D07: DEFAULT_VENUE removed — was read from os.environ at module import time,
+# capturing ambient environment before run_forever() was called.
+# run_forever() reads CBP_VENUE at call time and falls back to "coinbase".
+DEFAULT_SYMBOL = "BTC/USD"

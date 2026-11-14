@@ -1,0 +1,42 @@
+{
+  "candidate_archive_sha256": "724b4785dd627f9ff35bc91b939788d6ac90850458ba4f4333f7c7231f3dac1d",
+  "candidate_tree_sha256": "74ffffcc5f131d7766350731337825e9c628ce1184b5d3d240d476d8c027f885",
+  "composition_complete": false,
+  "current_entrypoint_hash_matches_candidate": {
+    "scripts/run_group_a_alert.py": true,
+    "scripts/run_group_a_quote_publisher.py": true,
+    "scripts/run_paper_engine.py": true,
+    "scripts/run_strategy_runner.py": true
+  },
+  "current_entrypoints_exist": {
+    "scripts/run_group_a_alert.py": true,
+    "scripts/run_group_a_backup.py": false,
+    "scripts/run_group_a_quote_publisher.py": true,
+    "scripts/run_paper_engine.py": true,
+    "scripts/run_strategy_runner.py": true
+  },
+  "deployment_status": "INCOMPLETE",
+  "launch_definitions": 0,
+  "missing_entrypoints": [
+    "scripts/run_group_a_backup.py"
+  ],
+  "runtime_config_checked": false,
+  "runtime_refs": {
+    "scripts/run_group_a_alert.py": "9f112b7260134ba8b223717682be9b107a205cbcef12dc7312e5dcf80b982102",
+    "scripts/run_group_a_quote_publisher.py": "9b66559b6fcd29e16d3e272d8b88cc79bc035595fd83e6eb41241861b4a11e21",
+    "scripts/run_paper_engine.py": "f77824934e87867e7fd87ff94601ef0d4d88f9b4602473fbdf1c3406f192d309",
+    "scripts/run_strategy_runner.py": "1ab7eb12880ffe6eb3cd629a4685501cb691568143e85cd7b169c507f5b950b0"
+  },
+  "scope": "read_only_current_compositor_with_preserved_candidate_references",
+  "server_or_daemon_contacted": false,
+  "source_sha256": "41520005cf0fabae9cb6758f722fc84fa3dad733bafe50b9ce748261e396c8be",
+  "unit_files": 0,
+  "unverified_requirements": [
+    "source_bytes_and_independent_review",
+    "backup_runtime_and_R10",
+    "sizing_and_effective_configuration",
+    "permissions_and_namespaces",
+    "target_dependencies_and_effective_policy",
+    "delivery_and_commissioning"
+  ]
+}

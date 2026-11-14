@@ -1,0 +1,22 @@
+--- docs/review_artifacts/paper_market_rules_refresh_20261113/paper_cash_entry_before.py	2026-11-14 00:06:22
++++ services/execution/paper_cash_entry.py	2026-11-14 00:03:04
+@@ -2,6 +2,7 @@
+ from decimal import Decimal, DecimalException, ROUND_FLOOR, localcontext
+ import hashlib
+ import math
++from pathlib import Path
+ import sqlite3
+ from urllib.parse import quote as uri_quote
+ 
+@@ -72,9 +73,9 @@
+         raise ValueError("invalid_sizing_number") from exc
+ 
+ 
+-def _cached_rules(venue, symbol, now):
++def _cached_rules(venue, symbol, now, *, cache_path=None):
+     """Read only this account's existing public metadata; never refresh it."""
+-    path = data_dir() / "execution.sqlite"
++    path = data_dir() / "execution.sqlite" if cache_path is None else Path(cache_path)
+     uri = "file:" + uri_quote(str(path.resolve()), safe="/") + "?mode=ro"
+     con = sqlite3.connect(uri, uri=True, timeout=5)
+     try:

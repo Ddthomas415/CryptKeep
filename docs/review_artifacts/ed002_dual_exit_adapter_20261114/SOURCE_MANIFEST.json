@@ -1,0 +1,22 @@
+{
+  "schema": "ed002-dual-exit-core-source-manifest-v1",
+  "qualification": "source_and_synthetic_test_binding_not_runtime_or_economic_proof",
+  "adopted_proposal_sha256": "818f9067c175f09928583dbd963c229d07e0c9fcdc83414b020cde7ffb6ce3a6",
+  "files": {
+    "services/backtest/dual_exit_bridge.py": "8e917e273f28c6dbec68ffd941b6c947a06097f5abb7c742bafcfaed8b1ffde4",
+    "services/backtest/shared_cash_research.py": "d405175d512f203d15f737b44c1d20c059fb110b126cab0813a4a6aca0acd956",
+    "services/backtest/frozen_signal_bridge.py": "96d912837d0560d2a804998bce4825a6c165cbf75f25d28736b2bbfa954355a9",
+    "services/backtest/delayed_signal_bridge.py": "c2c452c88190eab210764cd0a6a056cefc05fa3af95e09f535987f55e3a27e1d",
+    "services/backtest/next_open_research.py": "4f5bb1a98be726915bca155b8ea483d5036982ed786665e504c1e444ce2d1a7f",
+    "services/risk/exit_controls.py": "a6d007500682421449cc65223bbc73689a0184e6daea379f5eb9a96b9dc3f6e0",
+    "services/strategies/strategy_registry.py": "3c3a3c109bd7889042a7fae12e8dae42cccf5b89673109b20340c88acdde672d",
+    "services/strategies/breakout_donchian.py": "23cd6012265a54924a75fde568e9758c6777b070080ae927bcc155950caa24c7",
+    "services/strategies/ema_cross.py": "45fecf18f12ee15d3f6d4a4463da9aa27dbb192657db4c07fc27325c4d00cbab",
+    "services/strategies/mean_reversion_rsi.py": "c4a895a866905910d87e5a5f2e28ef51b671d7641ddc93d46c2b27639ea77f18",
+    "services/strategies/indicators.py": "756c04052a0fd0f403d0b1c527b64a1bed586f1897d72663b3c96972709b8f23",
+    "services/strategies/market_filters.py": "37fec0214006c94124ee5166fb469fdacc3e52f2b6caaed64f9b926d5412399a",
+    "scripts/research/corrected_research_math.py": "d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047",
+    "research/multisymbol_baseline_v1/strategies.snapshot.json": "709149a916da94c4edd99065f2f70b456ef7e8fc95b130e5420cc17aab998cfc",
+    "tests/test_dual_exit_bridge.py": "40568db76466953e540e1562b79e9892238fbe77089c1842abaa8e668f69e1c8"
+  }
+}

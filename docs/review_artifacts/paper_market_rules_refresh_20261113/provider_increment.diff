@@ -1,0 +1,61 @@
+--- docs/review_artifacts/paper_market_rules_refresh_20261113/fetch_coinbase_before.py	2026-11-14 00:09:51
++++ services/markets/fetch_coinbase_ccxt.py	2026-11-14 00:11:04
+@@ -1,8 +1,10 @@
+ from __future__ import annotations
++import math
++from services.markets.math_utils import decimal_value
+ from services.markets.models import MarketRules
+ from services.markets.symbols import canonicalize, coinbase_native
+ 
+-def fetch_rules(canonical_symbol: str) -> MarketRules:
++def fetch_rules(canonical_symbol: str, *, strict_precision: bool = False) -> MarketRules:
+     cs = canonicalize(canonical_symbol)
+     try:
+         import ccxt  # type: ignore
+@@ -33,9 +35,36 @@
+         pass
+ 
+     prec = m.get("precision") or {}
++    if strict_precision:
++        # Coinbase's installed adapter exposes increments, not decimal counts.
++        # Unknown modes are not guessed into trading-size metadata.
++        if type(strict_precision) is not bool or ex.precisionMode != ccxt.TICK_SIZE:
++            return MarketRules("coinbase", cs, coinbase_native(cs), False,
++                               meta={"error": "UNSUPPORTED_PRECISION_MODE"})
++        def increment(value):
++            if isinstance(value, bool):
++                raise ValueError("invalid_increment")
++            exact = decimal_value(value, name="increment")
++            result = float(exact)
++            if not math.isfinite(result) or result <= 0 or decimal_value(str(result)) != exact:
++                raise ValueError("invalid_increment")
++            return result
++        try:
++            qty_step = increment(prec.get("amount"))
++            price_tick = increment(prec.get("price"))
++            info = m.get("info") or {}
++            native_price_step = info.get("price_increment")
++            if native_price_step is None:
++                native_price_step = info.get("quote_increment")
++            if (qty_step != increment(info.get("base_increment"))
++                    or price_tick != increment(native_price_step)):
++                raise ValueError("increment_identity")
++        except (TypeError, ValueError, OverflowError):
++            return MarketRules("coinbase", cs, coinbase_native(cs), False,
++                               meta={"error": "INVALID_PRODUCT_INCREMENT"})
+     try:
+         amt_prec = prec.get("amount")
+-        if amt_prec is not None:
++        if amt_prec is not None and not strict_precision:
+             ap = float(amt_prec)
+             if ap >= 1 and ap.is_integer():
+                 qty_step = 10.0 ** (-int(ap))
+@@ -45,7 +74,7 @@
+         pass
+     try:
+         price_prec = prec.get("price")
+-        if price_prec is not None:
++        if price_prec is not None and not strict_precision:
+             pp = float(price_prec)
+             if pp >= 1 and pp.is_integer():
+                 price_tick = 10.0 ** (-int(pp))
