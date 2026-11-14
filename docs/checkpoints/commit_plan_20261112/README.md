@@ -2,6 +2,35 @@
 
 Bot relation: BOT_RULES; runtime configuration not checked.
 
+## Current publication reconciliation,2026-11-12T17:04:24Z
+
+SHOWN fresh nativegit ls-remote returns
+`3b49ead3fc41803d33cc270629f12f0e65b3d03c` for backup/2026-10-31,
+matching localHEAD; cachedtracking comparison0behind/0ahead. This supersedes
+the earlier local-only/pending-review status below. The owner's push is
+independently confirmed, not repeated by Codex. Claude's new16:12:40UTC work-log
+entry reports ACCEPTED_WITH_RISK review of these two commits before the owner
+pushed; that review is attributed to the record, not a reopened full chat or
+independent inspection of Claude's hidden tools. No second review requested.
+
+GitHub current checks for this exact tip:
+- GovernanceSmoke [43256075725](https://github.com/Ddthomas415/CryptKeep/actions/runs/43256075725),completed/success,created16:12:15UTC.
+- github-actions suite117135772676,completed/success.
+- gitguardian suite117135753986,queued/null conclusion. Not cleared or failed;
+  no overall all-green claim, manual rerun or configuration change.
+
+The four repaired build/sign/release workflows have no runs at this tip in
+the existing run-list response; their trigger definitions do not exercise
+builds on a push to this branch. Publication proves remote preservation,
+not hosted build/signing/release success. Prior failed runs remain historical
+evidence. No push, job dispatch/rerun, source/test, auth/visibility change or
+operational action performed during this check; R10 remains stopped.
+
+What do I know that could change the owner's decision that I have not yet said?
+An external check is still queued, and the repaired packaging/signing routes
+remain unexecuted. Another agent's CMC snapshot and these latest receipts are
+outside the published frozen tip; no silent follow-up commit or push is made.
+
 ## Local repair preservation,2026-11-12T15:08:56Z
 
 SHOWN owner continuation after independent offline source acceptance:

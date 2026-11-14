@@ -2,6 +2,19 @@
 
 Bot relation: BOT_RULES; runtime trading configuration not checked.
 
+## Superseding review/publication record,2026-11-12T17:04:24Z
+
+Claude's16:12:40UTC work-log entry reports a second ACCEPTED_WITH_RISK review
+around15:45UTC for the exact two commits a22fef9c0/3b49ead3f, followed by the
+owner's push. The older review below still covers only its original range;
+the newer review is attributed to Claude's record, not falsely claimed as a
+newly opened verbatim chat or independently rerun source review by Codex.
+Codex independently confirms the actual published ref via fresh nativegit
+ls-remote:3b49ead3fc41803d33cc270629f12f0e65b3d03c. No duplicate Claude message
+or push. Source acceptance remains separate Darwin offlineWITH_RISK; current
+GovernanceSmoke passes,GitGuardian queued,build/sign/release unexercised.
+Current receipt/source/operational evidence lanes remain distinct; R10paused.
+
 ## Preservation boundary update,2026-11-12T15:08:56Z
 
 This existing review receipt is now included in the local receipt-preservation

@@ -1,0 +1,29 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index d410a770e..dd0ad78ab 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -43,6 +43,12 @@ risk controls or narrow the symbol universe to make a result pass.
+ - When new evidence contradicts or narrows an earlier conclusion, yours or another agent's, say so in the same
+   report and add a dated correction to the earlier document. Never correct a material mistake silently.
+ - Record why approved work was delayed, deprioritised or redirected.
++- **Authority and scope (owner-approved 2026-11-14).** Agents always append the required work-log entries and
++  omission-register rows. Any other change to files, queues, configuration, scheduled tasks, agent memory or access
++  scope needs owner authorisation or an approved task. No agent changes, lifts or widens an existing restriction,
++  approval, stop or scope by inference from a general instruction ("finish X", "carry on"); only the owner's
++  explicit words do, quoted in the task card. A reused command, packet or capture is re-read against the current
++  approval's wording before it runs (O-155, O-165).
+ - Before closing an item, list the open questions that could change its conclusion.
+ - Before calling material work done, state: the evidence the question needs; what was inspected (files, code paths,
+   configuration, runtime state, logs); what was not or could not be inspected, and how that limits the conclusion;
+@@ -96,7 +102,10 @@ that depended on it.
+ 
+ **Task card.** The work-log entry that starts a queue item states, one line each: decision it serves;
+ done when (acceptance criteria); budget (sessions or work-log entries); stop rule; and the searches run for
+-earlier work with the documents found. A task is done only
++earlier work with the documents found; and the failure matrix the change must survive. **Self-check before review
++(owner-approved 2026-11-14):** before requesting independent review, the author runs every row of that failure matrix
++and records, per row, the test that failed before and passes after the change, or states that the row has no test and
++why; a review request without this record is returned to the author (O-156 to O-172). A task is done only
+ when its acceptance criteria are demonstrated. If the budget runs out first, stop, report what is done
+ and what remains, and ask the owner to extend, cut or park it. Running out of budget is not completion.
+ 

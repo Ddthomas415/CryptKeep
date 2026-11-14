@@ -65,6 +65,12 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
 2. Capital: the amount the system is for, or "engineering project for now". Also sets the paper simulation's drawdown
    limit (spec v2 section 7.5; research figures there; if no number is set, "no worse than holding the coin" applies) and
    approves the minimum trade samples (7.4: 42, 42, 31, derived from the replay), needed before the simulation starts.
+   Paper evaluation portion decided2026-11-14T12:30:20Z: owner explicitly approved
+   pooled minimums42 breakout/42 EMA/31 mean reversion and each account drawdown no
+   worse than holding its own coin over the same window. No fixed percentage cap.
+   evaluation_rules.json approval metadata recorded; frozen evaluator hashes in
+   docs/research/paper_simulation_spec_20261031/evaluation/SHA256SUMS. This closes
+   only those paper criteria, not live capital, commissioning/start or R10 decisions.
 3. Approve the stuck-exit rule: keep a rejected exit pending with a reason and an alert; never convert, reprice, mark filled, drop or cancel it.
    Approved for the paper simulation 2026-10-31 (owner forwarded the advisor's final authorisation: "you can now
    proceed"; spec v2 R12, with one exception: a pending sell is closed as superseded, unsent, when the holding is
@@ -107,6 +113,366 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
 - Next when one closes: approve the server cost and monitoring plan for the 25-symbol collector (Codex to report them).
 
 ## Engineering queue (Codex; one active)
+**Owner-forwarded product vision 2026-11-13 (2026-11-13T20:42:04Z, recorded by Claude), for both agents:** verbatim in
+`docs/PRODUCT_VISION_20261113.md`. Two equal long-term objectives: a reliable, risk-controlled automated trading
+system, and an intelligent research platform that discovers, tests, selects and monitors strategies, plus a feedback
+engine comparing expected and actual results. It extends `docs/PROJECT_DIRECTIONAL_PLAN.md` (two-brain platform;
+only the deterministic engine moves capital). Every new capability states which objective it serves. The AI engine
+and research copilot are deferred until the research architecture is specified, not dropped. It changes no
+priority, scope, security restriction or live-trading permission.
+
+**Owner direction 2026-11-13 (2026-11-13T19:54:08Z, recorded by Claude; the owner forwarded this instruction to Claude):**
+Agents execute approved work and may not deprioritise, close, park or abandon it because another task seems more
+valuable. Exit logic (eng 4) stays approved priority 1, as isolated offline variants with defaults unchanged. The
+whole-bot audit (research 1) stays open until its original scope is accounted for and the owner approves closure or a
+reduced scope. The paper simulation continues, respecting the R10 restriction. E1 preparation continues within its
+existing authorisation; no collection until E1 is frozen and the owner approves it. Approved verification and
+cross-review tasks continue. Research findings are not permission to stop engineering work. No new roadmap or
+priority-ranking exercise. If blocked on one task, continue other authorised tasks. The owner keeps authority over
+scope, priorities, security restrictions and live trading.
+
+**AGENTS.md changed 2026-11-14 (owner "get it done", recorded by Claude):** two rules added, "Authority and scope" (no lifting or
+widening a restriction, approval, stop or scope by inference; reused commands re-read against the current approval) and
+"Self-check before review" (every failure-matrix row tested or declared untested before requesting review). Receipt:
+`docs/review_artifacts/agents_md_edits_20261114/`. Edits 1, 3, 4 and the auditor charter remain proposals.
+
+**Hold withdrawn 2026-11-13T19:23:00Z (recorded by Claude): the paper simulation (engineering item 2) is active again.**
+The 2026-11-12T18:03:50Z hold below was Claude's reading of a one-line reply and was never confirmed with the owner.
+**Commissioning evidence pack template (Claude, 2026-11-14, support for Codex's workload):**
+`docs/research/paper_simulation_spec_20261031/commissioning_pack_20261114.md`: section 9 steps 1-3 as fill-in tables with
+each R's current source/operations status and the five open owner decisions that gate it. Changes no spec rule.
+On 2026-11-13 the owner asked what happened to finishing the simulation and said the hold blocks forward progress.
+Item 2 returns to its pre-hold status: full spec v2, Codex's active engineering item.
+**Dated correction2026-11-13T19:25:25Z:** the R3 local Linux integration/pinned image
+pull already completed2026-11-11T02:14:37Z, seven fixtures passed, owned container
+removed, separate evidence review ACCEPTED_WITH_RISK. Original receipt in
+`docs/review_artifacts/group_a_release_candidate_20261104/r3_native_probe_20261105/NATIVE_RESULT_20261110.md`.
+It is not pending and the consumed one-attempt permission is not reusable.
+Current in-item source/readiness closure is the remaining runnable release,
+configuration/sizing, permissions/target/dependency and delivery/commissioning work;
+do not repeat completed tests or deploy from the dirty tree. Owner directly said
+"finish the simulation tasks"; bounded completion/reconciliation task now active.
+2026-11-13T19:32:04Z resumption proof: actual current accepted compositor,
+preserved126-file candidate references and current4entrypoint hashes checked;
+required backup entrypoint absent =>0unitfiles/launches, composition false,
+deployment INCOMPLETE. Receipt/matrix in existing
+`docs/review_artifacts/group_a_unit_composition_20261111/` README and
+READINESS_CHECK_20261113.json. SeparatePascal19:28:27Z underlying-file analysis
+found no additional unblocked offline sourcefix; do not invent a prototype or
+repeat nativeLinux/1616tests. Current R7JSON approvals and fullposition sizing
+remain unresolved; host provisioning/delivery/capacity/72h commissioning are
+notdone. Main asked whether owner lifts the explicitR10stop for offline
+implementation only; no downloadedtool/cloud/host authority inferred. This
+resumption/readiness increment is done; fullsimulation remains INCOMPLETE.
+**WITHDRAWN2026-11-13T22:59:49Z: the following22:55R10resumption inference was Codex's error, not authorization.**
+Owner explicitly says R10remainsSTOPPED; subagentstopped with no source/test/toolchanges.
+Continue approvedunblocked simulation tasks, verify/apply0067forBA44, investigate
+separatepaper-onlyconfiguration withoutchangingoriginalcommissioningcriteria.
+No trial/deployment/configuration is approvedbythisinvestigation. Currentcompositor
+is not a universalpaper-simulationblocker. Scopeerror recorded as O-155.
+2026-11-13 BA-44 follow-up: exact existing patch 0067 applied to the outcome writer
+and reader, with original tests and nine synthetic real-ledger fill/reconcile cases.
+Before fix: 13 failed / 10 passed. Focused eight-file selection after fix: 95 passed /
+1 failed; the same old FakeQueue interface failure reproduces with archived pre-fix
+modules. Separate Nash GATE ACCEPTED_WITH_RISK for source only at 23:07:40Z, no
+blocking finding; reviewer inspected rather than reran tests. No full-suite or
+operational acceptance. Evidence and remaining dependencies:
+`docs/review_artifacts/paper_outcomes_0067_20261113/README.md`.
+Existing runner/engine/evidence-service paths do not intrinsically need R10, but
+no alternative profile or trial is approved or started. Original commissioning
+criteria unchanged. Group B/U-07 still needs the specified dated weekly slot and
+rotation integration, not merely the existing ranking proposal output. Fixed-qty
+versus full-position sizing, effective profile, evaluation choices and operating
+authority remain unresolved. One read-only host projection found neither of the
+two documented config paths; loaded runtime configuration remains UNVERIFIED.
+2026-11-13T23:40:22Z sizing continuation: owner delegated the available-cash versus
+fixed-notional paper choice with "do whats recommend", then approved continuation.
+Recommended available paper cash after costs/quantity rounding is implemented as
+default-off `strategy_runner.paper_entry_sizing=available_cash_v1`, not a live or
+runtime allocation change. Exact typed paper/live guards, authoritative consistent
+whole-account cash/flatness/open-order reads, pending-buy checks, strict public
+quote and read-only state-local market metadata precede the existing queue write.
+No consumer resizing, risk-gate bypass or default/exits change. Author focused
+selection:299passed17.26s, including real temporary paper fills/fees/sell proceeds
+and subsequent budget. Separate final source review pending; READY_FOR_INDEPENDENT_REVIEW.
+Source report:`docs/review_artifacts/paper_cash_sizing_20261113/README.md`.
+23:47:52Z source closeout: initial review caught O-156 (minimum checked against
+ask reservation rather than modeled fill). The actual-runner nonzero-spread
+regression failed before correction; minimum now uses the existing modeled
+mid-plus-slippage basis while affordability stays ask-based. Final author
+consolidated slice306passed17.75s. Separate Nash diff-only review23:46:17Z
+ACCEPTED_WITH_RISK for exact source, reports7focused independent passes; no new
+runtime/profile/commissioning authority. Final hashes and receipts in the report.
+The earlier sizing-choice gap is narrowed by this explicit delegation and source
+work; actual profile/provisioning/activation, Group B and original commissioning
+remain incomplete. R10 STOPPED; auditor charter/AGENTS amendments remain drafts.
+2026-11-14T04:35:57Z (November13 NewYork): owner explicitly adopted GroupB
+missing/unreadable/invalid current ranking => manage existing exits, block new
+BUYs, no last-week entry fallback. Default-off source increment implements dated
+weekly ranking artifacts, retained slots and durable rotation with existing cash
+sizing; no actual profile, collection, job, server, R10 or deployment change.
+Initial independent review BLOCKED three defects O157-O159 despite349focused
+author passes. All three reproduced before correction; corrections include strict
+mapped identity at emission/fill, ownership persistence independent of ranking,
+and consumption/final-fill current-selection checks with durable terminal fences.
+Correction review/final proof pending. Fullsimulation/U07 remain INCOMPLETE;
+no queue reorder or commissioning waiver. Evidence:
+`docs/review_artifacts/group_b_slots_20261113/README.md`.
+04:44:19Z closeout: all source corrections are locally verified; final author
+15-file selection606passed26.04s, no failures/errors/skips (not fullsuite).
+Separate Nash final diff GATE04:42:13Z ACCEPTED_WITH_RISK after independently
+passing three timing cases plus fence-error case; exact four-file review hashes
+match current files. O160/O161 retain the additional clock/fault findings and
+their failing-before proof; initial blocked sources/receipts preserved. Whole
+simulation still INCOMPLETE; quote/metadata provisioning, profile/capacity,
+activation and forward evaluation remain unperformed. No new workstream begun.
+2026-11-14T05:15:07Z: next approved in-item source increment adds explicit
+--paper-state-dir mode to existing public metadata refresh command. It validates
+paper-only target/symbols before fetch, bypasses ambient DB discovery and reads
+back exact local cache rows through sizing validation. Author138focusedcases
+passed3.23s; separate Nash05:13:20Z ACCEPTED_WITH_RISK, independently47tests
+passed0.40s; all five accepted hashes match. New source opt-in corrects native
+TICK_SIZE interpretation for paper refresh (whole-unit1 remains1, not0.1).
+Legacy/global provider unchanged; newly verified precision defect O162 parked
+for owner decision. No actual refresh, configuration, job, activation or R10
+change. Evidence:docs/review_artifacts/paper_market_rules_refresh_20261113/.
+2026-11-14T10:43:31Z: owner continued the explicit shared-provider repair
+recommendation. O162 shared fetch source now corrected for default/True/False
+calls; native size/price ticks and product identity validated, no legacy
+decimal-count bypass. Before regression4failed2passed; final focused seven-file
+selection220passed3.36s. Separate Nash10:41:32Z ACCEPTED_WITH_RISK, independently
+121passed1.09s; four accepted source/test hashes match. Existing rules/CLI/API
+cache schema/TTL and coinbase_adv namespace behavior unchanged. No real cache
+inventory/refresh, operation or R10 change. Source evidence:
+docs/review_artifacts/coinbase_precision_shared_20261114/. Existing cached values
+may retain prior wrong steps until separately authorized refresh/read-back.
+2026-11-14T12:00:07Z inactive profile follow-up: nine review-only Group A YAML
+candidates resolve the frozen presets, hourly source, adopted cash sizing and
+paper-only guards. No actual profile/cache/service was provisioned. New integration
+finding O163: fresh PaperEngine initialization omits the standalone currency key
+required by sizing; prior tests manually seeded it. Author18passed/1strictxfail;
+same unseeded regression exposed with --runxfail gives1failure. Fresh-account
+readiness INCOMPLETE; correction proposed, not implemented/approved. R10 STOPPED,
+R7 pending and original commissioning criteria unchanged. Artifact:
+docs/review_artifacts/paper_profile_candidate_20261114/. Separate Nash12:02:11Z
+ACCEPTED_WITH_RISK for inactive artifact, independently18passed1xfail and raw
+freshregression1failed;17sealedentries match. Fresh-source repair still pending;
+no activation authority. Group B staging preserved, no queue reorder.
+2026-11-14T12:20:15Z owner continued the explicit fresh-source repair recommendation.
+Initializer now atomically stores fresh currency; prior standalone currency or
+equity history prevents fresh certification, legacy denomination not inferred.
+Before18failed5passed plus equity-only1failed4passed; after243focusedpasses5.24s,
+including all9unseeded profiles. Source READY_FOR_INDEPENDENT_REVIEW; actual target,
+provisioning, refresh/cadence and commissioning still INCOMPLETE. R10 STOPPED.
+Evidence:docs/review_artifacts/paper_account_currency_20261114/.
+12:19:55Z separate Nash source GATE ACCEPTED_WITH_RISK, independently25focused
+passes0.99s including all9freshprofiles and oldunseededregression; author243total
+not independently repeated. Source bootstrap gap closed, legacy currency and
+actual target/commissioning still unqualified. No operation/activation authority.
+2026-11-14T12:35:20Z R7 evaluation approval/freeze complete: owner explicitly adopted
+42/42/31 pooled minima and per-account drawdown no worse than holding own coin;
+no fixed cap. Rules metadata approved, evaluator/test/rules sealed, old rules/
+README/seal preserved. Author7syntheticpasses0.75s; separate Nash12:34:20Z
+ACCEPTED_WITH_RISK independently confirms metadata-only JSON delta and all7seals,
+no test rerun. Evidence:evaluation/approval_20261114/ under the existing simulation
+spec. Earlier R7PENDING entries are historical; these two choices no longer pending.
+R7approval does not certify statistics or activate the study; actual target,
+provisioning/cadence/capacity, delivery, R10 and commissioning remain incomplete.
+No queue reorder, runtime configuration, live capital or stopped-work change.
+2026-11-14T12:49:17Z owner-approved one-shot host preflight completed: sameSSHsession17245,
+oneconnection22.84s exit0, ownedleader reaped/no_live_members perreceipt,
+no retry. Fresh11sampledsourcepaths match protected580ca31base and priorNovember11
+sample; not currentlocalcandidate deployment. Systemd255, venvPython3.12.3/
+SQLite3.45.1 and fixedpackageMETADATA observed; historical ga724...paths/users
+absent; collisions/effectiveACL/groupaccess/sustainedcapacity still unknown.
+No hostchanges or R10operation. Scopeviolation O165: reusedpacket also retained
+nonsecret systemdpolicyconfiguration values despite currentquestion excluding
+configuration values. Owner informed; no retroactive authorization. Separate Nash
+12:48:07Z retainedfacts ACCEPTED_WITH_RISK, complianceNONCOMPLIANT, overall
+compatibility INCOMPLETE. Result/review/receipt in existinggroup_a_release_candidate
+artifact r3_native_probe_20261105/HOST_PREFLIGHT_RESULT_20261114.md.
+Nextproposal is offlineupdated reviewedsource/profile deliverypackage, not in-place
+hostrepair, deployment, extraSSH or stoppedR10 work. Originalcommissioning unchanged.
+2026-11-14T16:08:01Z offline review-bundle increment complete: revision2 archive under
+docs/review_artifacts/paper_delivery_review_bundle_20261114/ contains215regular
+members,9inactiveprofiles,frozenR7rules and explicitly bound reviewedsource/evidence.
+Archive SHAee6f4dc2d1a7cfef6be820dae48fb2083d7b32fa67c3ca2cb20ece54e2800e82.
+Separate Nash16:06:57Z ACCEPTED_WITH_RISK for archiveintegrity/provenance only,
+independently allmemberhashes/extraction/150compilations-not-execution/determinism/
+93selectedpins/53authoritybindings/6supersessions verified. Initialarchivepreserved,
+notfinaldelivery; O166missingfixture corrected inr2. BA51remainsOPEN, O165scope
+violation carried. No sourcefix, actualstaging/runtime/importclosure/deployment,
+commissioning or R10resume. Protected580base remainsprerequisite, notembedded.
+LatestClaudeexit-variant handoff/ownerpriority noted; currentpackaging approval
+finished first, no silent omission or newstrategy behavior. Both engineering
+objectives/GroupBstaging retained; no queue reorder. Remainingoperations require
+exactauthority, not more automaticSSH or fullsuite repetition.
+Historical withdrawn inference follows:
+2026-11-13T22:55:02Z owner repeated "finish the simulation tasks" directly
+after the exact question to liftR10forofflineintegration. This supersedes the
+backup source-development stop ONLY for this bounded offline integration:
+existingacquisition/bundle/restore plus real restic/rclone adapter source and
+foreground entrypoint, synthetic tests, oneindependentreview. Nativeclients,
+cloud/credentials/server/deployment/services/schedules remainunauthorized;
+earlierconsumedattemptsnotrenewed. Budgetonecoherent session ending no later
+than2026-11-14T00:00Z; stop at reviewedsourceproof or exactremaininggaps.
+R10 (backup) stays stopped per the owner's 2026-11-12T04:48:51Z direction until the owner
+decides otherwise. The frozen BTC+ETH v3.3 criteria and tracker v2 continue unchanged; they need no engineering work
+unless a run fails. If the owner prefers an unofficial paper trial now (option B), that replaces this line.
+
+**Owner request 2026-11-12 (2026-11-12T18:42:18Z, recorded by Claude): second-stage independent review before any further development.**
+The owner forwarded two outside reviews of `docs/research/forensic_audit_20261112/README.md` and asked that Codex
+independently verify it. Claude's part is `docs/research/second_stage_review_20261112/README.md`; its section 1 is
+Codex's checklist: rerun the candidate comparison and descriptive scripts, the 1.2% stress test and the ES exit
+matrix on scratch copies; re-derive the configuration count; challenge "no past loss from a software defect"; confirm
+the forward-tracker facts. Read-only: no code, setting, task or data changes and no new experiments. Report verified
+and disputed items in the work log. This is the next Codex step under the 2026-11-12 hold below; nothing else starts
+until the owner decides on the second report.
+
+2026-11-13 independent verification update (Codex): the six-item audit disposition
+is complete; report-only separate Pascal GATE ACCEPTED_WITH_RISK, checked through
+16:39:10Z. Four named frozen analyses reproduced on scratch copies; comparison
+date-label metadata is timezone-sensitive. Current exact trial count remains
+unresolved. The audit disputes revived withdrawn ES inference, lower-cost
+"pass" wording, blanket historical-bug attribution, and v3.2 readiness. Report:
+`docs/research/second_stage_review_20261112/CODEX_VERIFICATION_20261113.md`.
+Draft v3.2 is not frozen or adopted; further development remains held pending
+the owner's decision. Existing primary tracking is not stopped or changed.
+O-136 to O-138 record the reporting/contract omissions; no priority reorder.
+
+2026-11-13 follow-on owner continuation: scoped documentation-only revision of
+the corrected prospective contract, not criteria adoption or released holds.
+Proposed v3.3 at `docs/research/btc_eth_forward_experiment_20261112/CRITERIA_DRAFT_V3_3.md`
+is independently ACCEPTED_WITH_RISK for design only; Pascal's full review and
+extension-only confirmation through16:50:55Z are in REVIEW_V3_3_20261113.md.
+Final draftSHA e76fe9d85407fa102fb0ebc3677135a1472df5c5fdb834e3a9bd9292c24648a2.
+Original v3.2 preserved. Existing carry-forward/fixed25/25/50 primary model is
+explicit; quote-cost evaluation, reporting and notification gaps are not claimed
+implemented. Q3 remains separate/unactivated. A failedQ1 does not automatically
+extendQ2 or stop the wider project. Next decision: owner adoption of the exact
+proposed design/limits before any prospective freeze. No code, study activation,
+task/service/server/account/data acquisition or trading authority follows.
+
+**2026-11-13 owner adoption / freeze update (supersedes the draft/adoption-pending status above):**
+The owner replied "carry out the next recomended steps" to Codex's explicit recommendation
+to adopt and freeze supplemented v3.3. Approval recorded/freeze metadata dated
+2026-11-13T18:20:36Z; completed frozen bytes/hash checked2026-11-13T18:21:30Z,
+before A=2026-11-16T00:00:00Z (Sunday15Nov19:00EST).
+`CRITERIA_DRAFT_V3_3.md` is now FROZEN, Q1/Q2 design only, not operationally activated.
+FinalSHA256 `8414bbcf00883f74e1cfa49c4c3161e4a742e19282b28235dc48a4a2ac1aaad6`.
+Original supplemented draft preserved as `CRITERIA_DRAFT_V3_3_before_freeze_20261113.md`,
+SHA256 `066501d4eb0343b8cb953304f1224f078f526ebac20b90492d729919b0bf548d`.
+Sections1-9, including all strategy/cost/window/reporting/readiness rules, are byte-identical.
+Source hashes checked unchanged: tracker v2
+`572118ad9e829e3df7f508814ee79697d273e3b988e571a33eef87ed9761e0e2`;
+shared math `d07ae7171e2293cbe60d15ae9bc0973d3ef8bd31b9c7b99105f928c029e29047`.
+Existing independent ACCEPTED_WITH_RISK applies to design/reporting only;
+the preservation/metadata/hash verification is self-checked, not a new runtime acceptance.
+DONE: adopted design, original preservation, final hash/source/time receipt.
+PARTLY DONE: existing primary tracker supplies modeled inputs; future A-wallet/marks and
+unattended dispatch not yet observed. NOT DONE: registered Monday quote observations,
+reviewed alternative-cost/per-leg/ETH-control evaluator, timely missed-run notification,
+Q3 integration, actual-fill/economic/DSR qualification. Existing Friday diagnostic is
+not eligible Monday coverage. Primary Q1 can remain cost-PROVISIONAL; no gate waived.
+No collection, schedule, observer, implementation, service/account/trading, commit or push
+authorized or performed. This bounded documentation item is complete; further work waits
+for an owner-placed queue item rather than reopening the finished diagnostic or backup work.
+
+2026-11-13T18:27:16Z owner-directed successor within E1 item6: one bounded offline
+ETH observation-window diagnosis, using existing source/raw responses/receipts only.
+Done when exact rejection is reproduced offline, measurement limitation versus code
+defect is distinguished, minimum correction proposed, and one independent underlying-file
+review reported. No new public request, collection/schedule, source/config change,
+criteria amendment, bot integration, server/account/trading action or backup resumption.
+Budget one focused session/one review; stop with exact unknowns rather than inventing
+causation or repairing historical qualification. Task completed2026-11-13T18:32:13Z;
+separate Nash GATE18:31:51Z ACCEPTED_WITH_RISK for diagnosis/report only, no blocker.
+Report/JSON: `docs/research/btc_eth_forward_experiment_20261112/ETH_OFFLINE_DIAGNOSIS_20261113.md`.
+SHOWN: original validator BTC83/ETH0; source-book timestamp offsets and diagnostic-only
+ETH7print overlap do not qualify the local interval. Conservative exclusion works;
+no demonstrated code defect or patch. Cause class data/measurement limits; upstream
+cache/publication/clock/pause alternatives remain UNVERIFIED. No new omission/result
+or E1 qualification. Frozen criteria, source and original payloads/report preserved.
+Proposed next owner-scoped item: minimum freshness/provenance and interval-coverage
+instrumentation using existing transport, synthetic proof and one review; no numeric
+threshold invented from this sample, live invocation or schedule authorized. Proposal
+only, not started or an automatic new controller. Full E1 remains INCOMPLETE.
+
+2026-11-13T18:35:50Z owner selected the proposed instrumentation successor by
+"carry out the next recomended steps". ACTIVE: existing diagnostic only,
+bounded public-header/time and returned-trade-range reporting, synthetic proof
+and one independent review. Preserve old source/tests; keep all qualification,
+fee models, exact URLs/request caps and frozen criteria unchanged. No pagination,
+new collector/controller, network invocation, schedule or operational authority.
+Budget one session/one review; implementation completed with separate Nash GATE
+2026-11-13T18:42:08Z ACCEPTED_WITH_RISK for offline source/synthetic scope, no blocker.
+53focused tests passed independently0.36s;15author regressions failed before additions.
+SourceSHA1780557810062f397921f92125e986b05b42144fbaa734d01a8b5728f87d3ad7;
+testsSHA44f63296eba1aab167ac70df627d7512cc25dd67a9b4dbbb1fc79ac13af57507.
+Report: `docs/research/btc_eth_forward_experiment_20261112/FRESHNESS_INSTRUMENTATION_20261113.md`.
+Original source/tests archived byte-for-byte. Existing failed capture and frozen criteria
+unchanged; all status/model/request behavior preserved after stripping added diagnostics.
+This source item DONE; full E1 remains INCOMPLETE. No further collection/threshold,
+schedule, account or trading authority, queue reorder or automatic successor follows.
+
+2026-11-13T18:57:38Z owner selected the recommended read-only CMC collection
+diagnosis. ACTIVE one session: inspect existing source/saved output/task settings
+and available run history; identify supported cause or missing evidence and minimum
+repair proposal. No manual capture/task run, schedule/power/folder/permission change,
+new observer/collector, installation, server/account/trading action or code repair.
+E1 instrumentation item remains closed; this is the newly owner-directed item,
+not concurrent development. Preserve primary gaps; no historical backfill/scoring.
+
+CMC diagnosis completed2026-11-13T19:06:28Z; report
+`docs/research/cmc_trending_log/collection_failure_diagnosis_20261113.md`.
+SHOWN visible UI: Nov13task dispatched08:52NewYork/13:52UTC, "No matching tools found";
+active/currentMacrequired/correctfolderallowed. Run CLAIMS503/CLIENT_HTTP_NOT_IMPLEMENTED
+before logger execution. Nov12savedcommandreceipt and matching local OBSERVED/schema3/
+zero-source-errors payload show prior success; temporary-cleanup warning did not prevent it.
+Underlying connector cause and recovery UNVERIFIED; raw backend trace not exposed.
+No manual run, settings/permission/restart/code repair. UI read markers may change.
+Material coverage correction O-144: fixedNov10-Feb8primary requires dailywindowcoverage.
+NoNov10/11/13 local payload/request/receipt dates or history references among43snapshots.
+Current primary INCOMPLETE on inspected evidence unless genuine contemporaneous records
+are found elsewhere; unmounted backups/external archives not searched. Dec12/Dec14later
+entrant eligibility does not rescue the fixed study. Separate Nash coverage-only review
+ACCEPTED_WITH_RISK19:06:28Z; UI/failurecause not independently certified. Preserve existing
+data/tasks/window, do not shift/restart automatically. Future collection/manual diagnostic
+capture or connector repair needs separate scope; no successor started. BTC/ETH unchanged.
+
+**Owner direction 2026-11-12 (2026-11-12T18:03:50Z, recorded by Claude), answering Claude's option list for the paper simulation (A keep full spec,
+B unofficial trial now, C hold it and work on the profit items):** "dont waste my time woking on bs if we still cant prove
+the repo is worth it stick to tasks that shows promise".
+- WITHDRAWN in full: the simulation 2026-11-13T19:23:00Z, every other item 2026-11-13T19:38:01Z (Claude). This hold was Claude's
+  unconfirmed reading of a one-line reply. Every item below returns to its pre-hold status and queue order. The
+  owner's own restrictions stay: the 25-symbol comparison paused (2026-10-31) and R10 stopped (2026-11-12T04:48:51Z).
+  Dated scope update2026-11-14T22:42:08Z: owner selected "Resume offline design; propose both exit models
+  (Recommended)". Only Codex's protocol-design/proposal stage resumes;25-symbol collection/evaluation/deployment
+  and trading remain paused. Detailed proposal is not yet adopted/frozen. R10 remains STOPPED.
+- Read as option C. On hold until the owner says otherwise: engineering item 2 (paper simulation, including R3/R10 and
+  commissioning) and the items that only matter for it or for live money with the default strategies (3 position cap,
+  4 default-strategy exit logic, 5 25-symbol comparison, 9 stuck-exit wiring, 11 pilot cleanup); research items 1-3
+  (audits and their cross-reviews) and 9 (scout triage). Accepted source stays as it is; nothing is deleted or reverted.
+- Kept: item 10 (tracker v2 forward results; no work unless a run fails) and the v1 weekly paper test.
+- Active focus: item 6, E1 maker-versus-taker costs (Codex), the largest known lever on the only candidate's result.
+  Claude: a pre-registered test of the same trend rule on stock-index ETFs, after the owner approves a data download.
+- Owner security action OV-01 (`.env.docker`) stays open; it is not development work.
+- Claude's reading of a one-line direction; the owner may correct it. Codex: confirm with the owner before starting
+  anything outside the active focus.
+- 2026-11-12T18:28:01Z owner supplied a full7930byte transcript plus advisor
+  request for BTC/ETH candidate paper-integration assessment BEFORE changes.
+  Codex read all supplied content and inspected existing tracker/incumbent/
+  shared-cash/paper/runner sources. Assessment completed; separateDarwin
+  ACCEPTED_WITH_RISK for static scope only18:26UTC,not implementation/run.
+  Candidate math alreadyexists; missing durable portfolio-to-paper bridge,
+  explicit timing/cost/fill policy and complete two-asset valuation. No new
+  simulator needed; preserve all studies and multi-symbol scope. Report:
+  docs/research/btc_eth_paper_integration_assessment_20261112.md. Existing hold
+  and E1 focus remain until explicit owner direction; no code/config/schedule/
+  account/service/server/data acquisition, test/backtest or experiment changes.
+  Planning estimate4-8focusedengineering/reviewsessions is UNVERIFIED,not an
+  adopted budget. Full runtimeconfignotchecked; feasibilityINCOMPLETE.
+
 **Owner direction 2026-11-12 (2026-11-12T04:48:51Z, recorded by Claude; the owner replied "do it" to this message, written for Codex):**
 > Stop the backup (R10) work where it is and don't run the downloaded tools. Next, in this order: (1) commit the current
 > work in reviewed groups, as in the 31 Oct commit plan, and tell me when it's ready to push; Claude reviews before the
@@ -264,6 +630,101 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
   aad07d655..HEAD is ready for Claude pre-push review, not yet reviewed by
   Claude or published. No tests/source/operational action repeated. Cached
   remote ref is not a fresh remote check. No push/build/release; R10 stopped.
+- 2026-11-12T17:04:24Z supersedes the pending-publication handoff above:
+  newest Claude work-log entry16:12:40UTC reports its ACCEPTED_WITH_RISK
+  review and owner's completed two-commit push. Codex did NOT submit another
+  Claude message/review or push. Fresh nativegit ls-remote independently
+  confirms remote3b49ead3fc41803d33cc270629f12f0e65b3d03c; localHEAD matches,
+  cachedtracking0ahead/0behind. Publication DONE, not a new deployment.
+  Current GitHubActions suite117135772676success; GovernanceSmoke
+  run43256075725passed. GitGuardian suite117135753986queued/null conclusion,
+  so all checks are not called complete/green. Repaired build/sign/release
+  workflows unexercised by this branch push; hosted execution stillUNVERIFIED.
+  Claude review's full underlying reply not independently re-opened; it is
+  attributed to Claude's record, not invented independent content verification.
+  Only current receipt updates and another agent's CMC snapshot stay local.
+  R10remains explicitly stopped; no automatic next engineering item selected.
+- 2026-11-12T17:12:10Z owner continuation after the explicit R10 question
+  lifts the hold ONLY for the known invocation-path source repair and focused
+  offline review. Native clients, downloads, encryption runs, cloud/accounts,
+  servers, services and all backup operations remain stopped/not authorized.
+  Active scope:anchor relative --pins at CLI invocation directory while retaining
+  strict canonical-path and digest validation in the existing worker verifier;
+  synthetic entrypoint tests and one independent review. No new controller.
+- 2026-11-12T17:14:27Z R10 invocation-path source repair submitted
+  READY_FOR_INDEPENDENT_REVIEW. Ordinaryrelativepins anchored at CLIcwd before
+  handoff; worker's strict canonical/symlink/digest checks unchanged. New6case
+  synthetic entrypoint regression before1failed/5passed; final policy+tools
+  55passed/one deliberate duplicateZIPwarning. Real downloaded clients/worker/
+  nativecommands not run. Two revisedsource/test hashes and oldseal history
+  preserved in group_a_backup_native_20261112/README.md. SeparateDarwinreview
+  pending; R10operational hold remains. No actual backup or new controller.
+- 2026-11-12T17:16:11Z separateDarwinGATE ACCEPTED_WITH_RISK closes
+  the R10invocation-path SOURCE repair only. Independently9focused path/
+  noexecute/deadline tests passed1.69s,existingtests/loader/verifier/executor/
+  worker unchanged,bothreviewhashesmatched. Before1failed/5passed and final
+  author55passed not independentlyrerun. O130's invocation defect corrected
+  in reviewed local source; actualnative readiness stillINCOMPLETE. Native
+  clients/sandbox/encryption/cloud/server/backups remain held/notauthorized;
+  no automaticretry/controller/tools/read or operation. Uncommitted evidence
+  in existing nativeREADME/INDEPENDENT_REVIEW; no publication or nexttask.
+- 2026-11-12T17:24:04Z owner continuation directly after the boundednative
+  permission question authorizes ONE local synthetic native test, existing
+  300second controller including owned cleanup, isolationfirst/no network,
+  no retry. Current reviewedprobe/executor/toolslibrary/publicpinshashesmatch;
+  existingstagedclients regular0600. Worker verifies actual binaries under
+  its deadline before copying/executing; staging originals unchanged. No real
+  database/credential/cloud/server/service/schedule/trading operation permitted.
+  R10native/cloud operation remains incomplete until actual test evidence;
+  this is not blanket resumption of the held backup work.
+- 2026-11-12T17:25:40Z the ONE approved nativeprobe exited1/INCOMPLETE
+  at sandbox_positive. Inputverification/copies reached; restic/rclone,
+  fixture/encryption/restore/replay NOT REACHED. No retry/bypass/sourcefix.
+  Point-in-time process/ownedpathhandle queries returnednone; stagedoriginals
+  still0600,onlyownedcopies/canaries/config retained. Exactcauseunresolved:
+  innercanaryexit/diagnosticsdiscarded,O135. RuntimeR10INCOMPLETE; previous
+  offline sourceacceptance unchanged. Sanitizedreceipt/nativeREADME preserve
+  result. Diagnosticrepairproposed inPARKED,notstarted; no cloud/service/data
+  or tradingchanges. Claude's17:18CMCgap report separatelyCLAIMED here, not
+  independently verified or allowed to silently alter cohort/study rules.
+- 2026-11-12T17:31:08Z owner continuation orders ONLY the proposed
+  sandbox diagnostic-source correction into engineering:bounded structured
+  exit/status data and allowlisted stderr indicators, no raw payloads/keys/
+  environments; synthetic failure-path tests and one independent review.
+  Existing isolation/profile/budget/stop rules unchanged. No new native
+  attempt, actualtoolaccess, backup/encryption/cloud/server operation authorized.
+- 2026-11-12T17:35:10Z sandbox diagnostic source submitted
+  READY_FOR_INDEPENDENT_REVIEW. Fixedbounded metadata/allowlistedmarkers only,
+  no raw output/messages/environment/keys; laterexceptions resetstalecommanddata.
+  Original canary/stop/isolation/budget/process rules preserved. New14tests
+  failbefore; final3filefocused69passed0.65s/one deliberate duplicateZIPwarning.
+  Three-file seal in nativeREADME; separateDarwinreviewpending, sourcefrozen.
+  No new native attempt or cloud/server/service/actualtooloperation. O135
+  diagnostic-source correction not equivalent to resolving runtimecause.
+- 2026-11-12T17:37:46Z separateDarwinGATE ACCEPTED_WITH_RISK closes
+  O135offline diagnostic-source repair. Independently41diagnostic/policytests
+  passed0.46s,3hashesmatched,profile/commands/process/timing/stopgatesunchanged.
+  Authorbefore14failures/final69passnotindependentlyrerun. No sourceeditsafter
+  review,nativeattempt/tools/sandbox/cloud/serveroperation or publication.
+  Earlierfailedreceiptunchanged; exactcause/encryption/recoveryUNVERIFIED.
+  Sourcecorrectioncomplete; any realinstrumentedretryneedsfreshpermission.
+- 2026-11-12T17:43:19Z owner continuation directly after the instrumented
+  retry permission question authorizes ONE new local synthetic native attempt,
+  existing 300-second controller including owned cleanup, isolation first,
+  network denied, no automatic retry. New reviewed source/test, unchanged
+  executor/tools library and public pins match; staged originals regular0600.
+  Same inputs/environment/policy as prior attempt; diagnostic source only changed.
+  No actual database/account/cloud/server/service/schedule/trading operation.
+- 2026-11-12T17:44:34Z the ONE instrumented retry exited1/INCOMPLETE
+  sandbox_positive. Newdiagnostics:innercode-6(SIGABRT),stdout/stderr0bytes,
+  no markers/errno. This is signaltermination,not a proven permission denial;
+  exactabortingimage/causeUNVERIFIED. Inputs/copiesreached;restic/rclone,
+  fixture/encryption/recoveryNOTREACHED. Nativeprocess/ownedhandlequeriesnone,
+  originals0600,ownedfilesretained. O135metadata works onrealrefusal; prior
+  sourceacceptance remains offline, runtimeR10INCOMPLETE. No retry/bypass,
+  codechange,crashlogread,cloud/serviceoperation or broaderwork. Sanitized
+  receipt/nativeREADMEretained; targetedcrashmetadatainvestigation proposed,
+  notauthorized. No furthernativeattemptpermissioninferred.
 
 1. [done for source scope 2026-11-03; operations not started] [safety] Multi-coin runner fix (owner, 2026-10-31: highest priority). **A fix already exists: patch 0004
    of the October series (2026-10-02; "current form needs final review"), in
@@ -1078,6 +1539,9 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
    confirmation before selecting a production evidence provider; no further private call or cap-policy activation authorized.
    The accepted synthetic reservation model is not being reopened. This safety dependency does not block paper/research.
    Blocked on the owner's account-scope answer.
+   2026-11-14 (Claude, support for Codex's workload): offline integration specification with synthetic evidence
+   provider, fail-closed by construction until the account-scope answer: `docs/research/eng_item3_position_cap_spec_20261114/`.
+   The owner's answer remains the blocker for the real provider; nothing else changed.
 4. [safety] Exit logic in the three default strategies (owner-approved 2026-10-30, priority 1 of the new work): entry filters
    currently block sell signals (`failure_diagnosis_20261030/`). Establish the separation between entry conditions and
    exit/risk controls; build exit-unblocked variants as separate configurations without changing the defaults; offline
@@ -1094,17 +1558,70 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
    Attachment supplement 2026-11-03: all twenty bodies are now available and fully read; only broader original-export/
    revision/hidden-content certification remains limited. No previous market study was repeated and no new experiment
    or operational prerequisite was invented. The existing queue is unchanged.
+   **Owner direction 2026-11-14 (recorded by Claude 2026-11-14T13:10:05Z, see work log): start the implementation now.**
+   Claude reported that no eng-4 source, tests or review exist since the 2026-11-03 cross-review while the simulation's
+   next step waits on owner approvals; the owner answered "take care of it". Specification for Codex:
+   `docs/research/exit_variants_spec_20261114/README.md` (defect lines in HEAD, one `filters_apply_to_sell` parameter,
+   three `*_exit_unblocked` presets, defaults byte-identical, two offline arms S and R on `multisymbol_baseline_v1`,
+   unit tests, default-parity proof, independent review; stopping point: source proof + replay + review). Scope gap
+   resolved: each variant is measured both signal-only and with the runner's exit stack. No paper/live use without
+   owner approval. Queue order unchanged; item 2 continues when its approvals arrive.
+   2026-11-14T18:41Z (Claude, owner: "provide support on the tasks that can help codex with the workload"): the
+   measurement half of item 4 is done offline without a production change (`exit_variants_spec_20261114/RESULTS.md`,
+   replay reproduces the saved baseline 15 of 15). Under the bot's rules the variant changes nine-month net by +$1 to +$3
+   per strategy on $100 trades; signal-only it loses more after fees in all three. Pre-registered "at least as good"
+   not met. Self-checked; Codex to verify. The production parameter/presets remain approved work until the owner says
+   otherwise; options (build anyway / close with result / redirect to the exit stack) are the owner's.
+   2026-11-14T16:51Z source increment: three opt-in exit-unblocked presets implemented, all existing defaults/runner
+   unchanged. Config/parser/registry path included; only literal Boolean False enables bypass. 230 focused synthetic
+   checks passed after independent reviewer found malformed-value coercion (O-167). Separate Nash16:53:05Z
+   ACCEPTED_WITH_RISK for source/synthetic only:80 independent new-test passes,10current/6before seals verified.
+   Not whole-item completion. Evidence `docs/review_artifacts/exit_unblocked_variants_20261114/`.
+   Historical default parity and S/R archive comparison remain NOT DONE; no market run, runtime/paper selection,
+   source-to-process proof or economic conclusion. Original replay requirements and queue order retained.
+   2026-11-14T17:06Z owner-approved historical stage: contract fixed before execution; separate Nash17:05:18Z
+   ACCEPTED_WITH_RISK pre-run source/synthetic gate after O168 ledger-reproduction correction. One bounded
+   archived-data attempt is running; no result or completion yet. No new data/strategy search or operational authority.
+   **2026-11-14T17:13Z closeout: source/offline item4 requirements ACCEPTED_WITH_RISK after separate Nash17:12:59Z
+   historical result review.** One run finished17:07:49Z, all15default-parity/saved-trade gates and120case reconciliations
+   passed; all60unblocked cases lost at50/90bps+5bps. S arithmetic five-sleeve totals worsened; R improvements only
+   1-3USDT at primary fee, still negative. No shared-portfolio/DSR/forward-edge/runtime result or variant promotion.
+   Report/review: `docs/research/exit_variants_spec_20261114/HISTORICAL_COMPARISON.md` and `HISTORICAL_REVIEW.md`.
+   Earlier NOT DONE/running labels above are dated history. Defaults/25symbolscope/queue order unchanged, R10STOPPED;
+   no source hardening/experiment activation automatically follows this closeout. Paper/live use remains a separate decision.
 5. [research] 25-symbol forward comparison (ED-002): protocol frozen before collection, with the existing default strategies
    plus the approved exit variants, benchmarks, costs and acceptance criteria; held-coin rule for limit-only or delisting
    announcements; reporting per strategy and coin of gross and net returns, fees, slippage, trade count, exposure and
    drawdown, and in-market versus out-of-market returns (falls avoided, rises missed, exit-to-re-entry price change).
    Collector on the server; report the actual monthly cost and a monitoring plan; deploy only after owner approval.
+   Owner2026-11-14T22:42:08Z resumed OFFLINE DESIGN ONLY and asked to propose both exit models. Draft
+   `docs/research/ed002_dual_exit_protocol_proposal_20261114.md` with21input/source bindings:6signal configurations
+   (3defaults+3opt-ins), S and proposed hourly-observed/delayed R-H1D stack,4controls,16alternative accounts per
+   cost/32trajectories. Same entries across models isolate the exit policy; not historical C_path or runtime parity.
+   Proposed rules/arm/event/state extensions NOT ADOPTED, no source changes, freeze/dates or acquisition/evaluation.
+   Separate Nash2026-11-14T22:51:35Z ACCEPTED_WITH_RISK for offline design coherence after O169 chronology/text
+   correction. Exact proposal818f9067...ce3a6/bindings5dd2e22b...44a39 and21unchanged inputs; initialdraft retained.
+   Review `docs/review_artifacts/ed002_dual_exit_protocol_20261114/INDEPENDENT_REVIEW.md`.
+   Rules remain PROPOSED/NOT ADOPTED/NOT IMPLEMENTED; next boundary is exact owner adoption and separately
+   bounded synthetic-only code authorization. Existing delay/shared cash/carry/model inputs and25scope preserved;
+   no global study unpause, market evaluation, activation, deployment/trading or R10 resumption inferred.
+   Owner continuation recorded2026-11-14T23:06:34Z adopted the reviewed818f9067...ce3a6 proposal and authorized
+   its FIRST synthetic-only versioned recipe/shared-state adapter. Currentimplementation12per-policy paths,
+   explicit model-fill context, source-derived carry checks;273focused author tests pass. Separate Nash23:33:17Z
+   ACCEPTED_WITH_RISK for per-policy source/synthetic scope;12independent correction cases plus priorproof reused,
+   all15pins/two original copies matched. Not whole16arm/32trajectory completion. Evidence
+   `docs/review_artifacts/ed002_dual_exit_adapter_20261114/`. Event/benchmark integration, orchestration/reporting,
+   provider/host/currentinputs and freeze/collection/evaluation remain unimplemented/unapproved as applicable;
+   no operational or R10 authority. Earlier NOTADOPTED text above describes prior design stage only.
 6. [research] E1 maker-versus-taker study (unparked by the owner 2026-10-30): measured execution costs on BTC and ETH,
    including unfilled maker orders finished as taker. As designed it models fills from public order-book data; measuring
    real fills needs live orders, which is a separate owner decision behind the safety items.
 7. [research] Verify Claude's four research-brief corrections of 2026-10-30 (owner-approved) in `docs/research/RESEARCH_BRIEF.md` section 4.
 8. [operations] Protect the work: commit and backup. Starts as soon as decision 1 is approved.
 9. [safety] Stuck-exit rule (fix 2) wired, after decision 3; independent review.
+   2026-11-14 (Claude, support for Codex's workload): live-path specification mirroring R12, with the live consumer's
+   terminal rejection lines cited and tests that fail before: `docs/research/eng_item9_live_stuck_exit_spec_20261114/`.
+   Default-off; activation and the kill-switch question are the owner's.
 10. [research] Tracker v2 stays on time: the 2026-10-18 decision was reconstructed 168.87 hours late; the 2026-10-25 decision
    was on time (0.87 hours). Confirm the next weeks run on time.
    2026-11-05T03:12:39Z (New York November 4): SHOWN original Codex chat records
@@ -1161,6 +1678,46 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
    per file in the CSV; ES evidence staleness is not current process proof.
    Full disposition: `docs/research/claude_handoff_audit_20261105/`. No code,
    configuration, queue priority or operating state changed.
+   2026-11-13 (Claude): reopened by the owner's direction (audit open until scope accounted for). Session 8 done:
+   per-file coverage ledger `docs/research/bot_audit_20261031/coverage_ledger_20261113.csv`: 55 of 103 gap modules
+   named as covered; of 48 not named, 29 are statically imported by the trading loop (the earlier "off the simulation
+   path" claim was wrong). Findings BA-40 (MEDIUM, non-default strategies: fractional parameters truncated, gap_fill
+   target 0.618 becomes 0), BA-41, BA-42, BA-43 (LOW to MEDIUM). Self-checked; Codex to verify. Next: session 9,
+   the remaining 20 trading-loop modules, then the 9 monitor/alert-only and 10 unused modules.
+   Session 9 done 2026-11-13: BA-44 HIGH for the simulation: under the proposed Group A units (WorkingDirectory=source,
+   ProtectSystem=strict, ReadWritePaths=state) the paper runner's fill reconciliation writes strategy outcomes to a
+   cwd-relative, read-only path; the error is uncaught in run_forever, so the runner would stop at its first fill and
+   repeat on restart (SHOWN by reading, not executed). Root cause already known: unapplied October patch 0067
+   (outcome log follows the state directory); Claude first reported it as new. Codex: verify before deployment,
+   starting from 0067. BA-45, BA-46 LOW.
+   Session 10 done 2026-11-13: BA-44 addendum (the outcome reader in outcome_summary uses the same relative path);
+   BA-47 LOW (one bad line makes an event journal unreadable). Trading-loop gap modules: 19 read, 1 empty,
+   7 GATE-reviewed or flag-gated or known off (not re-read), 2 pattern-scanned.
+   Session 11 done 2026-11-13: BA-48 (corrected: no reachable fault; INFO), BA-49 LOW, BA-50 LOW (a failed rules
+   fetch is cached as inactive, so orders for that symbol are refused for up to 6 hours). All 103 gap modules have a
+   recorded status. Not covered: 27 cited-only modules, 35 Codex-changed modules (Codex GATE reviews), core/ (12),
+   scripts/ (395, beyond 6 entry points), dashboard/ (84), unreachable modules, server runtime configuration.
+   Closure or reduced scope is the owner's decision.
+   Session 12 done 2026-11-14 (owner: "carry out the next recommended priority task"): Codex's new Group B rotation
+   and cash-sizing modules (5 files read whole, 5 diffs read whole against Codex's saved pre-change copies). BA-51 MEDIUM
+   before activation: any edit to the three Group B producer files after publication halts new entries in every Group B
+   slot (consumers refuse the old artifact, a same-week replacement and a bootstrap; the producer cannot build the next
+   week from the old file); the spec asks for the code identity to be recorded, not enforced. Fail-closed, no money at
+   risk. Ten mechanisms checked and found sound (README session 12). Self-checked; Codex to verify. Ledger: 5 rows
+   appended (108 data rows). Not covered: the 2026-11-14 provisioning, precision, profile and currency changes.
+   BA-51 follow-up 2026-11-14 (owner "take care of it"): reproduced by execution on a scratch copy; decision under the
+   owner's delegation: record the producer code identity, do not enforce it at read time (spec: recorded). Exact patch
+   and tests for Codex: `docs/research/bot_audit_20261031/ba51_fix_proposal_20261114/PROPOSED_PATCH.md`. Not applied.
+   Session 13 done 2026-11-14 (owner, second "carry out the next recommended priority task"): the 2026-11-14 provisioning
+   CLI, cache flag, sizing-reader keyword, shared Coinbase precision repair, fresh-account currency repair and one
+   candidate profile, read whole or as whole diffs. No new finding; seven mechanisms found sound; the Group A/B
+   provisioning path and the sizer read the same per-account cache. Ledger 110 data rows. Still not covered: the other
+   eight profiles line by line, the new tests, core/, scripts/ beyond entry points, dashboard/, server configuration.
+   Session 14 done 2026-11-14 (owner "carry on"): core/ (4 of 12 files read whole: risk_manager, price_aggregator,
+   symbol_parse, symbols; 6 data/event files pattern-scanned). BA-52 LOW (legacy run_trader's gate blocks closing sells
+   with entry limits, paper venue only), BA-53 LOW (undated price rows pass the staleness filter, same caller). Neither
+   is on the simulation or live path. Eight profiles compared: no finding. Ledger 114 data rows. Still not covered:
+   scripts/ beyond entry points, dashboard/, server configuration, Codex's new tests.
 2. [handed back for cross-review 2026-10-31] [safety] Capital-protection audit (owner-approved 2026-10-31; read-only). Stage 1 delivered 2026-10-31,
    READY_FOR_INDEPENDENT_REVIEW (`docs/research/capital_protection_audit_20261031/`). Stage 2 delivered 2026-10-31
    (`docs/research/result_labels_20261031/`), started without waiting for Codex because it does not depend on stage 1
@@ -1226,11 +1783,26 @@ Independent supplement GATE ACCEPTED_WITH_RISK for that narrow document/evidence
    guard; funding, open interest, Fear & Greed, liquidation and sentiment code exists but does not decide trades. No
    data or code for macro, ETF or stablecoin flows, on-chain, unlocks, news, hacks or fundamentals. Advice is a
    proposal, no owner decision: tracker v2 first, E1 costs second, other factors only as filters on the candidate.
+12. [done 2026-11-12, Claude; owner request before approving further development] [research] Forensic audit of every
+   strategy, test and simulation (`docs/research/forensic_audit_20261112/README.md`): inventory, failure causes by type
+   (strategy, cost, execution, data, testing), numbers, methodology weaknesses, software defects and their status, the
+   simulation decision, five ranked actions and a verdict. Copied from existing records; nothing rerun. Verdict: no
+   strategy has demonstrated after-cost profitability on forward data; BTC+ETH trend is the strongest (risk reduction,
+   no return edge over BTC). Self-checked; Codex to verify.
+13. [done 2026-11-12, Claude; owner request] [research] Second-stage review (`docs/research/second_stage_review_20261112/`):
+   candidate trade concentration (best 5 of 108 round trips = 82% of net trade P&L at 0.50%), cost levers without
+   signal change, forward-tracker reliability, bot integration estimate (about 6-9 Codex sessions), proposed
+   BTC+ETH paper experiment, paper vs real-money safety minimums; ETF test withdrawn as a priority. Codex verification
+   pending (engineering queue note).
 - Done 2026-10-30: failure diagnosis (`docs/research/failure_diagnosis_20261030/`); its three hypotheses were approved with the order above.
 - [dependent] Multi-symbol diversification pre-registration: waits on the 25-symbol comparison's forward results (owner 2026-10-30).
 - [recurring] Weekly status, Mondays 12:31 UTC (scheduled task).
 
 ## Parked (not started until the owner moves it into a queue)
+- Shared/global Coinbase precision translation (O162) proposal history: owner continued the explicit source-repair recommendation2026-11-14; corrected shared fetch source separately ACCEPTED_WITH_RISK10:41:32Z (220focused author/121independent passes), closing this source proposal inside engineering item2. No live/default decimal-count bypass remains in the fetcher. Existing cached rows were not inventoried or migrated; actual affected caches/orders UNVERIFIED. No additional source task or operating permission is created by this history line.
+- Existing reconciler unit-test fixture mismatch (2026-11-13): `test_reconcile_once_journals_filled_strategy_intent` omits FakeQueue.list_pending_paper_buys, so the current recovery diagnostic adds a field its old exact dictionary assertion does not expect. Identical failure with archived pre-0067 outcome modules; real SQLite integration passes. Propose narrowly updating that fixture while preserving unknown-inventory failure tests when queued; not repaired during BA-44. Decision served: accurate focused regression signal, not a production recovery change.
+- Native backup sandbox-positive diagnosis:offline O135metadatarepair separatelyaccepted; owner-authorized singleinstrumentedretry12Nov17:44UTC showsSIGABRT(-6),emptyoutput,not a proven permission denial. Propose boundedread-only matchingcrashmetadata(processname/exceptioncodes/terminationreason only),no rawlogs/threadmemory/environment/systemchanges. No such read/retry/isolationfix started. Exactcause/nativeencryption remainsUNVERIFIED. Proposalhistory retained,not a secondactiveitem.
+- CMC10/11Nov missing snapshots:Claude's17:18:54work-log note reports two primary-window missing days and earliest possible primaryeligibleentry12Dec if no further gaps. Codex has not independently verified that date/coverage calculation. Verify missingday/evaluator impact and collection reliability before treating futureentriesasprimary; no backfill, new job, changed frozenrules or silent cohort-window shift. Extends existing parked CMCfailure-alert concern, not approval to start a second task.
 - Four inherited invalid release/build/signing workflows:owner moved this proposal to active engineering12Nov14:42UTC; separate Darwin GATE ACCEPTED_WITH_RISK14:47UTC closes offline source repair only. Original4published runs still failed/0jobs. Availability-booleans repair preserves raw-secret scope;16focused tests independently pass, hosted/complete-standard validation unverified. Changes uncommitted/unpushed; no builds/releases/reruns/new credentials. Exact evidence:docs/checkpoints/commit_plan_20261112/README.md. This line preserves the parked-proposal history, not a second active item.
 - Local Git executable selection:2026-11-12 env/gh selected Intel-only /usr/local/bin/git and failed bad CPU type, while /usr/bin/git works. Native absolute-path/per-command selection sufficed; no global install/PATH/config repair. Decision served:reliable operator/automation CLI invocation; park any environment-wide repair rather than expand this pre-push check.
 - Earlier companion ProcessExecutor callers:2026-11-12 independent backup-adapter review reproduced spawn-time SIGINT leaving a synthetic child and found signalling after leader reaping. Existing scripts/research/companion_existing_controller.py is unchanged; older callers/acceptance lanes were not re-audited here. Decision served:restore valid cancellation/ownership claims where those callers still operate; propose a scoped follow-up rather than silently certify or modify them during R3 tool preparation.
@@ -1939,6 +2511,249 @@ the recorded one-attempt budget, not new code or authentication changes.
 Counts after O-134:134 omissions;0agent-unprompted/126during owner-requested
 work/8owner. Recorded accepted-work rework remains7; no full CI green claim
 was accepted/reopened. Source defect is inherited, not introduced by this push.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-135 | Native sandbox canary failure discards inner exit/status evidence and reports only phase, preventing exact failure diagnosis after the one approved attempt | Native probe negative-path design/review before runtime attempt | Codex implementation; earlier source reviews did not require safe inner diagnostics | One attempt stopped at sandbox_positive before native clients; no precise compatibility cause established and no encrypted backup | implementation; verification; reporting | Offline source/path acceptance remains narrow; runtime R10 INCOMPLETE; diagnostic repair proposed, not executed | R, Codex during owner-authorized native test and source/result inspection | Retain bounded sanitized stage return/status details before returning; never infer an OS/security cause from generic phase; review correction before retry | Actual phase-only refusal/owned inventory shown; diagnostic correction not implemented or tested |
+
+Counts after O-135:135 omissions;0agent-unprompted/127during owner-requested
+work/8owner. Recorded accepted-work rework remains7 pending any later accepted
+correction; runtime/native proof was never accepted. No automatic retry.
+
+O135follow-up12Nov17:37:46UTC:boundedmetadata correction independently
+ACCEPTED_WITH_RISK after41focusedtests/3hashchecks; no rawdiagnostics copied.
+Controlsyntheticallytested,not yet observedonrealcanaryfailure. Exactoldcause
+andnativeR10 remainINCOMPLETE. Rework7alreadyincludes acceptednative-source
+readiness correction(O130); this additional diagnosticcorrection is not
+counted again as a distinct previouslyacceptedcomponent. No runtime accepted.
+
+O135runtimecheck12Nov17:44:34UTC:one separatelyauthorizedinstrumentedretry
+captured-6/status/counts without rawpayload. Diagnosticretentionobserved on
+realrefusal; runtime stillINCOMPLETE. ExactSIGABRTcauseunknown,not another
+discardeddiagnostic omission. Counts135/rework7 unchanged; no automaticretry.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-136 | The Nov12 forensic audit reused the withdrawn eight-record ES confidence interval and old fee/PnL figures, and described historical software defects as only future risks | Forensic evidence synthesis before its verdict | Claude forensic audit; earlier second-stage review did not correct it | Could falsely reject corrected SMA200 from a contaminated cohort or attribute every past failure to signal/cost; corrected cohort has zero qualified records; bug-specific economic loss remains unquantified | evidence discovery; verification; reporting | Forensic sections3d/6/10 disputed; dated independent correction in second_stage_review_20261112/CODEX_VERIFICATION_20261113.md; no original evidence changed | R, Codex/Nash during owner-requested independent audit | Check dated withdrawals and cohort identity before reuse; separate historical execution/record defects from quantified causal loss | Independently read Oct7 withdrawal, identity and per-fill reconciliations; raw paper databases/counterfactual not rerun |
+| O-137 | Forensic approximate750/current747 framing missed the existing752 supplement and later large dip-study exposure; lower-cost stress sensitivity was called a pass although saved verdict is keep_researching | Nov12 current evidence/selection-accounting and cost summary | Claude forensic/second-stage reviews | Understates search exposure and overstates lower-cost acceptance; complete current count/effectiveN and valid currentDSR remain unresolved | evidence discovery; research method; reporting | Dated747 arithmetic reproduced; convention-specific current subtotal at least1267 with another500 alternative-exit cells visible, not a complete count or DSR input; registered1.2%REJECT unchanged | R, Nash/Codex during owner-requested audit | Reconcile dated supplements and actual saved grid dimensions; quote exact verdict and distinguish raw configurations from effective selection trials | Source/CSV recount and main corrected stress-core replay; no new DSR or harmonized full ledger |
+| O-138 | Nov12 reports inferred on-time v1 operation from overwritten history and described the draft forward protocol as needing no code despite unprovided cost scenarios/observations/deadline observer and incomplete Q3 contract | Second-stage tracker table and criteria v1-v3.2 readiness assertions | Claude; successive advisor summaries did not verify underlying capabilities | Could freeze a protocol whose measurement/evaluation/notification acceptance is not implemented or specified; existing primary tracker can continue separately | verification; implementation; reporting | Draftv3.2 remainsDRAFT/INCOMPLETE; dates consistent but baseline/benchmark/cost cutoff/deadline observation/Q3 need explicit contract; no schedule or primary ledger changed | R, Darwin/Codex independent source inspection during owner-requested audit | Trace each claimed output to actual source/ledger; separate primary model from additional observer/counterfactual evaluator; hash final frozen bytes after edits | Source and savedledger inspection, no runtime observation, task run, quote capture or new market experiment |
+
+Counts after O-136/O-138 (2026-11-13 UTC):138 omissions;0agent-unprompted/
+130during owner-requested work/8owner. Rework remains7: the new Claude reports
+were self-checked, not accepted work. Existing queues, owner decisions and
+operational holds are unchanged. The independent audit is a dated correction
+to the exact original report hashes; original reports/criteria/results remain
+preserved, not silently rewritten or adopted.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-139 | Initial proposed v3.3 extension paragraph omitted the earlier Q1-pass condition, allowing Q2 extension even after Q1 failure | Draft revision before owner adoption | Codex draft; consequence exposed by Pascal independent review | Would broaden the proposed continuation period unnecessarily; no adoption, experiment or runtime changed | scope or priority drift; implementation; reporting | Corrected only the extension paragraph before handoff; proposed design independently accepted with risk, not frozen | R, independent Pascal review during owner-requested contract revision | Compare end-state/extension truth conditions, not only dates and individual pass/fail definitions, against the prior draft | Independent diff-only review16:50:55Z found no blocker; initial reviewed hash reconstructs by reversing that paragraph; no market/test run |
+
+Counts after O-139 (2026-11-13 UTC):139 omissions;0agent-unprompted/
+131during owner-requested work/8owner. Rework remains7: this draft was not
+adopted, frozen or operationally accepted. No queue reordering or extra work
+authorization is created by the omission record.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-140 | Proposed v3.3 reporting omitted separate marginal/allocated infrastructure costs and capital-size economic scenarios, although the prior integration assessment explicitly required them | V3.3 reporting design and its independent review before owner handoff | Codex draft; Pascal design review | An after-trading-cost descriptive result could be mistaken for an economically worthwhile deployment; no adoption, freeze, experiment or trading occurred | evidence discovery; reporting; verification | V3.3 proposed design review remains bounded; complete economic-reporting coverage now INCOMPLETE pending an explicitly disclosed report-only addition, with Q1/Q2 thresholds unchanged | O, owner supplied outside advice highlighting the missing financial context; Codex confirmed against draft and prior assessment | Trace both trading costs and marginal/allocated fixed costs into the final reporting checklist; distinguish hypothetical capital scaling from measured capacity and forecasts | Draft/source inspection and saved-result arithmetic only; no actual bill, capital commitment or economic evaluator verified |
+
+Counts after O-140 (2026-11-13 UTC):140 omissions;0agent-unprompted/
+131during owner-requested work/9owner. Accepted-work rework now8, adding the
+independently accepted proposed-v3.3 reporting coverage subsequently narrowed
+by the owner's financial-context finding. No original result or criteria bytes
+changed; no new quote collection, observer, schedule or operational authority.
+
+O140 follow-up2026-11-13T17:17:58Z: owner explicitly authorized the reporting
+addition and bounded public/shadow research. WP1 supplement independently
+ACCEPTED_WITH_RISK by Pascal for proposed design/report only. Pre-supplement
+v3.3 preserved byte-for-byte; current draftSHA066501d4eb0343b8cb953304f1224f078f526ebac20b90492d729919b0bf548d.
+Q1/Q2 unchanged. Missing reporting specification closed; actual invoices,
+capacity, forward evaluator/economic evidence remain INCOMPLETE. Counts140/
+rework8 unchanged. This does not adopt/freeze criteria or approve trading;
+WP2's separately bounded research scope has not yet produced a capture.
+
+2026-11-13T17:35:50Z owner-authorized two research packages finished within
+the18:00UTC stop budget. WP1 economic-report specification/scenario arithmetic
+and selection/regime synthesis independently accepted with risk; section8a adds
+reporting only, noQ1/Q2rule change. Supplemented draftSHA066501d4eb0343b8cb953304f1224f078f526ebac20b90492d729919b0bf548d.
+Preserved earlier drafts remain unchanged; no design freeze/activation follows.
+WP2 isolatedresearchtool/tests independentlyacceptedwithrisk after32synthetic
+cases and a real execution-notional-minimum correction. Exactlyonepublic
+diagnostic17:31:28-17:31:37UTC made10GETs/9.436seconds,6books/200prints,
+4,332,592bytes; allHTTP200but overallINCOMPLETE becauseETHtradepage had no
+prints inside its localwindow. No retry. Independentreceiptverification
+17:33:53Z acceptedintegrity/reportingonly,notcost/fillqualification.
+Results: `docs/research/btc_eth_forward_experiment_20261112/ECONOMICS_AND_EVIDENCE_20261113.md`
+and `PUBLIC_DIAGNOSTIC_RESULT_20261113.md`. No two-week bot build is justified
+by these evidence lanes alone (research assessment,notnewownerqueueorder).
+Actualfills/currentfees/invoices/expectedreturns/capacity and highlowvolatility
+partitions remain unknown/notcomputed. Existingprimarytrackers/schedules/bot/
+accounts/servers/trading unchanged; no future attendance or collection created.
+Nextdecision remains owner adoption of the corrected prospective design/limits
+or a separately scoped execution-source coverage/clock investigation; no
+follow-on task starts automatically. Existing multi-symbol mandate/holds remain.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-141 | Initial research-diagnostic draft treated an absent disabled flag as eligibility, omitted precision/minimum sizing and cost-input guards/partial normalized evidence; its first corrected version still checked minimum funds only at reference price rather than modeled execution notionals | WP2 synthetic failure-matrix/qualification checks before public use | Darwin initial draft; Codex handoff completion missed execution-price minimum until source challenge; no source accepted for capture yet | Could label invalid hypothetical execution comparisons COMPLETE; no public run, order or account affected | implementation; verification | Initial source not accepted; six regression failures corrected, then Nash GATE rejected actual-notional minimum; narrowly corrected version pending diff review | R, Codex source inspection and independent Nash probes during owner-requested bounded research | Test unknown status, precision, each modeled execution notional and retained partial evidence; pair common exclusions before reporting scenario costs | Six initial regressions and two independent minimum cases fail before changes; corrected32-case target passes; independent acceptance pending |
+
+Counts after O-141 (2026-11-13 UTC):141 omissions;0agent-unprompted/
+132during owner-requested work/9owner. Rework remains8: WP2 source was not
+accepted, frozen or publicly invoked before these corrections. No operation,
+strategy/criteria change or extra capture is authorized by this record.
+
+O141 follow-up2026-11-13T17:30:15Z: independentNashdiff-onlyGATE accepted
+correctedresearchsource4ac85819a81ee00d10307550dfc2bd532c2d1b2e676d57080e848c6c788dff88
+WITH_RISK forsource/syntheticproofandoneboundedpublicdiagnostic,32independent
+testspassed0.30s. Afteroneauthorizedcapture, rawreceiptintegritywasaccepted
+17:33:53Z; dataqualificationremainsINCOMPLETE forETHintervalcoverage,not a
+newsourcebugororderloss. No retry/rulewaiver. Counts141/rework8unchanged.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-142 | New shared work-log entries were inserted after older context anchors rather than at current EOF, putting Codex17:30/17:35 before Claude17:08 | Each Codex log write/readback | Codex | Can mislead a reader who treats file-tail order as event chronology; Claude's entry remains intact, no evidence/result loss shown | implementation; verification; reporting | Log chronology is unreliable; own patch method now disclosed, historical entries preserved | R, Claude log check during owner-requested self-review, then Codex audit of actual tool actions | Append at verified EOF, preserve earlier bytes and read back the tail; inspect UTC event times rather than file order | Existing out-of-order headings and own context-anchored patch calls shown; current append prefix integrity checked below |
+| O-143 | Latest self-review mislabels Monday16Nov00UTC as Sunday and understates quote-cost impact on the declared continuation screen | Claude17:57 self-review before freeze advice | Claude | Could confuse freeze date or suggest cost qualification is irrelevant; no approval/freeze or verdict changed | verification; reporting | Correct A is Monday16Nov00UTC/Sunday15Nov19EST; section4b cost-sensitive screen remains conditional; no new ETH-diagnosis prerequisite | R, Codex full supplied-paste/source audit requested by owner | Verify weekday/timezone from exact UTC anchor and read the entire adjudication rule before simplifying its consequences | datetime/zoneinfo conversion and source sections3/4b/5/9 read; no operational action |
+
+Counts after O-142/O-143 (2026-11-13 UTC):143 omissions;0agent-unprompted/
+134during owner-requested work/9owner. Rework remains8: no new accepted
+research/source result or experiment was changed; these correct logging and
+new self-checked advisory claims. No queue reorder, freeze, observer, diagnostic
+retry or trading authorization follows.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-144 | CMC gap summaries discussed delayed30-day entrant eligibility without applying the registered fixed primary window's throughout-window coverage requirement | Nov12missingNov10/11 report; Nov13five-task review and first CMC diagnosis text | Claude Nov12/13 summaries; Codex18:54review and initial19:01diagnosis | Could imply December eligibility or a manual current-day capture rescues the primary; no scoring/window change or capture occurred | evidence discovery; research method; reporting | Current fixed primary INCOMPLETE on inspected evidence unless genuine contemporaneous missing-day records are located; later entrant arithmetic remains diagnostic only; existing collector and BTC/ETH study preserved | R, Codex reading full timing amendment during owner-directed CMC diagnosis | Check both event-level history and study-wide coverage/refusal before recommending recovery; do not substitute remaining calendar days for registered coverage | Timing/cohort sources and local absence independently checked by Nash19:06:28Z; no tests/scoring; global archival absence not proved |
+
+Counts after O-144 (2026-11-13 UTC):144 omissions;0agent-unprompted/
+135during owner-requested work/9owner. Rework remains8; no accepted strategy
+result, source or registered criterion was altered. Dated report/log corrections
+preserve prior statements and do not authorize collection, replacement windows
+or a queue reorder. See current CMC diagnosis for exact evidence limits.
+
+| ID | What was omitted | When it should have been found | Missed by | Decision/result effect | Cause class | Affected conclusions/status | How found | Recurrence control | Tested |
+|---|---|---|---|---|---|---|---|---|---|
+| O-145 | Simulation resumption handoff called completed R3Linux image/test pending and referenced its consumed one-shot permission | ClaudeNov13 19:20/19:23 next-step/status entries | Claude | Could duplicate completed work and reuse spent operating authority; Codex checked before any new daemon/container action | evidence discovery; verification; reporting | Local7fixture proof remains acceptedwithrisk; fullR3stillincomplete for different requirements; nextstep corrected | R, Codex checking current receipts during owner-requested simulation completion | Read latest dated native result/receipt before assigning testtodo or reusing authorization; distinguish fullrequirement from a completed subtest | ActualNov11result/independentreview and currentqueue compared; no repeat executed |
+| O-146 | Broad simulation hold was treated as controlling without confirming the owner's ambiguous instruction; current agent status checks propagated it | Nov12hold interpretation and later continuations/status reports | Claude imposed reading; Codex relied on queue without resolving stated uncertainty | Approved simulation objective redirected; actual time/cost impact unquantified; no basis to infer new restrictions from ambiguous reply | instruction; scope or priority drift; reporting | Generalhold withdrawn on explicit currentowner direction; fullsimulationactive, separate explicitR10stop retained | R, Claude admission during owner-requested check and Codex evidence reconciliation | Confirm any proposed park/hold of approved strategic objective; generic continuation does not authorize abandonment; separate explicit stops | Latest owner request/log admission/queue history checked; no claim of permanent behavioral prevention |
+| O-147 | Criteria drafts v1 to v3.1 omitted the reporting AGENTS.md POP requires for every result (classification, deflated Sharpe, 0.90% cost level, per-symbol and combined, exploratory until real fills) | Drafting, 2026-11-12 18:51Z | Claude | No: added in v3.2 before the freeze; frozen v3.3 keeps it | instruction; research method | Criteria: corrected | R, Claude during owner-requested work | Read the governing AGENTS.md section before drafting criteria or reports | No |
+| O-148 | Second-stage review said Codex's own integration estimate was still needed although Codex's 2026-11-12 18:28Z assessment (4-8 sessions) existed | 2026-11-12 18:42Z | Claude | No decision changed; status misstated | evidence discovery | second_stage_review section 5: superseded by the assessment | R, Claude | Read the other agent's last 24 h of log entries before reporting | No |
+| O-149 | Advisor-prompt answers recommended E1 as "8 Mondays, earliest 2027-01-04" without reading E1's draft (daily 56-day panel; not frozen) | 2026-11-13 19:45Z | Claude | No: corrected in v2 before any decision | evidence discovery | Answers v2: corrected | R, Claude during owner-requested self-review | Read a task's own design before recommending or scheduling it | No |
+| O-150 | Same answers cited the 2026-10-11 DSR (0.91 or more at N=10-15) as support without its later out-of-date trial-count qualification | 2026-11-13 19:45Z | Claude | No | reporting | Answers v2: corrected | R, Claude during owner-requested self-review | Carry every later qualification with a cited statistic | No |
+| O-151 | Audit finding BA-44 reported as new; October patch 0067 already fixes the working-directory-relative outcome log, and the 2026-10-05 isolation review saw the same file | 2026-11-13 19:59Z | Claude | No: corrected before Codex acted | evidence discovery (O-18 pattern) | Bot audit BA-44: corrected | R, Claude during owner-requested self-review | Search patch inventory, REMAINING_TASKS, this register and earlier reviews before calling a finding new | No |
+| O-152 | Audit finding BA-48 claimed the live shadow path accepts NaN, read from a truncated excerpt of `_safe_float` (which rejects values not above 0) | 2026-11-13 20:45Z | Claude | No: withdrawn before verification | verification | Bot audit BA-48: corrected to INFO | R, Claude during owner-requested self-review | Read the whole function before stating what it does | No |
+| O-153 | Audit session 11 report said it covered "all of its open scope"; core/, scripts/, dashboard/, 27 cited-only modules, 35 Codex-changed modules and the server configuration were outside it | 2026-11-13 20:45Z | Claude | Could have supported an unfounded closure; corrected before any decision | reporting; scope | Audit README and research item 1: corrected | R, Claude during owner-requested self-review | Name what a scope excludes when reporting coverage | No |
+| O-154 | A status reply stated "Checked 20:54 UTC" without re-checking the repo in that turn | 2026-11-13, reply after 20:54Z | Claude | No | reporting | Reply corrected 21:01Z | R, Claude during owner-requested self-review | Fresh date, work-log and git check in every status reply | No |
+| O-155 | Treated repeated finish-simulation instruction as lifting the owner's explicit November 12 R10 stop, despite no explicit revocation | Codex 2026-11-13T22:55:02Z task selection | Codex | Yes: briefly selected/delegated backup source work instead of unblocked simulation work; withdrawn on owner correction before source/test/tool changes or operations | instruction; scope or priority drift | R10 STOPPED; erroneous resume inference WITHDRAWN at 22:59:49Z; simulation remains active with BA-44 and dependency investigation | O, owner explicitly rejected the inference | An explicit stop survives generic continuation; quote a specific revocation before resuming stopped work; cancel disputed delegation and preserve its actual effects | Delegation stopped; subagent reports no writes/tests/tools/operations; subsequent source diff limited to approved BA-44; permanent compliance not established |
+| O-156 | Available-cash sizing validated minimum notional against ask reservation instead of the unchanged modeled mid-plus-slippage fill basis | 2026-11-13 paper sizing implementation and boundary tests before review | Codex | Same quote could accept qty1 with ask100/min100 but modeled notional99; caught before source acceptance or activation | implementation; wrong execution model; verification | Initial source acceptance withheld; narrow correction and failing-before runner regression added; 306 focused author passes after; separate correction GATE ACCEPTED_WITH_RISK source only | R, Nash independent source review/probe during owner-approved sizing work | Validate affordability and venue minimum against their distinct price bases; test nonzero-spread minimum boundary and preserve actual fill model | Independent pre-correction probe and author failing-before regression; corrected author run passed; separate diff-only review reports 7 correction-case passes at23:46:17Z |
+| O-157 | GroupB rotation checked logical quote labels but not canonical mapped coin identity | GroupB source implementation before review 2026-11-14 UTC | Codex | BTC rotation could use an ETH-mapped price; caught before acceptance or activation, no actual order | implementation; verification | Initial source BLOCKED; emission and marked-fill canonical checks corrected; final review pending | R, Nash independent source probe during owner-approved simulation work | Check requested, mapped and returned identity at both decision and fill boundaries | Independent probe and author regression failed before correction; targeted correction passed; consolidated/review pending |
+| O-158 | GroupB ownership/accounting scopes discovered during missing ranking were only saved after ranking acceptance | GroupB persistence/failure-matrix implementation 2026-11-14 UTC | Codex | An unresolved SOL exit could be forgotten after holdings became flat and ranking recovered, permitting ETH entry; caught before acceptance or activation | implementation; verification | Initial source BLOCKED; ownership discovery now persists before ranking/accounting checks; final review pending | R, Nash independent source probe during owner-approved simulation work | Persist discovered obligations independently of unrelated data availability; retain retired scopes after flat state | Independent probe and author regression failed before correction; targeted correction passed; consolidated/review pending |
+| O-159 | GroupB ranking gate applied only at intent production, not queued submission or final fill | GroupB producer/consumer boundary design and implementation 2026-11-14 UTC | Codex | A queued BUY crossed into a week without valid ranking and reached stub submission; no actual fill; caught before acceptance or activation | implementation; verification; missing consumer contract | Initial source BLOCKED; immutable selection binding, current checks and durable ledger fences added at consumer/engine/final transaction gate; final review pending | R, Nash independent source probe during owner-approved simulation work | Validate time-sensitive authority where executable work becomes a financial write; fence durably before queue disposal and preserve committed receipts | Independent submission probe and author regression failed before correction; targeted correction passed; mid-write rollback/fence tests added; consolidated/review pending |
+| O-160 | Added final selection authorization I/O after the last quote/BUY-age check, allowing those time bounds and the ranking week to expire before logical commit | GroupB execution-fence correction before independent acceptance 2026-11-14 UTC | Codex | Reviewer advanced clock6s during authorization and observed a committed fill with a stale quote; no actual market fill | implementation; verification; final-boundary timing | Correction source BLOCKED; sample clock after all authorization I/O, then check cached week/quote/TTL bounds with no more authorization I/O; final review passed | R, Nash independent correction-only probe during owner-approved simulation work | Every added I/O before a financial commit invalidates earlier freshness checks; recheck all shared bounds after it | Three quote/TTL/week regressions failed before correction and independently passed after; final focused selection606passed, separate source ACCEPTED_WITH_RISK |
+| O-161 | New consumer selection-fence write error propagated out of the batch, stopping processing of unrelated exits | GroupB uncertainty-path self-check before final source acceptance 2026-11-14 UTC | Codex | Synthetic sqlite write error aborted batch; no actual order or operation | implementation; verification | Keep BUY unresolved on uncertain fence and continue the batch; corrected source ACCEPTED_WITH_RISK | R, Codex additional fault injection during owner-requested simulation implementation | A failed durable refusal is not a terminal queue rejection and must not starve independent exit work | Actual consumer regression failed before correction after fixing a fixture argument; targeted and separate independent corrected case passed |
+| O-162 | Cash-sizing metadata-source review did not reconcile Coinbase precision values with the installed adapter's TICK_SIZE mode; legacy provider treats native whole-unit1 as0.1 | Cash-sizing source/input-readiness review before native metadata acceptance 2026-11-13/14UTC | Existing provider; Codex earlier metadata/sizing review | Could model invalid increments; actual affected cache/order/PnL unknown; discovered before new refresh activation | implementation; metadata semantics; verification | Initial explicit-paper correction accepted; owner subsequently approved shared-source repair, separately ACCEPTED_WITH_RISK2026-11-14T10:41:32Z; existing caches/operation remain unverified, not migrated | R, Codex source and installed-library inspection during owner-approved provisioning work | Verify provider precision mode/native fields, not just finite positive numbers in self-consistent cache fixtures | Original paper47independent passes; shared default/False whole-step regressions4failed2passed before,220focused author/121independent passes after, native identity and cache/validate/quantize checked synthetically; actual HTTP/products/cached rows unverified |
+
+| O-163 | Fresh-account available-cash integration was not checked: initializer stores currency only in origin while entry_cash_snapshot requires standalone quote_currency | Before November13/14 sizing acceptance and fresh-profile readiness | Codex implementation/integration tests; Nash earlier review | New paper accounts refuse BUY with KeyError despite correct YAML; no activation or financial loss shown | implementation; interface mismatch; verification | Seeded-ledger source tests remain valid but do not prove fresh bootstrap; GroupA/GroupB fresh readiness INCOMPLETE; source correction proposed, not performed | R, Codex fresh-profile integration during owner-requested work; Nash independently confirmed source chain | Exercise actual fresh engine initialization through sizing without manually creating required ledger fields; preserve cash/history and unknown legacy currency | Raw fresh regression1failed; seeded profile selection18passed1strictxfail; Nash independently reproduced both at12:02:11Z, artifact ACCEPTED_WITH_RISK not source repair |
+
+| O-164 | Fresh-origin test omitted equity-only history and could certify a new origin on an existing equity ledger | Initial account-origin implementation and this repair plan before source change | Codex initializer/tests and initial repair plan; earlier source reviews | Could assign configured currency/origin despite prior equity history; synthetic counterexample, no actual migration/loss | implementation; verification; incomplete freshness definition | Equity history now prevents fresh certification; author regression passed, source READY_FOR_INDEPENDENT_REVIEW | R, Nash plan review during owner-approved O163 repair | Check all persisted financial history before asserting a fresh origin; retain inherited legacy defaults without claiming no writes | Equity-only regression1failed4passed before; final24new/243consolidated focused passes after; final review pending |
+
+| O-165 | Reused reviewed host packet without reconciling its nonsecret systemd policy projection with the new approval question excluding configuration values | Before November14 owner-approved read-only SSH invocation | Codex task selection/payload-scope check | Nonsecret policy fields read beyond literal scope; no secrets/config files/DB contents or settings changes; metadata evidence does not establish full scope compliance | instruction; scope drift; verification | Fresh host facts retained with explicit deviation; operating readiness INCOMPLETE, no extra authority | R, Codex result interpretation during owner-requested preflight; owner told immediately | Compare actual packet field roster with current approval, not only historical hashes; prior source acceptance is not permission | Actual retained receipt confirms extra policy fields; no repeat probe or permanent prevention claim |
+
+| O-166 | Initial delivery archive omitted the historical fetch_coinbase_before.py fixture referenced literally by a packaged precision test | Bundle input/dependency selection before final archive review November14 | Codex packaging selection | Initial214member archive would not supply that fixture; no runtime/test assertion changed, no deployment | implementation; dependency discovery; verification | Initial artifact preserved, revision2 adds exact pinned fixture and required-fixture gate; review pending | R, Codex static dependency-reference check during owner-requested packaging | Check literal historical fixture dependencies in addition to Python import names; bind expected file hashes and verify membership | Initial membershipfalse; revision2 membership/hashtrue; all tests.* imports embedded; full dynamic/runtime closure not claimed |
+
+| O-167 | Initial exit-variant flag used truthiness/coercion so malformed 0, empty collections or direct None could bypass SELL filters | New flag design and initial source tests before acceptance November14 | Codex implementation/tests; Claude specification proposed coercion | Accidental opt-in shown synthetically; no runtime selection, trade or financial effect | implementation; verification; configuration semantics | Independent review withheld acceptance; three functions now require literal False, registry preserves type and parser rejects nonbool flag; separate correction GATE ACCEPTED_WITH_RISK source/synthetic only16:53:05Z | R, Nash independent source review during owner-approved variant implementation | Explicit opt-in financial behavior must preserve type across parser/registry/direct API and test malformed false-like inputs | 24 malformed regressions all failed before correction; final consolidated230 passed; independent80 new tests passed0.90s,10current/6before seals verified |
+
+| O-168 | Historical saved-trade reproduction gate checked timestamps/prices/net PnL but omitted sides, quantities and individual fees | Replay harness verification before historical execution November14 | Codex replay gate/tests | Synthetic corrupted sides/qty/fees passed while the proposed output claimed saved trades equal; no historical result had been generated | verification; incomplete ledger identity | Added explicit sides, quantity and entry/exit fee checks; separate pre-run correction gate ACCEPTED_WITH_RISK17:05:18Z | R, Nash independent pre-run review during owner-approved archive comparison | Verify each material execution-ledger field rather than infer whole-ledger equivalence from net results | Independent pre-correction corruption probe accepted bad ledger; six new mismatch regressions independently passed0.21s after; prior9synthetic passes retained |
+
+| O-169 | Initial dual-exit proposal excluded pre-entry peak updates but did not explicitly forbid price-stack decisions against equal-time/pre-fill prices after a new or added fill | Before claiming the offline R-H1D proposal coherent/adoptable November14 | Codex design | Could misclassify a pre-fill price as a post-entry stop; no code, data run, strategy adoption or operating effect | research method; decision/fill chronology; verification | Author flagged boundary; separate Nash confirmed and withheld proposal acceptance; corrected every-BUY reference clock/strict later-price rule/original-age rule; design GATE ACCEPTED_WITH_RISK22:51:35Z only | R, Codex during owner-requested design and separate Nash plan review | Bind fill-reference and observation clocks, distinguish original age from last addition, and test equal-time/addition/delayed-gap boundaries before implementation acceptance | Text correction separately reviewed; synthetic proof specified for future separately authorized implementation, not executed |
+
+| O-170 | Initial dual-exit carry reconstruction trusted edited execution prices/frames if the derived state and aggregate ledger were edited consistently | First adapter source validation before acceptance November14 | Codex implementation/tests; independent plan review flagged same class | Synthetic forged execution price and alternate valid frame ledger could resume; no market data or operation | implementation; source correspondence; verification | Recompute batches against bound frames/rules/costs, check used history and NAV, then reconstruct position; source GATE ACCEPTED_WITH_RISK23:33:17Z | R, Codex targeted probes during owner-approved implementation; Nash plan guidance | Do not derive trusted references from unvalidated journal fields; bind execution prices to input history and exact settlement | Two counterexamples failed before fixes; final63new/273author passes; reviewer independently1source-correspondence case passed and finalpins verified |
+| O-171 | Required held exit with unavailable execution open was silently excluded while the new adapter reported COMPLETE | New adapter integration with generic ledger before acceptance November14 | Codex implementation/tests; independent plan review flagged same class | Synthetic unsold position could remain in a completed component result; no real order or loss | implementation; failure-model mismatch; verification | Opt-in target/pre-unit evidence detects required held-exit ineligible/missing-open exclusion, makes component INCOMPLETE; legacy unchanged; source GATE ACCEPTED_WITH_RISK23:33:17Z | R, Codex integration regression during owner-approved work; Nash plan guidance | Carry failed required exits as explicit incomplete evidence, not successful cash/position handling | Regression failed before fix; final63new/273author passes; separately reviewed final source accepted withrisk |
+| O-172 | Financially valid pending or executed target could be injected without establishing source-policy decision provenance | New adapter carry/target validation before source acceptance November14 | Codex implementation/tests | Nash injected a50% pending BUY after a HOLD/None decision and received an extra modeled buy with COMPLETE status | implementation; decision provenance; verification | Fresh source-derived replay of canonical policy history compared with all carried state/pending/executed targets; source GATE ACCEPTED_WITH_RISK23:33:17Z | R, Nash independent source probe during owner-approved adapter review | Validate the decision that produced the order, not just order/accounting validity or matching serialized trace | Four cases failed before fix; final63new/273author passes; four cases passed in reviewer's12case correction selection and original injected-target probe now rejects |
+| O-173 | Three replies and work-log entries (18:44Z, 18:59Z, 19:12Z) stated "no Codex entry since 12:49:17Z" while Codex had posted six entries 15:53-17:15Z; the 19:09Z grep pattern excluded hours 15-17 and the earlier claim was repeated without a fresh check; Claude then re-ran Codex's item 4 comparison (17:15Z) believing it undone | 2026-11-14 status checks and the 18:41Z replay | Claude | Duplicate work (one 86-second offline run; the two independent implementations agree to the cent, so the result is now cross-verified); owner told at 23:35:27Z that Codex was idle when it was not | reporting; verification | Register row, reply and work-log correction 2026-11-14T23:35:27Z; the replay stays as independent confirmation of Codex's numbers | R, Claude during owner-requested status check | Grep the whole day's headings, not an hour range; re-run the check in every reply (repeat of O-154) | No |
+
+Counts after O-173 (2026-11-14 UTC, recorded by Claude): 173 omissions; 0 agent-unprompted / 163 during
+owner-requested work / 10 owner. Rework 9 unchanged (O-173 is reporting, not accepted work reopened).
+
+Counts after O-172 (2026-11-14 UTC):172 omissions;0agent-unprompted/162during
+owner-requested work/10owner. Rework9 unchanged; adapter draft not accepted when
+these source defects were found. No experiment verdict or operating state changed.
+
+Counts after O-169 (2026-11-14 UTC):169 omissions;0agent-unprompted/159during
+owner-requested work/10owner. Rework9 unchanged; initial proposal was not accepted
+when its chronology ambiguity was found. No implemented strategy or result changed.
+
+Counts after O-168 (2026-11-14 UTC):168 omissions;0agent-unprompted/158during
+owner-requested work/10owner. Rework9 unchanged; pre-run draft was not accepted
+when its incomplete verification gate was found. Historical outcomes not altered.
+
+Counts after O-167 (2026-11-14 UTC):167 omissions;0agent-unprompted/157during
+owner-requested work/10owner. Rework9 unchanged; variant draft was not accepted
+when this defect was found. No strategy result or runtime approval changed.
+
+Counts after O-166 (2026-11-14 UTC):166 omissions;0agent-unprompted/156during
+owner-requested work/10owner. Rework9 unchanged; initial archive not independently
+accepted when omission found. No strategy result or operating acceptance changed.
+Closeout2026-11-14T16:08:01Z: separateNash16:06:57Z confirms fixtureabsenceinitial/
+presence+pinnedhashrevision2; final215memberartifact ACCEPTED_WITH_RISK for
+integrity/provenance only. No full dependencyclosure or runtimeacceptance.
+
+Counts after O-165 (2026-11-14 UTC):165 omissions;0agent-unprompted/155during
+owner-requested work/10owner. Rework9 unchanged; this attempt was not accepted
+when deviation found. No source/trading result or authorization silently changed.
+Evidence closeout2026-11-14T12:49:17Z: separate Nash confirms retainedfacts withrisk
+and authorizationNONCOMPLIANT; no operatingacceptance or repeat permission.
+
+Counts after O-164 (2026-11-14T12:20:15Z):164 omissions;0agent-unprompted/
+154during owner-requested work/10owner. Rework remains9: this increment was not
+accepted when its incomplete freshness plan was corrected; O163 already records
+the narrowed earlier bootstrap proof. No new operating/strategy result changed.
+Status closeout2026-11-14T12:21:27Z: O163/O164 source corrections separately
+ACCEPTED_WITH_RISK at12:19:55Z;25independent/243authorfocusedpasses. Earlier
+pending labels retain discovery-time state. No legacy migration/actual activation.
+
+Counts after O-163 (2026-11-14T12:00:07Z):163 omissions;0agent-unprompted/
+153during owner-requested work/10owner. Rework9: prior accepted cash-sizing
+integration omitted a fresh-initialization dependency; its seeded-ledger results
+are retained but fresh-readiness interpretation is corrected. No production
+source correction or activation has occurred. Earlier counts remain history.
+
+Counts after O-162 (2026-11-14 UTC):162 omissions;0agent-unprompted/152during
+owner-requested work/10owner. Rework8 unchanged: prior cash arithmetic/source
+acceptance remains scoped to trusted metadata; no actual metadata/operation was
+previously accepted here. Global precision defect remains open/parked.
+Status correction2026-11-14T10:43:31Z: the shared-source defect is now corrected
+and independently accepted with risk on explicit owner continuation. The prior
+open/parked description records discovery-time scope; cache/operating proof is
+still incomplete. Counts162/rework8 unchanged; no previously accepted native
+metadata or operating result is rewritten.
+
+Counts after O-161 (2026-11-14 UTC): 161 omissions; 0 agent-unprompted / 151 during
+owner-requested work / 10 owner. Rework remains8; no GroupB source acceptance or
+activation had occurred when these defects were found. Previous totals remain dated history.
+Status addendum04:46:44Z: O157-O161 corrected in source;606focused author passes,
+separate final correction GATE ACCEPTED_WITH_RISK. This supersedes the pending
+labels retained in the initial O157-O159 rows; no runtime acceptance follows.
+
+Counts after O-159 (2026-11-14 UTC): 159 omissions; 0 agent-unprompted / 149 during
+owner-requested work / 10 owner. Rework remains8: this GroupB source had not been
+accepted or activated. Earlier counts are preserved as dated history.
+
+Counts after O-156 (2026-11-13 UTC): 156 omissions; 0 agent-unprompted / 146 during
+owner-requested work / 10 owner. Rework remains 8; this source had not been accepted
+or activated. Earlier counts below remain dated history.
+
+Counts after O-155 (2026-11-13 UTC): 155 omissions; 0 agent-unprompted / 145 during
+owner-requested work / 10 owner. Rework remains 8; no accepted backup implementation
+was changed. Previous counts below are retained as dated history.
+
+Counts after O-147 to O-154 (2026-11-13 UTC, recorded by Claude): 154 omissions; 0 agent-unprompted / 145 during
+owner-requested work / 9 owner. Rework remains 8: none of the eight changed accepted work. Rows naming Claude on
+12-13 Nov: O-132, O-136, O-137, O-138, O-143, O-145, O-146 (shared with Codex), O-147 to O-154.
+
+Counts after O-145/O-146 (2026-11-13 UTC):146 omissions;0agent-unprompted/
+137during owner-requested work/9owner. Rework remains8; no accepted source or
+financial result changed. No new native attempt, deployment, R10resumption
+or automatic experiment start is authorized by these corrections.
 
 O-114/O-115 follow-up2026-11-11T11:21:33Z: corrected offline wrapper
 ACCEPTED_WITH_RISK by separate Rawls GATE after diff-only review. Reviewer
