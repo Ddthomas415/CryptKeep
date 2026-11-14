@@ -1,9 +1,23 @@
 # Group A scoring (spec v2 sections 7.2-7.4): written before the start
 
 Bot relation: BOT_PAPER (scores the bot's own paper accounts). Claude, 2026-10-31. Standard library only.
-Freezing: the script, the tests and `evaluation_rules.json` are frozen by their SHA-256 in `SHA256SUMS` once the owner
-approves the two pending values in the rules file (minimum closed trades; drawdown rule). After that, any change is a
-dated amendment in the spec, made before the start or never.
+Actual runtime configuration not checked for this evaluation approval.
+
+**FROZEN, owner approval recorded2026-11-14T12:30:20Z:** pooled minimum closed
+trades42 breakout/42 EMA/31 mean reversion, each pooled across its three coins;
+each account's maximum drawdown no worse than holding its own coin over the same
+window. No fixed percentage loss cap was selected. The script, tests and rules
+are hash-bound in `SHA256SUMS`; future criteria changes require a dated amendment
+before study start, never tuning after results. Previous rules/README/seal and
+the approval/review receipts are in `approval_20261114/`.
+
+Only owner-approval metadata changed in the rules. This does not certify the
+statistical method or change any strategy, threshold, cost, price basis or code.
+No experiment start date is selected, no services are activated, R10 stays STOPPED,
+and original commissioning requirements remain. Historical dryrun files retain
+their original pending-approval metadata and are not new accepted study evidence.
+The relative drawdown rule can permit large paper losses when the coin also falls;
+it is an evaluation comparison, not an absolute loss cap or live safety limit.
 
 ## What it does
 - Rebuilds each account on two price bases from the recorded quotes, independent of the engine's own booking:
@@ -41,6 +55,11 @@ report_week26.json` and `--stage 52`. Tests: `python3 -m pytest -q -p no:cachepr
   rule (55.3% against 40.3% for holding BTC). Unit tests: 7 passed (Python 3.12, pytest).
 
 ## Decisions it encodes (from the spec; not chosen here)
-Minimum closed trades 42 / 42 / 31 (spec 7.4, derived from the replay; owner approval pending); alpha 0.05/3 per
+Minimum closed trades 42 / 42 / 31 (spec 7.4, derived from the replay; owner approved2026-11-14); alpha 0.05/3 per
 strategy; 10,000 resamples, seed 20261031; drawdown rule "no worse than holding the coin" unless the owner sets a number
 (spec 7.5). An open position at the end is valued as if sold at the bid, with the fee.
+
+What do I know that could change the owner's decision that I have not yet said?
+This scorer's Pass is not automatically a POP-certified edge or live readiness;
+the broader trial-count, benchmark, execution and commissioning requirements still
+apply. Approval freezes design choices, not evidence that they will succeed.

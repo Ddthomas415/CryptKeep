@@ -1,0 +1,11 @@
+harness reproduces stored corrected stress results: True
+0.005 A rule: $5,555 65.2%/yr SR 1.49 DD 51.9% | fixed_mix_matched: $4,014 50.2%/yr SR 1.426 DD 49.5% | fixed_mix_50: $5,894 68.1%/yr SR 1.421 DD 61.2% | hold_btc: $11,782 105.8%/yr SR 1.303 DD 83.8%
+0.005 B rule: $9,920 77.5%/yr SR 1.697 DD 32.8% | fixed_mix_matched: $3,832 39.9%/yr SR 1.165 DD 45.3% | fixed_mix_50: $4,268 43.7%/yr SR 1.167 DD 48.6% | hold_btc: $5,862 55.6%/yr SR 1.0 DD 76.7%
+0.005 C rule: $1,780 23.1%/yr SR 0.821 DD 32.0% | fixed_mix_matched: $1,309 10.2%/yr SR 0.502 DD 34.4% | fixed_mix_50: $1,320 10.5%/yr SR 0.503 DD 35.8% | hold_btc: $1,837 24.6%/yr SR 0.7 DD 53.1%
+0.005 FULL rule: $102,426 57.5%/yr SR 1.424 DD 51.9% | fixed_mix_matched: $23,160 36.1%/yr SR 1.123 DD 55.5% | fixed_mix_50: $34,135 41.4%/yr SR 1.123 DD 61.2% | hold_btc: $134,319 61.7%/yr SR 1.053 DD 83.8%
+0.005 S2018 rule: $13,434 34.5%/yr SR 1.014 DD 51.9% | fixed_mix_matched: $3,487 15.3%/yr SR 0.625 DD 54.7% | fixed_mix_50: $4,023 17.2%/yr SR 0.627 DD 61.2% | hold_btc: $6,027 22.7%/yr SR 0.644 DD 81.4%
+0.012 A rule: $4,522 55.5%/yr SR 1.333 DD 55.7% | fixed_mix_matched: $3,871 48.6%/yr SR 1.393 DD 50.0% | fixed_mix_50: $5,646 66.0%/yr SR 1.392 DD 61.6% | hold_btc: $11,700 105.4%/yr SR 1.3 DD 83.8%
+0.012 B rule: $7,671 66.4%/yr SR 1.528 DD 37.2% | fixed_mix_matched: $3,707 38.8%/yr SR 1.14 DD 45.5% | fixed_mix_50: $4,125 42.5%/yr SR 1.144 DD 48.8% | hold_btc: $5,822 55.3%/yr SR 0.998 DD 76.7%
+0.012 C rule: $1,383 12.4%/yr SR 0.529 DD 35.3% | fixed_mix_matched: $1,283 9.4%/yr SR 0.475 DD 34.6% | fixed_mix_50: $1,294 9.7%/yr SR 0.476 DD 36.0% | hold_btc: $1,825 24.2%/yr SR 0.694 DD 53.1%
+0.012 FULL rule: $50,448 46.9%/yr SR 1.233 DD 55.7% | fixed_mix_matched: $21,275 35.0%/yr SR 1.097 DD 55.9% | fixed_mix_50: $31,182 40.1%/yr SR 1.099 DD 61.6% | hold_btc: $133,390 61.6%/yr SR 1.052 DD 83.8%
+0.012 S2018 rule: $7,090 25.0%/yr SR 0.808 DD 55.7% | fixed_mix_matched: $3,264 14.4%/yr SR 0.6 DD 55.1% | fixed_mix_50: $3,749 16.3%/yr SR 0.604 DD 61.6% | hold_btc: $5,985 22.6%/yr SR 0.643 DD 81.4%

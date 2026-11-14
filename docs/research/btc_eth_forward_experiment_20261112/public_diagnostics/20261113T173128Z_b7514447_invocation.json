@@ -1,0 +1,21 @@
+{
+  "source_sha256": "4ac85819a81ee00d10307550dfc2bd532c2d1b2e676d57080e848c6c788dff88",
+  "started_utc": "2026-11-13T17:31:28.346712+00:00",
+  "outer_timeout_seconds": 75,
+  "maximum_public_gets": 10,
+  "output": "/Users/baitus/Downloads/crypto-bot-pro/docs/research/btc_eth_forward_experiment_20261112/public_diagnostics/20261113T173128Z_b7514447",
+  "orders_authorized": false,
+  "account_access_authorized": false,
+  "retry_authorized": false,
+  "returncode": 2,
+  "child_summary": {
+    "status": "INCOMPLETE",
+    "get_count": 10,
+    "orders_submitted": false
+  },
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "elapsed_seconds": 9.436,
+  "finished_utc": "2026-11-13T17:31:37.783562+00:00",
+  "source_unchanged": true
+}

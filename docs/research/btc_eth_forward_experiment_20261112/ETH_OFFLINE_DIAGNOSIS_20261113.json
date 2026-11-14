@@ -1,0 +1,202 @@
+{
+  "frozen_criteria_sha256": "8414bbcf00883f74e1cfa49c4c3161e4a742e19282b28235dc48a4a2ac1aaad6",
+  "network_requests": 0,
+  "original_report_sha256": "ea5f99ce687b8bb96464d57eb9446c77cfe30c29f19f997e6057a7e89ea98252",
+  "products": {
+    "BTC-USD": {
+      "book_observations": [
+        {
+          "label": "t0",
+          "monotonic_request_duration_s": 0.07971279099001549,
+          "receipt_utc": "2026-11-13T17:31:28.587746+00:00",
+          "reported_source_behind_receipt_s": 1.173725,
+          "request_utc": "2026-11-13T17:31:28.507911+00:00",
+          "sequence": 139313045937,
+          "source_time": "2026-11-13T17:31:27.414021076Z"
+        },
+        {
+          "label": "arrival",
+          "monotonic_request_duration_s": 0.15559795900480822,
+          "receipt_utc": "2026-11-13T17:31:30.783798+00:00",
+          "reported_source_behind_receipt_s": 0.761721,
+          "request_utc": "2026-11-13T17:31:30.627119+00:00",
+          "sequence": 139313047898,
+          "source_time": "2026-11-13T17:31:30.022077958Z"
+        },
+        {
+          "label": "final",
+          "monotonic_request_duration_s": 0.14755258400691673,
+          "receipt_utc": "2026-11-13T17:31:32.977063+00:00",
+          "reported_source_behind_receipt_s": 0.463041,
+          "request_utc": "2026-11-13T17:31:32.828278+00:00",
+          "sequence": 139313050843,
+          "source_time": "2026-11-13T17:31:32.514022177Z"
+        }
+      ],
+      "local_window": [
+        "2026-11-13T17:31:28.587746+00:00",
+        "2026-11-13T17:31:32.977063+00:00"
+      ],
+      "max_internal_interprint_gap_s": 0.76981,
+      "newest": "2026-11-13T17:31:32.544595+00:00",
+      "newest_before_initial_local_receipt_s": -3.956849,
+      "newest_before_trade_request_s": 0.465213,
+      "oldest": "2026-11-13T17:31:25.625235+00:00",
+      "source_book_end_after_newest_trade_s": -0.030573,
+      "source_book_window_diagnostic_only": [
+        "2026-11-13T17:31:27.414021+00:00",
+        "2026-11-13T17:31:32.514022+00:00"
+      ],
+      "span_s": 6.91936,
+      "trade_ids_unique": true,
+      "trade_receipt_headers": {
+        "cb-after": "1121883055",
+        "cb-before": "1121883154",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Fri, 13 Nov 2026 17:31:33 GMT"
+      },
+      "trade_rows": 100,
+      "trades_inside_local_window": 83,
+      "trades_inside_source_book_window_diagnostic_only": 86,
+      "validation_replay": {
+        "qualification": "CONDITIONAL_ONLY_NOT_E1_OR_FILL_PROOF",
+        "status": "COMPLETE",
+        "window_prints": 83
+      }
+    },
+    "ETH-USD": {
+      "book_observations": [
+        {
+          "label": "t0",
+          "monotonic_request_duration_s": 0.062437041982775554,
+          "receipt_utc": "2026-11-13T17:31:33.213300+00:00",
+          "reported_source_behind_receipt_s": 2.565511,
+          "request_utc": "2026-11-13T17:31:33.150622+00:00",
+          "sequence": 105040265237,
+          "source_time": "2026-11-13T17:31:30.647789285Z"
+        },
+        {
+          "label": "arrival",
+          "monotonic_request_duration_s": 0.07870095799444243,
+          "receipt_utc": "2026-11-13T17:31:35.319924+00:00",
+          "reported_source_behind_receipt_s": 2.198216,
+          "request_utc": "2026-11-13T17:31:35.240066+00:00",
+          "sequence": 105040268227,
+          "source_time": "2026-11-13T17:31:33.121708272Z"
+        },
+        {
+          "label": "final",
+          "monotonic_request_duration_s": 0.08445954200578853,
+          "receipt_utc": "2026-11-13T17:31:37.433671+00:00",
+          "reported_source_behind_receipt_s": 2.19512,
+          "request_utc": "2026-11-13T17:31:37.348102+00:00",
+          "sequence": 105040269116,
+          "source_time": "2026-11-13T17:31:35.238551604Z"
+        }
+      ],
+      "local_window": [
+        "2026-11-13T17:31:33.213300+00:00",
+        "2026-11-13T17:31:37.433671+00:00"
+      ],
+      "max_internal_interprint_gap_s": 1.616944,
+      "newest": "2026-11-13T17:31:32.804163+00:00",
+      "newest_before_initial_local_receipt_s": 0.409137,
+      "newest_before_trade_request_s": 4.648994,
+      "oldest": "2026-11-13T17:31:17.408233+00:00",
+      "source_book_end_after_newest_trade_s": 2.434388,
+      "source_book_window_diagnostic_only": [
+        "2026-11-13T17:31:30.647789+00:00",
+        "2026-11-13T17:31:35.238551+00:00"
+      ],
+      "span_s": 15.39593,
+      "trade_ids_unique": true,
+      "trade_receipt_headers": {
+        "cb-after": "854774844",
+        "cb-before": "854774943",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Fri, 13 Nov 2026 17:31:37 GMT"
+      },
+      "trade_rows": 100,
+      "trades_inside_local_window": 0,
+      "trades_inside_source_book_window_diagnostic_only": 7,
+      "validation_replay": {
+        "reason": "no_reported_trades_in_local_window",
+        "status": "INCOMPLETE"
+      }
+    }
+  },
+  "raw_bindings": [
+    {
+      "bytes": 420,
+      "matches_receipt": true,
+      "raw_file": "01_raw.bin",
+      "receipt_sha256": "c7c8a7230d839b545128d3f53e6d1bfa37c4c3283d18754de33498884dd7f585",
+      "sha256": "d2bfd4363396ca895bed3a49a2e3f265c7c043efbb50b04ccf87fd5df6197137"
+    },
+    {
+      "bytes": 971072,
+      "matches_receipt": true,
+      "raw_file": "02_raw.bin",
+      "receipt_sha256": "a89c6de2ca77f2e59763dcca4a29573d7a55ca03def8b479b660be2103173701",
+      "sha256": "5e516fa6254d31b41d12aef30b2ffa5fcd13b4705f409a6a295b98902063755b"
+    },
+    {
+      "bytes": 971241,
+      "matches_receipt": true,
+      "raw_file": "03_raw.bin",
+      "receipt_sha256": "e22d91be3266d531374d790407cd4e4d624989bca24f1f1e9561a3e00c330421",
+      "sha256": "2da82970f98bfaf1ffe51ac65394d50d28d209d50a66077a7b2ffceb5906e125"
+    },
+    {
+      "bytes": 970918,
+      "matches_receipt": true,
+      "raw_file": "04_raw.bin",
+      "receipt_sha256": "e3290308bbf90e4b8d0b0cbe2f069e0c0c833925f483cd4ca0b08951132e9e32",
+      "sha256": "7c417f101c0125474fcacc1c1416bf9b9c2ae4c2e6cf46e48ead7bf4d54873e5"
+    },
+    {
+      "bytes": 11915,
+      "matches_receipt": true,
+      "raw_file": "05_raw.bin",
+      "receipt_sha256": "b441b4b0f2d8e2348ea790901239f1940560045b8b6e5b3d211af4a90f036f11",
+      "sha256": "2cf0b476ab820304c2f6efb381290d222c43a965c82ccf32a10293798aa72a77"
+    },
+    {
+      "bytes": 420,
+      "matches_receipt": true,
+      "raw_file": "06_raw.bin",
+      "receipt_sha256": "7f104393bc4a1ad0526d7d6bb42399240d1f8882272189e5d35a55018b12a202",
+      "sha256": "06101801afd8d4f2eb2f4a300ee03574121b4db5c24cf2e1f9640de333d05a12"
+    },
+    {
+      "bytes": 464424,
+      "matches_receipt": true,
+      "raw_file": "07_raw.bin",
+      "receipt_sha256": "58c9827f326bff1f70c5989cccad836d44bb5c3b657275f226e30cf41c8718ab",
+      "sha256": "d7ad8c3ddb1327be128815be8c908b27cb9ce38c382cc0ec54c37fb30e7b7412"
+    },
+    {
+      "bytes": 465348,
+      "matches_receipt": true,
+      "raw_file": "08_raw.bin",
+      "receipt_sha256": "1097705a5704df0bfa38dd08a7bce28caaf8b8af97d74360d7853b92df019c7f",
+      "sha256": "ddbe5cc236d0ec9c7a85af0a799ab6c6e5264d81b7dbaf801e265abf2e964fd5"
+    },
+    {
+      "bytes": 465115,
+      "matches_receipt": true,
+      "raw_file": "09_raw.bin",
+      "receipt_sha256": "de618dd7ecfd00770ccb9b113933b4ea876170965b3f794b7566dd82217ede1d",
+      "sha256": "99adab717da6b06842918b138f683d7b00507d85ace321a61f42cbdcabf74702"
+    },
+    {
+      "bytes": 11719,
+      "matches_receipt": true,
+      "raw_file": "10_raw.bin",
+      "receipt_sha256": "1cea8acf1b6239e7a9826d5af41feaa93e52333db7926764e8a056a3046e6d1b",
+      "sha256": "27ad063c401bc6b62bbc51e8e8f81f3ee7d13e906eff5c5c9200398f703afe0d"
+    }
+  ],
+  "source_sha256": "4ac85819a81ee00d10307550dfc2bd532c2d1b2e676d57080e848c6c788dff88",
+  "timestamp_precision": "Python datetime microseconds; source book nanoseconds truncated"
+}

@@ -419,3 +419,305 @@ exits (3% stop, 6% take-profit, 2% trailing stop, 60-bar hold), as the exit-pari
   - `services/ai_engine/` (known);
   - journals, OS helpers and governance stubs.
 - **Not checked:** the server's runtime configuration.
+
+## Rest of `services/`, session 8 (2026-11-13): per-file coverage ledger and the uncovered trading-loop modules
+
+**Task:** research item 1 reopened by the owner's 2026-11-13 direction: the audit stays open until its original scope is
+accounted for. Read only; nothing run. Bot relation: BOT_RULES (source); runtime configuration not checked.
+
+**Coverage ledger** (`coverage_ledger_20261113.csv`): one row per gap module (103). It records the session that names the
+module in this README and whether the module is statically imported (Python `ast`, including imports inside
+functions) by the simulation's trading loop (`strategy_runner.py`, `paper_runner.py`, `paper_engine.py`) or by the
+monitor, alert and status entry points.
+- 55 gap modules are named as read or scanned by sessions 1-7. 48 are not named. Session 1's unnamed 20-module
+  pattern scan may include some of them; that cannot be established.
+- Of the 48: **29 are statically imported by the trading loop**, 9 only by the monitor, alert or status entry points,
+  and 10 by neither (670 lines). Static import is not proof of runtime use.
+- **Correction (Claude):** this README's session 5 statement that the remaining modules are off the default simulation
+  order path was already disputed by Codex on 2026-11-05. It is now SHOWN to be wrong for 29 modules. Claude's
+  2026-11-13 report repeated the error ("the 42 left are off the simulation path").
+
+**Read this session:**
+- in full: `services/execution/state_authority.py`, `intent_ttl.py`, `services/security/exchange_factory.py`,
+  `binance_guard.py`, `services/strategies/config_tools.py`, `services/market_data/multi_venue_view.py`,
+  `services/os/file_utils.py`;
+- the flagged parts of `services/execution/outcome_summary.py` and `services/admin/health.py`;
+- a pattern scan of all 29 uncovered trading-loop modules;
+- callers, and `storage/intent_queue_sqlite.py` `update_status` (435-475).
+
+| ID | Finding | Owner | Evidence | Severity | Disposition |
+|---|---|---|---|---|---|
+| BA-40 | **Fractional strategy parameters are truncated to whole numbers.** `build_strategy_block` lists fractional parameters as integer fields and applies `int()`. Every preset run through the runner (`strategy_runner.py` 600 and 616) is affected: **`gap_fill`'s fill target 0.618 becomes 0**, so `fill_target` equals the gapped-down open and the strategy exits as soon as price regains it, instead of at a 61.8% fill. `breakout_volume`'s buffer 0.1% becomes 0. Any non-integer `min_change_pct` (momentum), `min_dump_pct` (volatility reversal), `min_volume_ratio` or `min_channel_width_pct` (breakout volume) is truncated too. Also, `bool()` turns the string "false" into True for boolean fields when a value arrives as text. | Codex | `config_tools.py` 22-25, 82-90; `presets.py` 241, 270; `gap_fill.py` 55, 77 | MEDIUM for those strategies. **Not** the three Group A defaults: their integer fields are integers | Codex review and owner decision; no fix without approval |
+| BA-41 | **A refused paper-queue transition is reported as done.** The queue's `update_status` refuses terminal or disallowed transitions in SQL and returns False. `paper_queue_status` discards that and returns None. So `hold_intent` and `release_intent` return `ok: True` with the new status even when nothing changed (for example, holding a `submitting` or `filled` intent). The reconciler counts the update and still records the buy alert. The live-queue counterparts return the result. | Codex | `state_authority.py` 129-151 against 74 and 126; `intent_queue_sqlite.py` 435-475; `held_intents.py` 10-27; `intent_reconciler.py` 208-218, 292-301 | LOW to MEDIUM: false success on the operator's manual hold; inflated counters | Codex review |
+| BA-42 | **The shared "atomic" write is not safe under concurrency or power loss.** `atomic_write` uses one fixed temp name (`<file>.tmp`), so two writers to the same file can publish each other's partly written temp file, and it never calls fsync before the rename. Used by `evidence_logger`, `alert_dispatcher`, `candidate_store`, `local_data_reader` and `startup_hardening_audit`, among others. Its docstring's guarantee does not hold in those cases. | Codex | `file_utils.py` 11-45 | LOW (conditional); relevant to the simulation's power-failure recovery requirement | Codex review |
+| BA-43 | **Two small fail-open defaults on the trading loop.** `summarize_closed_trade_outcomes` treats a row with an unreadable `pos_qty` as flat, so it is counted as a closed trade in the strategy selector's regime score. `set_health` writes non-atomically and only logs a failed write, so the health file can go stale or be read half-written (`read_health` then returns `{}`). | Codex | `outcome_summary.py` 169-173; `health.py` 30-45; `strategy_selector.py` 10 | LOW | Codex review |
+
+**Checked and found sound:**
+- `intent_ttl` fails closed on every invalid input, including bad settings, a bad clock and future timestamps.
+- `make_exchange`: every sandbox caller passes `require_sandbox`; Binance needs both `CBP_VENUE` and
+  `CBP_ALLOW_BINANCE=1`; the paper runner's clients carry no keys.
+- `multi_venue_view` ranks quotes of unknown age last; `best_venue` requires the market-quality guard.
+
+**Remaining (session 9 next, same method):**
+- 20 uncovered trading-loop modules: `intent_lifecycle`, `regime_detector`, `volume_surge_detector`,
+  `strategies/validation`, `app_paths`, `math_utils`, `outcome_logger`, `platform_event_journal`,
+  `operator_event_journal`, `execution_identity`, `crypto_edges`, `funding_observations` and others.
+  `coinbase_account_pages` and `coinbase_balance_observation` were GATE-reviewed under fix 1; `market_context_capture`
+  and `runtime_execution_identity` are switched off unless an environment flag is set; `ai_engine` (3) is known off.
+- Then the 9 monitor/alert/status-only modules, then the 10 used by neither.
+- Not checked: the server's runtime configuration.
+
+## Rest of `services/`, session 9 (2026-11-13): trading-loop modules continued
+
+Read only; nothing run. Bot relation: BOT_RULES (source) and BOT_PAPER (proposed Group A units); runtime configuration
+not checked.
+
+**Read:**
+- in full: `services/execution/intent_lifecycle.py`, `outcome_logger.py`, `services/strategies/validation.py`,
+  `services/markets/math_utils.py`, `services/market_data/regime_detector.py`;
+- the parts of `services/os/app_paths.py`, `intent_reconciler.py` (fill loop 225-301), `paper_runner.py` (`run_forever`
+  320-385), `services/control/group_a_account_units.py` (unit text 85-100) and `scripts/run_paper_engine.py` needed to
+  trace the call path.
+
+| ID | Finding | Owner | Evidence | Severity | Disposition |
+|---|---|---|---|---|---|
+| BA-44 | **Known root cause, new consequence (corrected 2026-11-13 20:06 UTC).** The cwd-relative outcome log is fixed by unapplied patch 0067 of the October series ("strategy outcome log follows the state directory, not the working directory"; `patch_inventory_20261031/inventory.csv` row 0067; O-18, U-09). The 2026-10-05 test-isolation review found test runs writing into the same file. Claude first reported this as new without searching that prior work. <br>**What is new:** under the proposed Group A units, the paper runner would stop at its first reconciled fill. `log_strategy_outcome` writes to the relative path `.cbp_state/runtime/outcomes/strategy_outcomes.jsonl`, resolved against the process's working directory. It ignores `CBP_STATE_DIR` and `app_paths`. <br>The Group A units set `WorkingDirectory={source}` with `ProtectSystem=strict` and `ReadWritePaths={state}` only, so that path is read-only. `reconcile_once` calls the logger inside its fill loop, after `jdb.insert_fill` and before the intent is marked filled, with no exception handling. `paper_runner.run_forever` calls `reconcile_once` inside `try/finally` with no `except`. <br>The error therefore ends the runner. On restart the same fill is reconciled again: the journal insert is ignored as a duplicate, and the logger fails again. If the path were writable, all nine accounts would append to one shared file outside their own state. | Codex | `outcome_logger.py` 8-24; `intent_reconciler.py` 13, 254-301; `paper_runner.py` 354-382, 361; `group_a_account_units.py` 91-97; `paper_reconciliation.py` 14, 325 (same logger) | **HIGH for the simulation.** It blocks commissioning on the first fill. SHOWN by reading, not executed. Whether the 11 Nov Linux fixtures exercised this path is UNVERIFIED | Codex to verify before deployment. Start from patch 0067 rather than a new fix (O-18). No fix without approval |
+| BA-45 | **The strategy configuration validator checks only 4 strategies, and lets NaN and true/false pass as numbers.** `validate_strategy_config` checks fields for `ema_cross`, `mean_reversion_rsi`, `breakout_donchian` and `pullback_recovery` only, so momentum, gap fill, volatility reversal, breakout volume and others always pass. `_num` uses `isinstance(v, (int, float))`, which accepts `True` and `float('nan')`. | Codex | `validation.py` 11-12, 32-58 | LOW (the Group A defaults are among the 4; non-finite values still pass) | Codex review |
+| BA-46 | **The regime detector reads bad candle values as 0.** A missing or non-finite high, low or close becomes 0.0, which distorts ATR. A bad last close gives `atr_pct` 0, which classifies the market as `low_volatility`. Its "ADX" is the unsmoothed DX (the code says so). Used by `strategy_selector`. | Codex | `regime_detector.py` 18-23, 87-108 | LOW (matters only where automatic strategy selection is on) | Codex review |
+
+**Checked and found sound:**
+- `intent_lifecycle` transition tables: terminal states are immutable, and reconciler and submit-owner sources are
+  restricted.
+- `math_utils` is exact decimal arithmetic. Invalid input fails closed in `step_ok`; a step of 0 or less means no step
+  rule (`decimal_step_ok`), and `rules.py` checks the step's validity first.
+
+**Remaining:** 15 uncovered trading-loop modules, including `volume_surge_detector`, `platform_event_journal`,
+`operator_event_journal`, `execution_identity`, `crypto_edges`, `funding_observations`, the GATE-reviewed Coinbase
+account helpers, the flag-gated capture modules and `ai_engine` (known off). Then the 9 monitor, alert and status-only
+modules, then the 10 used by neither.
+
+### BA-44 dated engineering correction, 2026-11-13
+
+SHOWN source change: Codex reused the two production hunks of existing patch
+0067, changing both writer and reader to the account-local `runtime_dir()` path.
+The original finding above describes the preserved pre-fix source, not the current
+working tree. Original source and patch, hashes, commands and limitations are in
+`docs/review_artifacts/paper_outcomes_0067_20261113/README.md`.
+Bot relation: BOT_RULES; intended-server loaded configuration remains UNVERIFIED
+after a bounded read-only check of documented paths.
+
+Author verification: 13 failed / 10 passed before; 95 passed / 1 existing failure
+in the selected eight-file run after. The same old fake-queue test failure also
+occurs with archived pre-fix outcome modules. Separate Nash GATE at 23:07:40Z
+ACCEPTED_WITH_RISK for source only, no blocking finding; tests inspected, not
+independently rerun. Nine real temporary SQLite/synthetic-price cases cover first
+fill reconciliation under simulated protected source and clean reconciler reload,
+not strategy signals, actual systemd, process crash safety or commissioning.
+Historical shared outcomes are preserved, not silently migrated or mixed back in.
+R10 remains STOPPED. The rest of the audit is not closed by this correction.
+
+What do I know that could change the owner's decision that I have not yet said?
+Unrelated outcome-write failures and crash windows remain outside this path fix;
+source acceptance is not a running, commissioned or profitable simulation.
+
+## Rest of `services/`, session 10 (2026-11-13): trading-loop modules continued
+
+Read only; nothing run. Bot relation: BOT_RULES (source); runtime configuration not checked.
+
+**Read:**
+- in full: `services/strategies/execution_identity.py`;
+- the write and read paths of `services/events/platform_event_journal.py` and `services/audit/operator_event_journal.py`;
+- `services/market_data/volume_surge_detector.py` (structure and its handling of bad values);
+- a repo-wide search for paths relative to the working directory (`Path(".cbp_state...")`).
+
+| ID | Finding | Owner | Evidence | Severity | Disposition |
+|---|---|---|---|---|---|
+| BA-44 (addendum) | **The reader has the same path.** `outcome_summary.py` 8 reads `.cbp_state/runtime/outcomes/strategy_outcomes.jsonl` relative to the working directory. `strategy_selector` scores strategies from that file. Patch 0067 changes both files. The other relative paths found (`market_intelligence.py`, the backtest stores, the research pipelines) are not reachable from the six entry points mapped in session 1. | Codex | `outcome_summary.py` 8; `strategy_selector.py` 10; patch inventory row 0067 | Part of BA-44 | As BA-44 |
+| BA-47 | **One bad line makes a whole event journal unreadable.** Both journals append with fsync and raise if a write fails (sound). But `load_platform_events` stops with an error at the first malformed line, and `load_operator_events` raises a raw JSON error. A line torn by a crash therefore hides all earlier history from every caller of these loaders. | Codex | `platform_event_journal.py` 145-172; `operator_event_journal.py` 144-155 | LOW | Codex review |
+
+**Checked and found sound:**
+- `execution_identity` validates strictly and fails closed. It is analytical only and changes no order.
+- `volume_surge_detector` turns bad volumes into 0, which can only suppress a surge, not create one.
+- Both journals' write paths follow `CBP_STATE_DIR` through `app_paths.data_dir()`.
+
+**Coverage after sessions 8-10, trading-loop gap modules (29):**
+- 19 read in full or in the relevant part, and 1 empty (`storage/__init__.py`).
+- Not re-read: `coinbase_account_pages` and `coinbase_balance_observation` (GATE-reviewed under fix 1),
+  `market_context_capture` and `runtime_execution_identity` (off unless a flag is set) and `ai_engine` (3, known off).
+- Only pattern-scanned: `crypto_edges` and `funding_observations` (research and ranker analytics).
+
+**Remaining:** read those 2 analytics modules; then the 9 monitor, alert and status-only modules; then the 10 used by
+neither.
+
+## Rest of `services/`, session 11 (2026-11-13): last analytics modules, monitor/alert-only and unused modules
+
+Read only; nothing run. Bot relation: BOT_RULES (source); runtime configuration not checked.
+
+**Read:**
+- `services/analytics/crypto_edges.py` (number handling, funding and basis summaries);
+- `funding_observations.py` (validation and the observation constructor);
+- all 9 modules used only by monitor, alert or status code:
+  - in full: `fill_model`, the three `governance` modules, `symbol_utils`;
+  - in part: `market_store_sqlite` (validation), `ai_copilot/policy` (paths and providers);
+  - skimmed: `campaign_summary`, `hypotheses` (a data table);
+- of the 10 modules used by neither: a pattern scan of all 10, with `markets/rules.py` (fetch, cache) and
+  `ops/risk_gate_contract.py` (numbers, `evaluate_gate_for_order`) read in part.
+
+| ID | Finding | Owner | Evidence | Severity | Disposition |
+|---|---|---|---|---|---|
+| BA-48 | **Corrected 2026-11-13 20:55 UTC: no reachable fault found.** `apply_fee_slippage` itself has no finite check and prices any side other than "buy" as a sell. But both callers guard their inputs. The live shadow path's `_safe_float` returns a value only if it is above 0, which rejects NaN, and that path accepts only buy or sell. The parity backtest reads archive data that rejects non-finite values. The first version said the shadow path accepted NaN: that was wrong, read from a truncated excerpt of `_safe_float`. Separately, `crypto_edges._fnum` turns unreadable funding rates into 0, read as "flat"; its inputs come from a store that rejects non-finite values. | Codex | `fill_model.py` 25-36; `_executor_submit.py` 75-82, 135-150; `crypto_edges.py` 7-11, 48-57 | INFO (fill model); LOW (crypto_edges) | Codex review |
+| BA-49 | **Three permissive defaults in governance and copilot code.** `decision_engine.decide` returns ALLOW for any state except INVALID, including empty or unknown. `campaign_state_machine` allows every transition except leaving INVALID. The copilot's protected-path check strips leading dots and slashes and never resolves `..`, so a path like `services/strategies/../execution/x.py` is not treated as protected. `.github/` workflows are not protected at all. | Codex | `decision_engine.py` 4-7; `campaign_state_machine.py` 4-7; `ai_copilot/policy.py` 25-60; caller `paper_strategy_evidence_service.py` 23-25 | LOW (the copilot is deferred; git diff paths do not contain `..`) | Codex review |
+| BA-50 | **Missing risk-gate fields count as "no stress", and a failed market-rules fetch is cached.** `risk_gate_contract._finite_float` uses 0.0 when a key is absent (invalid values do raise). `markets/rules.fetch_and_cache` stores a FETCH_FAILED result as an inactive market with the normal timestamp. `is_fresh` checks only the age, so for up to the 6-hour default time-to-live `validate` refuses every order for that symbol with the misleading reason `MARKET_INACTIVE`, even after the venue recovers. It fails closed but blocks trading. Known context: the 6-hour cache and the `MARKET_INACTIVE` refusal are in Claude's 2026-10-21 desk check T11-1 (`claude_cowork_20261021/DESK_CHECKS.md`). Caching a failed fetch as inactive is new detail. Verified 20:55 UTC in `cache_sqlite.py` 46-77 and `rules.py` 89-100. | Codex | `risk_gate_contract.py` 11-33; `rules.py` 12-57 | LOW | Codex review |
+
+**Checked and found sound:**
+- `funding_observations` keeps only finite numbers and refuses missing identity, capture time or time zone.
+- `market_store_sqlite` validates every number as finite before writing.
+- `evaluate_gate_for_order` blocks full stop and reduce-only states, and an unknown state string raises an error.
+
+**Scope accounted for: all 103 gap modules now have a recorded status.**
+- **55** read or scanned in sessions 1-7.
+- **37** read in full or in part, or scanned, in sessions 8-11.
+- **9 not re-read, for a stated reason:**
+  - 4 Coinbase account helpers from fix 1, already GATE-reviewed (`coinbase_account_pages`,
+    `coinbase_balance_observation`, `coinbase_portfolio_guard`, `coinbase_v3_accounts`);
+  - 2 capture modules that are off unless a flag is set (`market_context_capture`, `runtime_execution_identity`);
+  - 3 `ai_engine` modules, known to be off.
+- **2** package init files: `storage/__init__.py` is empty; `services/__init__.py` is a 12-line lazy-import shim (pattern-scanned).
+
+**Not covered by this audit (corrected 20:55 UTC; "all of its open scope" was too broad):**
+- the 27 modules marked `cited_by_earlier_audit` (citation is a proxy, not proof of a full read);
+- the 35 modules Codex changed under item 2, which are covered by Codex's own GATE reviews;
+- code outside `services/` and `storage/` (`core/`, `scripts/` beyond the six mapped entry points, `dashboard/`);
+- modules not reachable from the six mapped entry points;
+- the server's runtime configuration.
+
+Prior-record search for BA-47 to BA-50: `REMAINING_TASKS.md`, the patch inventory, the desk checks and the work
+log. Only BA-50's cache context was found (T11-1); BA-47 to BA-49 have no earlier record found. Closing the item,
+or reducing its scope, is the owner's decision.
+
+## Session 12 (2026-11-14): Codex's new simulation modules of 2026-11-13/14 (Group B rotation, cash sizing)
+
+Owner: "carry out the next recommended priority task" (2026-11-14). Research item 1 stays open by owner direction; the
+largest uncovered area that the simulation will actually run is the code Codex added in the last 24 hours, reviewed so
+far only by Codex's own reviewer (Nash). Read only; nothing run. Bot relation: BOT_RULES (source). Diffs are against
+Codex's saved pre-change copies in `docs/review_artifacts/group_b_slots_20261113/`, not HEAD.
+
+**Read in full:** `services/execution/paper_weekly_slot.py` (193 lines), `services/market_data/group_b_selection.py`
+(140), `services/analytics/group_b_weekly_selection.py` (67), `scripts/research/build_group_b_weekly_selection.py` (36),
+`services/execution/paper_cash_entry.py` (144; 2026-11-13 23:54Z check).
+**Diffs read in full:** `strategy_runner.py` (70 changed lines), `paper_runner.py` (33), `paper_engine.py` (30),
+`storage/paper_trading_sqlite.py` (86), `storage/intent_queue_sqlite.py` (10).
+**Not covered:** the 2026-11-14 provisioning and precision-repair modules (04:59Z-10:43Z entries), the inactive Group A
+profile candidates, the fresh-account currency repair, the R7 freeze, the new tests, and everything listed as not
+covered after session 11.
+
+| ID | Finding | Owner | Evidence | Severity | Disposition |
+|---|---|---|---|---|---|
+| BA-51 | **Any edit to the three Group B producer files after the study starts halts new entries in every Group B slot, with no recovery path short of state surgery.** `validate_selection` (`group_b_selection.py` line 116) refuses an artifact whose `producer_code` differs from `producer_identity()`, which hashes the three producer files *as they are on disk now* (lines 21-28). Consequences, each SHOWN by reading: (1) consumers: `resolve_slot` catches the error, `allow_buy` stays False (`paper_weekly_slot.py` 104, 128-130); a queued BUY is rejected terminally at consumption (`paper_trading_sqlite.py` lines 1062-1074); exits are retained. (2) A regenerated same-week file is refused because the slot state pinned the old hash (`paper_weekly_slot.py` 105-108, "same_week_replacement_refused"). (3) The producer cannot build the next week either: `build_selection` validates `--previous` with the same check (`group_b_weekly_selection.py` line 26), so the old file fails; omitting `--previous` is a bootstrap whose `previous_sha256` is None, which consumers refuse as "slot_continuity_mismatch" (`paper_weekly_slot.py` 109-112). The spec (section 4) asks that the ranking's code identity be *recorded* "as R6"; refusing artifacts from earlier producer code is stricter than the spec and is not stated in Codex's README (lines 36-39 say the hashes are "included"). Codex edited these files mid-review on 2026-11-14 (04:16Z), which is exactly the event that would trigger this once published files exist. | Codex (source) | SHOWN (code reading; reproduced by execution 2026-11-14T13:31Z on a scratch copy: `ba51_fix_proposal_20261114/repro_output.txt`) | MEDIUM before activation: fail-closed, no money lost, but a 26-week study whose producer cannot be patched without stopping all three slots' entries until manual state and file repair. | Owner delegated 2026-11-14 ("take care of it"): option (a), record-only. Exact change and tests in `ba51_fix_proposal_20261114/PROPOSED_PATCH.md`; Codex applies, tests and has it reviewed. Not applied by Claude. |
+
+**Checked and found sound** (each read whole, consequence traced):
+- Default-off: `resolve_slot` and the guards run only when `group_b_selection` is in the runner config
+  (`strategy_runner.py` lines 1233-1244); default accounts are unchanged.
+- The Group B BUY path is fail-closed three times: at emission (`allow_buy` recheck after market work, 1740-1751), at
+  consumption (`refuse_group_b_buy`, before the engine fill), and again inside the fill transaction with a savepoint
+  rolled back on refusal; a time-bound check uses the artifact's `rank_at`/`valid_until`.
+- A Group B account rejects any BUY that lacks selection evidence when `group_b_guard` is on (TypeError on
+  `meta["group_b_selection"]` becomes a refusal).
+- Rotation sells bypass the signal latch and warm-up deliberately and only when the ledger holds a coin not in the
+  current target (`rotation_symbols`); duplicates are fenced by open intents and durable exits (1901).
+- The slot restarts flat on the new coin and the strategy's own signal decides entry (spec section 4, "the slot
+  restarts flat"); no deviation.
+- `week_at`/`weekly_name`: Monday 00:05 UTC boundary, previous week's file stays valid until then; candle timestamps
+  must be the 200 completed hours before Monday 00:00; the 38 threshold and top-3 pick match spec section 4.
+- `assign_slots` keeps incumbents and fills empty slots in rank order.
+- Publication is atomic (temp file, fsync, hard link that fails if the week's file exists).
+- `buy_selection_verdict` opens `strategy_state.sqlite` read-only with a 0.25 s timeout while the runner writes the
+  slot state every loop; the store is WAL (`strategy_state_sqlite.py` lines 10, 25), so readers do not block. Not a
+  finding (checked before assigning any severity).
+- `resolve_slot` re-reads and re-hashes the whole weekly JSON (up to 4 MB, 25 x 200 candles) and writes the slot state
+  on every 15-second loop (spec `loop_interval_sec` 15). Wasteful, not a fault; noted, no ID.
+- `list_paper_exits` includes retryable `rejected` exits, so a permanently rejected exit blocks slot entry until
+  superseded. Deliberate per Codex's README (lines 52-53); whether every rejected exit is eventually superseded is
+  R12's contract, not re-audited here.
+
+Prior-record search for BA-51: `REMAINING_TASKS.md`, the patch inventory, the omission register, Codex's
+`group_b_slots_20261113/README.md` and `INDEPENDENT_REVIEW` entries in the work log. No earlier record found; the
+mid-review producer edit is in Codex's own 04:46:44Z entry.
+
+Coverage ledger: five rows for the new modules appended (108 data rows; the original 103 gap modules are unchanged).
+
+## Session 13 (2026-11-14): Codex's 2026-11-14 provisioning, precision, profile and currency changes
+
+Owner: "carry out the next recommended priority task" (second time, 2026-11-14). Covers what session 12 left out.
+Read only; nothing run. Diffs against Codex's saved pre-change copies in `docs/review_artifacts/`.
+
+**Read in full:** `services/markets/fetch_coinbase_ccxt.py` (76 lines, after the 10:43Z shared precision repair); the
+provisioning diffs `cli_increment.diff` (scripts/refresh_market_rules.py, +127 lines), `reader_increment.diff`
+(paper_cash_entry.py: `cache_path` keyword only), `cache_increment.diff` (rules.py: `paper_coinbase_precision` flag);
+`paper_account_currency_20261114/initializer.diff` (paper_trading_sqlite.py, 2 conditions, 1 write);
+`paper_profile_candidate_20261114/profiles/breakout-default-btc.yaml` and that README's settings section;
+`services/os/app_paths.py` path resolution.
+**Not covered:** the other eight candidate profiles (same template per Codex's README; not compared line by line), the
+new tests, `LOCAL_CACHE_CHECK.md`, the R7 freeze record, and everything listed after sessions 11 and 12.
+
+No new finding. **Checked and found sound** (consequence traced in each case):
+- Provisioning writes to `<state>/data/execution.sqlite`; the sizing reader uses `data_dir()` = `CBP_STATE_DIR/data`
+  (`app_paths.py` 49-61), so an account provisioned with its own state directory reads the cache it was given.
+- Provisioning reads the rows back through the same `_cached_rules` the sizer uses and refuses on mismatch or an
+  unusable `min_qty`/`min_notional`/`qty_step`; failure text is suppressed (no provider payload in output).
+- Scope: Group A accounts may provision only their configured coin; Group B accounts any of the 25; non-paper or
+  live-armed configs are refused via the same `_paper_only` guard the slot reader uses. Symlinks and SQLite sidecars
+  are refused before any write.
+- Precision: `fetch_coinbase_ccxt` requires ccxt TICK_SIZE mode, takes `precision.amount/price` as increments and
+  cross-checks them against the product's native `base_increment` and `price_increment`; a mismatch marks the market
+  inactive (`INVALID_PRODUCT_INCREMENT`), which the sizer then refuses. Identity is checked against the native product
+  id (line 24). `coinbase_native("BTC-USD")` equals the canonical form, so the sizer's `native_symbol` check passes.
+- Currency repair: `quote_currency` is written only for a certified-fresh account (no cash, origin, currency, orders,
+  fills, positions or equity rows), inside the same transaction as the starting cash; legacy accounts without a
+  currency stay refused by the sizer (fail-closed, as Codex states).
+- Candidate profile matches the frozen spec table: `public_ohlcv_1h`, loop 15 s, $1,000, 50 bps fee, slippage 0
+  (spec line 55), default preset unchanged, `available_cash_v1`, position-aware, full-position sells, market orders,
+  no venue auto-select; exit controls left to the code defaults the spec names.
+- Still open and already recorded, not repeated as new: BA-50 (a failed fetch is cached as inactive for up to 6 h);
+  the 6-hour cache expiry with no automatic BUY retry (Claude 2026-11-13 23:54Z; Codex README); BA-24.
+
+Coverage ledger: `paper_cash_entry.py` row updated (file changed 2026-11-14; diff read); `fetch_coinbase_ccxt.py` and
+`scripts/refresh_market_rules.py` rows appended (110 data rows).
+
+Addendum 2026-11-14T18:59:24Z (session 13 gap closed): the other eight candidate profiles were compared with
+`breakout-default-btc.yaml` after stripping comments. Each differs only in `symbols` (BTC, ETH or SOL /USD) and in
+`strategy_id`/`strategy_name`/`strategy_preset` (`ema_cross`/`ema_cross_default`, `mean_reversion_rsi`/
+`mean_reversion_default`); all 31 lines each; strategy names match `strategy_registry.SUPPORTED` and the preset
+`strategy.name` values. No finding.
+
+## Session 14 (2026-11-14): `core/` (owner: "carry on")
+
+Read only; nothing run. `core/` is 12 files, 633 lines; 18 import sites in `services/` and `storage/`, none on the
+simulation path (the simulation's symbol normalisation is `services/market_data/symbol_router.normalize_symbol`; the
+paper engine, runner and ledgers do not import `core`). Callers: `services/trading_runner/run_trader.py` (a legacy runner
+on a paper venue, LP-01), `services/paper_trader/*`, `services/paper_exec.py`, `services/risk_engine.py`,
+`storage/journal_store_sqlite.py`, `storage/event_store_sqlite.py`, `services/reconciliation/symbol_mapping.py`,
+`services/market_data/symbol_utils.py`.
+
+**Read in full:** `risk_manager.py` (68), `price_aggregator.py` (82), `symbol_parse.py` (22), `symbols.py` (80) and
+their callers' call sites. **Not read:** `models.py` (113), `events.py` (103), `ipc.py` (61), `interfaces.py` (41),
+`event_key.py` (33), `event_factory.py` (30): data classes and event plumbing for the legacy event store; pattern-scanned
+for I/O and arithmetic only.
+
+| ID | Finding | Owner | Evidence | Severity | Disposition |
+|---|---|---|---|---|---|
+| BA-52 | **The legacy runner's risk gate blocks closing sells with entry limits.** `core/risk_manager.allow_order` (lines 35-68) applies trades-per-day, per-symbol position notional (a SELL's quantity is *added* as `abs(qty*price)`, line 57-58), drawdown and minimum cash to every order with no side check; `run_trader.py` 217-219 skips the order on refusal and the EMA state has already recorded the signal (line 193), so the exit is not re-sent. Same pattern as CP-09 on the live path and BA-05. Reachability: `run_trader.py` only, which places orders on a paper venue (LP-01) and is not the default bot or the simulation. | Codex (legacy) | SHOWN by reading | LOW (not on the simulation or live path) | Record; fix only if `run_trader` is ever used; otherwise candidate for retirement. |
+| BA-53 | **Undated price rows pass the staleness filter.** `core/price_aggregator.aggregate_prices` drops a row only when `ts_ms` is present and old (line 114); a row with no `ts_ms`, or an unparsable one, is treated as fresh and enters the median. Caller: `run_trader.py` 164 only. | Codex (legacy) | SHOWN by reading | LOW (same reachability as BA-52) | Record. |
+
+**Checked and found sound or noted without an ID:**
+- `symbol_parse.split_symbol`: separators normalised, known quotes tried in order (USDT before USD, so `BTCUSDT` splits
+  correctly); callers `symbol_utils` and `symbol_mapping` are reconciliation helpers.
+- `core/symbols.normalize_symbol`: a `symbol_map.json` in the state data directory can remap any venue symbol to any
+  canonical name (lines 60-69) before the built-in rules apply; a corrupt file is ignored silently (line 52-53). Used by
+  the legacy event/journal stores and `paper_exec`, not by the simulation's `symbol_router`. INFO: a data file that
+  silently changes symbol identity for those callers; no ID because no reachable trading path depends on it today.
+- `calc_positions_notional` ignores positions without a price (line 29-30), so an unpriced holding does not count toward
+  the cap; part of BA-52's gate, same reachability.
+
+Prior-record search: CP-09, BA-05, LP-01 cover the pattern on other paths; no earlier record of `core/risk_manager` or
+`price_aggregator` found in the registers or REMAINING_TASKS. Coverage ledger: four `core/` rows appended (114 data rows).

@@ -1,0 +1,2 @@
+study_id,family,measurement,candidate_configurations,baseline_configurations,verdict,evaluated_markets,market_week_observations,weekly_clusters,evidence
+EXIT_FILTER_UNBLOCK_20261114,DEFAULT_STRATEGY_EXIT_FILTER_VARIANTS,paired_net_quote_difference_for_fixed_exit_separation_by_symbol_and_S_R_model,30,30,Exploratory comparison only; no DSR or edge claim,5,,,docs/research/exit_variants_spec_20261114/HISTORICAL_COMPARISON.md

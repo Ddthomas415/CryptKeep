@@ -1,0 +1,4 @@
+# python3 -I repro_ba51.py <scratch copy of the three producer files + group_b_selection.py>, 2026-11-14T13:31:25Z, Python 3.10.12, scratch copy outside the repo
+# source hashes at run: e5680a0cbd269679 group_b_selection.py, 30f30d6027b97cfd group_b_weekly_selection.py
+step1 valid artifact accepted: True
+step2 after producer edit: REFUSED selection_identity_or_week

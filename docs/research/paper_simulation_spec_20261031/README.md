@@ -272,6 +272,17 @@ sizing, price/type or evaluation rules and does not authorize start.
 **R11 72-hour commissioning.** Section 9, step 2.
 
 ## 7. Evaluation rules for the fixed coins (Group A): proposed 2026-10-31, owner approval required before the start
+**Dated approval2026-11-14T12:30:20Z:** owner replied "approve carry out the next
+recommended steps" to the explicit question adopting pooled closed-trade minima
+42 breakout/42 EMA/31 mean reversion and each account drawdown no worse than holding
+its coin over the same period. These two choices are now approved and the existing
+evaluation contract is frozen by evaluation/SHA256SUMS. The proposed/approval-required
+wording below records the original draft; it does not leave these two choices pending.
+No other method, cost, threshold, strategy or rule is changed. This is paper evaluation
+only, not live risk approval or statistical certification. Relative drawdown is not
+an absolute loss cap. Original commissioning/start requirements remain; R10 STOPPED.
+Previous approval metadata and exact freeze record: evaluation/approval_20261114/.
+
 **7.1 Two questions, never mixed.** Did the simulation run the bot faithfully (7.2)? Does a strategy show an advantage
 after costs (7.3-7.4)? A failure of the first makes the result inconclusive, not a strategy failure.
 
@@ -334,7 +345,8 @@ which every replayed account exceeds; (b) a fixed limit of the owner's choosing,
 worse than holding the coin over the same window; or (b) and (c) together. The limit is the owner's risk choice (open
 decision 2, capital); research gives the figures above, not the number. If the owner sets no number, (c) applies: it is
 a benchmark, not an invented figure.
-**Drawdown limit approved by the owner: ______ (date ______).**
+**Drawdown limit approved by the owner: (c), no worse than holding the account's own
+coin over the same window; no fixed percentage cap (recorded2026-11-14T12:30:20Z).**
 
 **7.6 Expectation registered before the start.** Replay of the bot's own rules (exit-parity audit, variant
 C_path_w60: 60-candle window, the bot's exit stack, completed OKX hourly candles, BTC/ETH/SOL, 2026-01-01 to 2026-09-30,

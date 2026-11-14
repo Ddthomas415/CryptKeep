@@ -1,0 +1,49 @@
+{
+  "artifact_type": "public_diagnostic_receipt_verification_not_profitability",
+  "status": "INCOMPLETE",
+  "reason": "no_reported_trades_in_local_window",
+  "requests": 10,
+  "http_codes": [
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "bytes_total": 4332592,
+  "largest_body": 971241,
+  "all_raw_sha256_match": true,
+  "all_receipt_files_match": true,
+  "outer_seconds": 9.436,
+  "code_hash_unchanged": true,
+  "actual_account_fills": "UNVERIFIED",
+  "Monday_primary_observations": 0,
+  "orders_submitted": false,
+  "e1_qualified": false,
+  "retry_count": 0,
+  "BTC-USD": {
+    "status": "COMPLETE",
+    "t0_receipt_utc": "2026-11-13T17:31:28.587746+00:00",
+    "final_receipt_utc": "2026-11-13T17:31:32.977063+00:00",
+    "earliest_returned_trade": "2026-11-13T17:31:25.625235Z",
+    "latest_returned_trade": "2026-11-13T17:31:32.544595Z",
+    "books_retained": 3,
+    "trade_interval_coverage": "UNVERIFIED",
+    "source_clock_alignment": "UNVERIFIED"
+  },
+  "ETH-USD": {
+    "status": "INCOMPLETE",
+    "t0_receipt_utc": "2026-11-13T17:31:33.213300+00:00",
+    "final_receipt_utc": "2026-11-13T17:31:37.433671+00:00",
+    "earliest_returned_trade": "2026-11-13T17:31:17.408233Z",
+    "latest_returned_trade": "2026-11-13T17:31:32.804163Z",
+    "books_retained": 3,
+    "trade_interval_coverage": "UNVERIFIED",
+    "source_clock_alignment": "UNVERIFIED"
+  }
+}

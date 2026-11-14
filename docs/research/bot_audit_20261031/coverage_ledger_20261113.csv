@@ -1,0 +1,115 @@
+module,lines,coverage_per_audit_readme,on_simulation_trading_loop,on_simulation_monitor_alert_status
+services/__init__.py,12,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/admin/config_editor.py,265,S2 read in part,yes,yes
+services/admin/health.py,58,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/admin/master_read_only.py,36,S2 read in full,yes,yes
+services/admin/state_report.py,148,S3 pattern scan only,yes,yes
+services/ai_copilot/policy.py,155,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/ai_engine/features.py,60,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/ai_engine/model.py,80,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/ai_engine/signal_service.py,90,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/alerts/email_notifier.py,52,S3 pattern scan + flagged code read,yes,yes
+services/alerts/strategy_decision_events.py,92,S3 pattern scan + flagged code read,no,yes
+services/analytics/crypto_edges.py,319,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/analytics/funding_observations.py,178,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/analytics/journal_analytics.py,174,S7 read,no,yes
+services/analytics/paper_evidence_artifacts.py,97,S7 pattern scan,no,yes
+services/analytics/strategy_feedback.py,295,S7 read,no,yes
+services/audit/operator_event_journal.py,155,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/backtest/evidence_cycle.py,1551,S5 pattern scan,no,yes
+services/backtest/leaderboard.py,254,S5 pattern scan,no,yes
+services/backtest/ohlcv_archive.py,272,S5 read,no,yes
+services/backtest/parity_engine.py,371,S5 read,no,yes
+services/backtest/regimes.py,115,S5 pattern scan,no,yes
+services/backtest/scorecard.py,160,S5 pattern scan,no,yes
+services/backtest/walk_forward.py,406,S5 read,no,yes
+services/config_loader.py,135,S2 read in full,yes,yes
+services/control/allocator.py,117,S6 read,yes,yes
+services/control/cognitive_budget.py,157,S6 read,yes,yes
+services/control/deployment_stage.py,313,S2 read in part,yes,yes
+services/control/kernel.py,289,S6 read,yes,yes
+services/control/paper_evidence_qualification.py,518,S3 pattern scan + flagged code read,no,yes
+services/control/paper_promotion_policy.py,336,S3 pattern scan + flagged code read,no,yes
+services/control/paper_promotion_progress.py,337,S3 pattern scan + flagged code read,no,yes
+services/control/promotion_thresholds.py,7,S3 pattern scan + flagged code read,no,yes
+services/control/retirement_checker.py,84,S3 pattern scan + flagged code read,yes,yes
+services/events/platform_event_journal.py,212,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/coinbase_account_pages.py,230,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/coinbase_balance_observation.py,127,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/coinbase_portfolio_guard.py,53,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/execution/coinbase_v3_accounts.py,75,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/execution/fill_model.py,36,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/execution/intent_lifecycle.py,117,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/intent_ttl.py,112,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/outcome_logger.py,24,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/outcome_summary.py,242,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/execution/safety.py,54,S1 read,yes,yes
+services/execution/state_authority.py,164,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/feature_gate.py,50,S1 read,yes,yes
+services/governance/campaign_state_machine.py,7,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/governance/decision_engine.py,7,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/governance/invalidation.py,12,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/market_data/multi_venue_view.py,64,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/market_data/regime_detector.py,136,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/market_data/symbol_utils.py,5,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/market_data/volume_surge_detector.py,170,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/markets/cache_sqlite.py,88,S5 read,no,no
+services/markets/fetch_binance.py,80,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/markets/fetch_coinbase_ccxt.py,63,S5 read,no,no
+services/markets/fetch_gate.py,26,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/markets/http_json.py,10,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/markets/math_utils.py,33,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/markets/models.py,23,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/markets/prereq.py,23,S5 read,no,no
+services/markets/rules.py,162,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/markets/symbols.py,90,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/ops/risk_gate_contract.py,139,NOT COVERED (or in an unnamed S1 pattern scan),no,no
+services/os/app_paths.py,72,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/os/file_utils.py,45,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/risk/market_quality_guard.py,129,S1 read,yes,yes
+services/risk/position_scaling.py,76,S1 read,yes,yes
+services/risk/risk_daily.py,366,S2 read in full,no,no
+services/risk/staleness_guard.py,21,S1 read,yes,yes
+services/risk/system_health.py,177,S2 read in full,no,no
+services/security/binance_guard.py,17,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/security/exchange_factory.py,79,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/signals/candidate_advisor.py,228,S3 pattern scan only,yes,yes
+services/signals/candidate_store.py,225,S3 pattern scan only,yes,yes
+services/strategies/breakout_volume.py,103,S4 pattern scan,yes,yes
+services/strategies/campaign_summary.py,120,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/strategies/composite_hybrid.py,257,S4 pattern scan,no,yes
+services/strategies/config_tools.py,107,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/strategies/crypto_edge_context.py,200,S7 pattern scan,yes,yes
+services/strategies/es_daily_trend.py,448,S6 read,yes,yes
+services/strategies/evidence_logger.py,511,S4 read,yes,yes
+services/strategies/execution_identity.py,115,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/strategies/funding_extreme.py,33,S4 pattern scan,yes,yes
+services/strategies/gap_fill.py,95,S4 pattern scan,yes,yes
+services/strategies/hypotheses.py,104,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+services/strategies/market_context_capture.py,155,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/strategies/momentum.py,153,S4 guards read,yes,yes
+services/strategies/presets.py,391,S4 read,yes,yes
+services/strategies/pullback_recovery.py,125,S4 guards read,yes,yes
+services/strategies/runtime_execution_identity.py,79,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/strategies/strategy_selector.py,145,S3 pattern scan + flagged code read,yes,yes
+services/strategies/validation.py,58,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+services/strategies/volatility_reversal.py,106,S4 pattern scan,yes,yes
+services/validation/paper_multi_symbol_validation.py,120,S1 read in part (collect_runtime_rows),yes,yes
+storage/__init__.py,0,NOT COVERED (or in an unnamed S1 pattern scan),yes,yes
+storage/crypto_edge_store_sqlite.py,773,S7 pattern scan,yes,yes
+storage/execution_guard_store_sqlite.py,145,S1 read,yes,yes
+storage/market_store_sqlite.py,238,NOT COVERED (or in an unnamed S1 pattern scan),no,yes
+storage/ops_signal_store_sqlite.py,119,S7 read,no,no
+storage/position_state_sqlite.py,98,S2 read in full,yes,yes
+storage/trade_journal_sqlite.py,138,S2 read in full,yes,yes
+services/execution/paper_weekly_slot.py,193,S12 read in full,yes,yes
+services/market_data/group_b_selection.py,140,S12 read in full,yes,no
+services/analytics/group_b_weekly_selection.py,67,S12 read in full (offline producer),no,no
+scripts/research/build_group_b_weekly_selection.py,36,S12 read in full (offline CLI),no,no
+services/execution/paper_cash_entry.py,145,2026-11-13 23:54Z read in full; 2026-11-14 cache_path diff read (S13),yes,no
+services/markets/fetch_coinbase_ccxt.py,76,S13 read in full (after 10:43Z repair),yes,no
+scripts/refresh_market_rules.py,162,S13 paper-mode diff read in full (operator CLI),no,no
+core/risk_manager.py,68,S14 read in full,no,no
+core/price_aggregator.py,82,S14 read in full,no,no
+core/symbol_parse.py,22,S14 read in full,no,no
+core/symbols.py,80,S14 read in full,no,no

@@ -1,0 +1,1 @@
+{"label": "trades", "method": "GET", "product": "ETH-USD", "request_utc": "2026-11-13T17:31:37.453157+00:00", "url": "https://api.exchange.coinbase.com/products/ETH-USD/trades?limit=100"}

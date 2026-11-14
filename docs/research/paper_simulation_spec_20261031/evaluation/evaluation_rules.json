@@ -7,5 +7,5 @@
  "bootstrap_resamples": 10000,
  "seed": 20261031,
  "drawdown_rule": {"type": "hold", "max_drawdown": null},
- "owner_approval": {"minimum_closed_trades": "PENDING", "drawdown_rule": "PENDING (default 'hold' applies if no number is set)", "date": null}
+ "owner_approval": {"minimum_closed_trades": "APPROVED", "drawdown_rule": "APPROVED: hold (no fixed percentage cap)", "date": "2026-11-14T12:30:20Z"}
 }

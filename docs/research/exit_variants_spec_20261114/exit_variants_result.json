@@ -1,0 +1,732 @@
+{
+ "source": "research/multisymbol_baseline_v1 (OKX 1h, 2026-01-01..09-30)",
+ "stack_defaults": {
+  "sl": 0.03,
+  "tp": 0.06,
+  "tr": 0.02,
+  "max_bars": 60
+ },
+ "slippage_bps": 5,
+ "notional_usd": 100.0,
+ "fees": {
+  "25": 0.0025,
+  "50": 0.005,
+  "60": 0.006
+ },
+ "validation_default_S_vs_saved": {
+  "BTC|breakout_default": true,
+  "BTC|ema_cross_default": true,
+  "BTC|mean_reversion_default": true,
+  "ETH|breakout_default": true,
+  "ETH|ema_cross_default": true,
+  "ETH|mean_reversion_default": true,
+  "SOL|breakout_default": true,
+  "SOL|ema_cross_default": true,
+  "SOL|mean_reversion_default": true,
+  "ADA|breakout_default": true,
+  "ADA|ema_cross_default": true,
+  "ADA|mean_reversion_default": true,
+  "XRP|breakout_default": true,
+  "XRP|ema_cross_default": true,
+  "XRP|mean_reversion_default": true
+ },
+ "blocked_sell_bars_default": {
+  "breakout_default": {
+   "BTC": 22,
+   "ETH": 4,
+   "SOL": 21,
+   "ADA": 41,
+   "XRP": 21
+  },
+  "ema_cross_default": {
+   "BTC": 78,
+   "ETH": 76,
+   "SOL": 63,
+   "ADA": 74,
+   "XRP": 79
+  },
+  "mean_reversion_default": {
+   "BTC": 326,
+   "ETH": 406,
+   "SOL": 334,
+   "ADA": 318,
+   "XRP": 321
+  }
+ },
+ "results": {
+  "S": {
+   "default": {
+    "breakout_default": {
+     "25": {
+      "trades": 310,
+      "before_fee_usd": 139.08,
+      "net_usd": -16.27,
+      "fees_usd": 155.35,
+      "win_rate": 0.3323,
+      "profit_factor": 0.969,
+      "max_drawdown_usd": 190.97,
+      "median_hold_h": 39.0
+     },
+     "50": {
+      "trades": 310,
+      "before_fee_usd": 139.08,
+      "net_usd": -171.61,
+      "fees_usd": 310.7,
+      "win_rate": 0.3032,
+      "profit_factor": 0.724,
+      "max_drawdown_usd": 309.14,
+      "median_hold_h": 39.0
+     },
+     "60": {
+      "trades": 310,
+      "before_fee_usd": 139.08,
+      "net_usd": -233.75,
+      "fees_usd": 372.83,
+      "win_rate": 0.2806,
+      "profit_factor": 0.649,
+      "max_drawdown_usd": 358.48,
+      "median_hold_h": 39.0
+     }
+    },
+    "ema_cross_default": {
+     "25": {
+      "trades": 129,
+      "before_fee_usd": 45.13,
+      "net_usd": -19.48,
+      "fees_usd": 64.61,
+      "win_rate": 0.3643,
+      "profit_factor": 0.932,
+      "max_drawdown_usd": 160.84,
+      "median_hold_h": 85.0
+     },
+     "50": {
+      "trades": 129,
+      "before_fee_usd": 45.13,
+      "net_usd": -84.09,
+      "fees_usd": 129.23,
+      "win_rate": 0.3178,
+      "profit_factor": 0.744,
+      "max_drawdown_usd": 204.04,
+      "median_hold_h": 85.0
+     },
+     "60": {
+      "trades": 129,
+      "before_fee_usd": 45.13,
+      "net_usd": -109.94,
+      "fees_usd": 155.07,
+      "win_rate": 0.3101,
+      "profit_factor": 0.683,
+      "max_drawdown_usd": 221.33,
+      "median_hold_h": 85.0
+     }
+    },
+    "mean_reversion_default": {
+     "25": {
+      "trades": 29,
+      "before_fee_usd": -147.71,
+      "net_usd": -161.84,
+      "fees_usd": 14.13,
+      "win_rate": 0.4483,
+      "profit_factor": 0.369,
+      "max_drawdown_usd": 207.65,
+      "median_hold_h": 552.0
+     },
+     "50": {
+      "trades": 29,
+      "before_fee_usd": -147.71,
+      "net_usd": -175.97,
+      "fees_usd": 28.26,
+      "win_rate": 0.3793,
+      "profit_factor": 0.335,
+      "max_drawdown_usd": 216.39,
+      "median_hold_h": 552.0
+     },
+     "60": {
+      "trades": 29,
+      "before_fee_usd": -147.71,
+      "net_usd": -181.62,
+      "fees_usd": 33.91,
+      "win_rate": 0.3793,
+      "profit_factor": 0.322,
+      "max_drawdown_usd": 220.0,
+      "median_hold_h": 552.0
+     }
+    }
+   },
+   "variant": {
+    "breakout_default": {
+     "25": {
+      "trades": 318,
+      "before_fee_usd": 127.83,
+      "net_usd": -31.49,
+      "fees_usd": 159.32,
+      "win_rate": 0.3239,
+      "profit_factor": 0.939,
+      "max_drawdown_usd": 207.84,
+      "median_hold_h": 36.5
+     },
+     "50": {
+      "trades": 318,
+      "before_fee_usd": 127.83,
+      "net_usd": -190.81,
+      "fees_usd": 318.64,
+      "win_rate": 0.2987,
+      "profit_factor": 0.695,
+      "max_drawdown_usd": 333.42,
+      "median_hold_h": 36.5
+     },
+     "60": {
+      "trades": 318,
+      "before_fee_usd": 127.83,
+      "net_usd": -254.54,
+      "fees_usd": 382.37,
+      "win_rate": 0.2799,
+      "profit_factor": 0.62,
+      "max_drawdown_usd": 384.34,
+      "median_hold_h": 36.5
+     }
+    },
+    "ema_cross_default": {
+     "25": {
+      "trades": 206,
+      "before_fee_usd": 63.9,
+      "net_usd": -39.26,
+      "fees_usd": 103.16,
+      "win_rate": 0.3155,
+      "profit_factor": 0.872,
+      "max_drawdown_usd": 153.18,
+      "median_hold_h": 27.0
+     },
+     "50": {
+      "trades": 206,
+      "before_fee_usd": 63.9,
+      "net_usd": -142.42,
+      "fees_usd": 206.32,
+      "win_rate": 0.2621,
+      "profit_factor": 0.624,
+      "max_drawdown_usd": 215.45,
+      "median_hold_h": 27.0
+     },
+     "60": {
+      "trades": 206,
+      "before_fee_usd": 63.9,
+      "net_usd": -183.68,
+      "fees_usd": 247.58,
+      "win_rate": 0.2427,
+      "profit_factor": 0.551,
+      "max_drawdown_usd": 240.36,
+      "median_hold_h": 27.0
+     }
+    },
+    "mean_reversion_default": {
+     "25": {
+      "trades": 53,
+      "before_fee_usd": -142.88,
+      "net_usd": -169.02,
+      "fees_usd": 26.14,
+      "win_rate": 0.5283,
+      "profit_factor": 0.32,
+      "max_drawdown_usd": 185.75,
+      "median_hold_h": 116.0
+     },
+     "50": {
+      "trades": 53,
+      "before_fee_usd": -142.88,
+      "net_usd": -195.16,
+      "fees_usd": 52.29,
+      "win_rate": 0.4717,
+      "profit_factor": 0.252,
+      "max_drawdown_usd": 202.83,
+      "median_hold_h": 116.0
+     },
+     "60": {
+      "trades": 53,
+      "before_fee_usd": -142.88,
+      "net_usd": -205.62,
+      "fees_usd": 62.74,
+      "win_rate": 0.4528,
+      "profit_factor": 0.228,
+      "max_drawdown_usd": 209.66,
+      "median_hold_h": 116.0
+     }
+    }
+   }
+  },
+  "R": {
+   "default": {
+    "breakout_default": {
+     "25": {
+      "trades": 543,
+      "before_fee_usd": 140.32,
+      "net_usd": -131.53,
+      "fees_usd": 271.85,
+      "win_rate": 0.3094,
+      "profit_factor": 0.77,
+      "max_drawdown_usd": 180.38,
+      "median_hold_h": 6.0
+     },
+     "50": {
+      "trades": 543,
+      "before_fee_usd": 140.32,
+      "net_usd": -403.38,
+      "fees_usd": 543.7,
+      "win_rate": 0.2634,
+      "profit_factor": 0.473,
+      "max_drawdown_usd": 412.67,
+      "median_hold_h": 6.0
+     },
+     "60": {
+      "trades": 543,
+      "before_fee_usd": 140.32,
+      "net_usd": -512.12,
+      "fees_usd": 652.44,
+      "win_rate": 0.2376,
+      "profit_factor": 0.394,
+      "max_drawdown_usd": 520.19,
+      "median_hold_h": 6.0
+     }
+    },
+    "ema_cross_default": {
+     "25": {
+      "trades": 204,
+      "before_fee_usd": 38.04,
+      "net_usd": -64.06,
+      "fees_usd": 102.1,
+      "win_rate": 0.2941,
+      "profit_factor": 0.715,
+      "max_drawdown_usd": 87.05,
+      "median_hold_h": 8.0
+     },
+     "50": {
+      "trades": 204,
+      "before_fee_usd": 38.04,
+      "net_usd": -166.15,
+      "fees_usd": 204.19,
+      "win_rate": 0.2549,
+      "profit_factor": 0.445,
+      "max_drawdown_usd": 179.41,
+      "median_hold_h": 8.0
+     },
+     "60": {
+      "trades": 204,
+      "before_fee_usd": 38.04,
+      "net_usd": -206.99,
+      "fees_usd": 245.03,
+      "win_rate": 0.2402,
+      "profit_factor": 0.372,
+      "max_drawdown_usd": 219.03,
+      "median_hold_h": 8.0
+     }
+    },
+    "mean_reversion_default": {
+     "25": {
+      "trades": 87,
+      "before_fee_usd": -35.79,
+      "net_usd": -79.2,
+      "fees_usd": 43.41,
+      "win_rate": 0.2069,
+      "profit_factor": 0.285,
+      "max_drawdown_usd": 84.58,
+      "median_hold_h": 11.0
+     },
+     "50": {
+      "trades": 87,
+      "before_fee_usd": -35.79,
+      "net_usd": -122.61,
+      "fees_usd": 86.82,
+      "win_rate": 0.1609,
+      "profit_factor": 0.162,
+      "max_drawdown_usd": 127.47,
+      "median_hold_h": 11.0
+     },
+     "60": {
+      "trades": 87,
+      "before_fee_usd": -35.79,
+      "net_usd": -139.97,
+      "fees_usd": 104.19,
+      "win_rate": 0.1494,
+      "profit_factor": 0.13,
+      "max_drawdown_usd": 144.63,
+      "median_hold_h": 11.0
+     }
+    }
+   },
+   "variant": {
+    "breakout_default": {
+     "25": {
+      "trades": 543,
+      "before_fee_usd": 141.39,
+      "net_usd": -130.46,
+      "fees_usd": 271.85,
+      "win_rate": 0.3094,
+      "profit_factor": 0.772,
+      "max_drawdown_usd": 179.32,
+      "median_hold_h": 6.0
+     },
+     "50": {
+      "trades": 543,
+      "before_fee_usd": 141.39,
+      "net_usd": -402.32,
+      "fees_usd": 543.71,
+      "win_rate": 0.2634,
+      "profit_factor": 0.473,
+      "max_drawdown_usd": 411.6,
+      "median_hold_h": 6.0
+     },
+     "60": {
+      "trades": 543,
+      "before_fee_usd": 141.39,
+      "net_usd": -511.06,
+      "fees_usd": 652.45,
+      "win_rate": 0.2376,
+      "profit_factor": 0.395,
+      "max_drawdown_usd": 519.13,
+      "median_hold_h": 6.0
+     }
+    },
+    "ema_cross_default": {
+     "25": {
+      "trades": 206,
+      "before_fee_usd": 42.81,
+      "net_usd": -60.3,
+      "fees_usd": 103.11,
+      "win_rate": 0.2913,
+      "profit_factor": 0.729,
+      "max_drawdown_usd": 85.98,
+      "median_hold_h": 7.0
+     },
+     "50": {
+      "trades": 206,
+      "before_fee_usd": 42.81,
+      "net_usd": -163.4,
+      "fees_usd": 206.21,
+      "win_rate": 0.2524,
+      "profit_factor": 0.451,
+      "max_drawdown_usd": 176.66,
+      "median_hold_h": 7.0
+     },
+     "60": {
+      "trades": 206,
+      "before_fee_usd": 42.81,
+      "net_usd": -204.65,
+      "fees_usd": 247.46,
+      "win_rate": 0.2379,
+      "profit_factor": 0.377,
+      "max_drawdown_usd": 216.69,
+      "median_hold_h": 7.0
+     }
+    },
+    "mean_reversion_default": {
+     "25": {
+      "trades": 87,
+      "before_fee_usd": -33.81,
+      "net_usd": -77.22,
+      "fees_usd": 43.42,
+      "win_rate": 0.2069,
+      "profit_factor": 0.303,
+      "max_drawdown_usd": 81.01,
+      "median_hold_h": 11.0
+     },
+     "50": {
+      "trades": 87,
+      "before_fee_usd": -33.81,
+      "net_usd": -120.64,
+      "fees_usd": 86.83,
+      "win_rate": 0.1609,
+      "profit_factor": 0.176,
+      "max_drawdown_usd": 123.91,
+      "median_hold_h": 11.0
+     },
+     "60": {
+      "trades": 87,
+      "before_fee_usd": -33.81,
+      "net_usd": -138.01,
+      "fees_usd": 104.2,
+      "win_rate": 0.1494,
+      "profit_factor": 0.143,
+      "max_drawdown_usd": 141.08,
+      "median_hold_h": 11.0
+     }
+    }
+   }
+  }
+ },
+ "exit_rules": {
+  "S": {
+   "default": {
+    "breakout_default": {
+     "signal": 306,
+     "terminal": 4
+    },
+    "ema_cross_default": {
+     "signal": 128,
+     "terminal": 1
+    },
+    "mean_reversion_default": {
+     "signal": 26,
+     "terminal": 3
+    }
+   },
+   "variant": {
+    "breakout_default": {
+     "signal": 314,
+     "terminal": 4
+    },
+    "ema_cross_default": {
+     "signal": 206
+    },
+    "mean_reversion_default": {
+     "signal": 52,
+     "terminal": 1
+    }
+   }
+  },
+  "R": {
+   "default": {
+    "breakout_default": {
+     "signal": 11,
+     "take_profit": 53,
+     "time_stop": 11,
+     "trailing_stop": 468
+    },
+    "ema_cross_default": {
+     "signal": 3,
+     "take_profit": 19,
+     "time_stop": 7,
+     "trailing_stop": 175
+    },
+    "mean_reversion_default": {
+     "signal": 1,
+     "take_profit": 2,
+     "time_stop": 4,
+     "trailing_stop": 80
+    }
+   },
+   "variant": {
+    "breakout_default": {
+     "signal": 15,
+     "take_profit": 53,
+     "time_stop": 10,
+     "trailing_stop": 465
+    },
+    "ema_cross_default": {
+     "signal": 20,
+     "take_profit": 20,
+     "time_stop": 3,
+     "trailing_stop": 163
+    },
+    "mean_reversion_default": {
+     "signal": 7,
+     "time_stop": 2,
+     "trailing_stop": 78
+    }
+   }
+  }
+ },
+ "by_coin_net50": {
+  "S": {
+   "default": {
+    "breakout_default": {
+     "BTC": -45.39,
+     "ETH": -24.58,
+     "SOL": -5.56,
+     "ADA": -63.1,
+     "XRP": -32.98
+    },
+    "ema_cross_default": {
+     "BTC": -41.4,
+     "ETH": 22.53,
+     "SOL": -14.18,
+     "ADA": -17.82,
+     "XRP": -33.23
+    },
+    "mean_reversion_default": {
+     "BTC": -26.77,
+     "ETH": -38.15,
+     "SOL": -60.94,
+     "ADA": -4.86,
+     "XRP": -45.25
+    }
+   },
+   "variant": {
+    "breakout_default": {
+     "BTC": -50.1,
+     "ETH": -24.58,
+     "SOL": -16.74,
+     "ADA": -67.28,
+     "XRP": -32.1
+    },
+    "ema_cross_default": {
+     "BTC": -26.39,
+     "ETH": -0.75,
+     "SOL": -23.47,
+     "ADA": -48.99,
+     "XRP": -42.82
+    },
+    "mean_reversion_default": {
+     "BTC": -29.02,
+     "ETH": -43.27,
+     "SOL": -56.25,
+     "ADA": -39.99,
+     "XRP": -26.63
+    }
+   }
+  },
+  "R": {
+   "default": {
+    "breakout_default": {
+     "BTC": -74.73,
+     "ETH": -72.02,
+     "SOL": -73.6,
+     "ADA": -142.23,
+     "XRP": -40.8
+    },
+    "ema_cross_default": {
+     "BTC": -22.01,
+     "ETH": -19.73,
+     "SOL": -38.03,
+     "ADA": -69.16,
+     "XRP": -17.23
+    },
+    "mean_reversion_default": {
+     "BTC": -33.44,
+     "ETH": -21.88,
+     "SOL": -19.57,
+     "ADA": -23.83,
+     "XRP": -23.9
+    }
+   },
+   "variant": {
+    "breakout_default": {
+     "BTC": -74.04,
+     "ETH": -72.02,
+     "SOL": -73.6,
+     "ADA": -142.23,
+     "XRP": -40.42
+    },
+    "ema_cross_default": {
+     "BTC": -20.52,
+     "ETH": -18.72,
+     "SOL": -37.14,
+     "ADA": -68.75,
+     "XRP": -18.27
+    },
+    "mean_reversion_default": {
+     "BTC": -31.48,
+     "ETH": -19.96,
+     "SOL": -19.89,
+     "ADA": -25.41,
+     "XRP": -23.9
+    }
+   }
+  }
+ },
+ "difference_variant_minus_default": {
+  "S": {
+   "breakout_default": {
+    "25": {
+     "net_usd": -15.22,
+     "before_fee_usd": -11.25,
+     "trades": 8
+    },
+    "50": {
+     "net_usd": -19.2,
+     "before_fee_usd": -11.25,
+     "trades": 8
+    },
+    "60": {
+     "net_usd": -20.79,
+     "before_fee_usd": -11.25,
+     "trades": 8
+    }
+   },
+   "ema_cross_default": {
+    "25": {
+     "net_usd": -19.78,
+     "before_fee_usd": 18.77,
+     "trades": 77
+    },
+    "50": {
+     "net_usd": -58.33,
+     "before_fee_usd": 18.77,
+     "trades": 77
+    },
+    "60": {
+     "net_usd": -73.74,
+     "before_fee_usd": 18.77,
+     "trades": 77
+    }
+   },
+   "mean_reversion_default": {
+    "25": {
+     "net_usd": -7.18,
+     "before_fee_usd": 4.83,
+     "trades": 24
+    },
+    "50": {
+     "net_usd": -19.19,
+     "before_fee_usd": 4.83,
+     "trades": 24
+    },
+    "60": {
+     "net_usd": -24.0,
+     "before_fee_usd": 4.83,
+     "trades": 24
+    }
+   }
+  },
+  "R": {
+   "breakout_default": {
+    "25": {
+     "net_usd": 1.07,
+     "before_fee_usd": 1.07,
+     "trades": 0
+    },
+    "50": {
+     "net_usd": 1.06,
+     "before_fee_usd": 1.07,
+     "trades": 0
+    },
+    "60": {
+     "net_usd": 1.06,
+     "before_fee_usd": 1.07,
+     "trades": 0
+    }
+   },
+   "ema_cross_default": {
+    "25": {
+     "net_usd": 3.76,
+     "before_fee_usd": 4.77,
+     "trades": 2
+    },
+    "50": {
+     "net_usd": 2.75,
+     "before_fee_usd": 4.77,
+     "trades": 2
+    },
+    "60": {
+     "net_usd": 2.34,
+     "before_fee_usd": 4.77,
+     "trades": 2
+    }
+   },
+   "mean_reversion_default": {
+    "25": {
+     "net_usd": 1.98,
+     "before_fee_usd": 1.98,
+     "trades": 0
+    },
+    "50": {
+     "net_usd": 1.97,
+     "before_fee_usd": 1.98,
+     "trades": 0
+    },
+    "60": {
+     "net_usd": 1.96,
+     "before_fee_usd": 1.98,
+     "trades": 0
+    }
+   }
+  }
+ }
+}

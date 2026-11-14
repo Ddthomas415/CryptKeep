@@ -1,0 +1,108 @@
+{
+  "comparison": {
+    "harness_reference_match": true,
+    "input_hashes_equal": true,
+    "only_different_top_level_keys": [
+      "periods"
+    ],
+    "replayed_local_period_labels": {
+      "A": [
+        "2016-07-31",
+        "2019-12-30"
+      ],
+      "B": [
+        "2019-12-31",
+        "2023-12-30"
+      ],
+      "C": [
+        "2023-12-31",
+        "2026-10-07"
+      ],
+      "FULL": [
+        "2016-07-31",
+        "2026-10-07"
+      ],
+      "S2018": [
+        "2017-12-31",
+        "2026-10-07"
+      ]
+    },
+    "results_equal": true,
+    "saved_period_labels": {
+      "A": [
+        "2016-08-01",
+        "2019-12-31"
+      ],
+      "B": [
+        "2020-01-01",
+        "2023-12-31"
+      ],
+      "C": [
+        "2024-01-01",
+        "2026-10-08"
+      ],
+      "FULL": [
+        "2016-08-01",
+        "2026-10-08"
+      ],
+      "S2018": [
+        "2018-01-01",
+        "2026-10-08"
+      ]
+    }
+  },
+  "concentration": {
+    "0.005": {
+      "closed_net_usd": 84530.94,
+      "mean_excluding_top10_pct_returns": 2.253877551020408,
+      "mean_return_pct": 16.639166666666668,
+      "median_return_pct": -2.815,
+      "open_spells_pnl_usd": 16894.75,
+      "remaining_after_top10_usd": -26688.7,
+      "round_trips": 108,
+      "top5_share_pct": 82.08376719814069
+    },
+    "0.012": {
+      "closed_net_usd": 41557.79,
+      "mean_excluding_top10_pct_returns": 0.5995918367346939,
+      "mean_return_pct": 14.64712962962963,
+      "median_return_pct": -4.165,
+      "open_spells_pnl_usd": 7889.86,
+      "remaining_after_top10_usd": -24981.85,
+      "round_trips": 108,
+      "top5_share_pct": 98.80823787790446
+    }
+  },
+  "descriptive": {
+    "byte_hash_equal": true,
+    "entire_json_equal": true
+  },
+  "es": {
+    "assumptions": true,
+    "buy_and_hold_from_first_tradable_bar": true,
+    "cells": true,
+    "input_rows_sha256": true,
+    "rows": true,
+    "source_hash_differences": {
+      "services/strategies/strategy_registry.py": {
+        "current": "db4cc349310eac07ef82d50e6c8c779b39fa788a265fc837681325f797049692",
+        "old": "e27facd6fd05f3a89c5559194e5cc6f61bf06a3e708596b62d5603e0bbbebae1"
+      }
+    },
+    "validation_against_parity_engine": true
+  },
+  "python": "3.12.10 (v3.12.10:0cc81280367, Apr  8 2025, 08:46:59) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "report_input_sha256": {
+    "docs/research/btc_eth_forward_experiment_20261112/CRITERIA_DRAFT.md": "9dc85f1ad05c57947e14c6df67991604b49041cb37da773f7165ddf3edd811d1",
+    "docs/research/forensic_audit_20261112/README.md": "26214c8c1b19a44080afc1b664acd1141cebc57f225685d073b88d674f8de630",
+    "docs/research/second_stage_review_20261112/README.md": "ea82402772f40fae078cebe55bc58f71c4a4656b58f529bb927b07c1cda117e0"
+  },
+  "stress": {
+    "baseline": true,
+    "bootstrap": true,
+    "required_1": true,
+    "required_2": true,
+    "variants": true,
+    "verdict": true
+  }
+}

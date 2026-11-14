@@ -1,0 +1,11 @@
+{
+ "spec": "docs/research/paper_simulation_spec_20261031/README.md v2, sections 7.3-7.5",
+ "starting_cash": 1000,
+ "fee_rate_per_side": 0.005,
+ "minimum_closed_trades": {"breakout_default": 42, "ema_cross_default": 42, "mean_reversion_default": 31},
+ "alpha_per_strategy": 0.016666666666666666,
+ "bootstrap_resamples": 10000,
+ "seed": 20261031,
+ "drawdown_rule": {"type": "hold", "max_drawdown": null},
+ "owner_approval": {"minimum_closed_trades": "PENDING", "drawdown_rule": "PENDING (default 'hold' applies if no number is set)", "date": null}
+}
